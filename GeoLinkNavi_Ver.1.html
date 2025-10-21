@@ -155,29 +155,23 @@
             transform: scale(1.05);
         }
 
-.history-popup, .bookmark-popup {
-    position: absolute;
-    top: 70px;
-    background: var(--bg-container);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-base);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    width: 320px;
-    max-height: 450px;
-    padding: 10px;
-    z-index: 1050; /* マップやオートコンプリートリストよりも高く設定 */
-    display: none;
-    color: var(--text-dark);
-    /* history-popupはright: 15px; */
-    /* bookmark-popupはright: 70px; のまま */
-}
+        .history-popup, .bookmark-popup {
+            position: absolute;
+            top: 70px;
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-base);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: 320px;
+            max-height: 450px;
+            padding: 10px;
+            z-index: 1050; /* マップやオートコンプリートリストよりも高く設定 */
+            display: none;
+            color: var(--text-dark);
+        }
 
-.history-popup { right: 15px; z-index: 1050; } /* 念のためここにも個別に指定 */
-.bookmark-popup { right: 70px; z-index: 1050; } /* 念のためここにも個別に指定 */
-
-/* Leafletマップのz-indexはデフォルトで高い場合があるので、
-   必要に応じて調整。今回はポップアップをより高く設定。
-   Leafletのコントロールはデフォルトでz-index: 1000なので、それより高く。 */
+        .history-popup { right: 15px; z-index: 1050; }
+        .bookmark-popup { right: 70px; z-index: 1050; }
         
         .history-popup h4, .bookmark-popup h4 {
             margin-bottom: 10px;
@@ -285,8 +279,8 @@
             gap: 6px;
         }
         .toggle-btn:hover { background: rgba(255, 255, 255, 0.3); }
-        .toggle-icon { transition: transform 0.3s; }
-        .toggle-icon.open { transform: rotate(180deg); }
+        .toggle-icon { transition: transform 0.3s; transform: rotate(0deg); }
+        .toggle-icon.open { transform: rotate(90deg); }
         .usage-guide {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 10px;
@@ -342,7 +336,6 @@
             font-size: 14px;
         }
 
-        /* 修正箇所: チェックボックスコンテナのスタイル */
         .category-filter-checkboxes {
             display: flex;
             flex-wrap: wrap;
@@ -358,7 +351,7 @@
             background-color: var(--card-bg);
             transition: all 0.2s;
             color: var(--text-dark);
-            font-weight: bold; /* ラベルの文字を太字に */
+            font-weight: bold;
             font-size: 14px;
         }
         .category-filter-checkboxes label:hover {
@@ -369,9 +362,8 @@
             margin-right: 8px;
             width: 16px;
             height: 16px;
-            accent-color: var(--primary-color); /* チェックボックスの色 */
+            accent-color: var(--primary-color);
         }
-        /* -- 修正箇所ここまで -- */
         
         .input-row {
             display: flex;
@@ -380,19 +372,18 @@
             flex-wrap: wrap;
         }
         
-        /* 緯度・経度・住所検索の入力欄を横並びにし、住所欄の幅を広くする */
         .input-group { 
             flex: 1; 
-            min-width: 180px; /* 緯度・経度入力欄の最小幅 */
-            position: relative; /* オートコンプリートリストの基準点として追加 */
+            min-width: 180px;
+            position: relative;
         }
-        .input-row > .input-group:nth-child(5), /* 緯度 */
-        .input-row > .input-group:nth-child(6) { /* 経度 */
+        .input-row > .input-group:nth-child(5),
+        .input-row > .input-group:nth-child(6) {
             flex: 1; 
         }
-        .input-row > .input-group:nth-child(7) { /* 住所 */
-            flex: 2; /* この数字を大きくすると、さらに住所欄が広くなります */
-            min-width: 250px; /* 住所入力欄の最小幅 */
+        .input-row > .input-group:nth-child(7) {
+            flex: 2;
+            min-width: 250px;
         }
 
         .input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark); font-size: 14px; transition: color 0.5s; }
@@ -414,7 +405,6 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
-        /* ★ 修正: 共通ボタンベースのスタイル */
         .btn-base {
             padding: 12px 25px;
             border: none;
@@ -431,7 +421,6 @@
             justify-content: center;
         }
         
-        /* ★ 追加: アイコンボタン用のスタイル */
         .btn-icon {
             min-width: 0;
             width: 48px;
@@ -451,7 +440,7 @@
         .btn-save-bookmark { background: var(--btn-save-bookmark-bg); color: var(--text-dark); }
         .btn-save-bookmark:hover { background: var(--btn-save-bookmark-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4); }
 
-        .btn-address-search { background: var(--btn-address-search-bg); } /* 新しいボタンの色 */
+        .btn-address-search { background: var(--btn-address-search-bg); }
         .btn-address-search:hover { background: var(--btn-address-search-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(96, 125, 139, 0.4); }
         .btn-address-search {
             font-size: 18px;
@@ -465,9 +454,88 @@
             align-items: center;
         }
         
-        .setting-item { display: flex; align-items: center; gap: 10px; }
-        .setting-item label { font-size: 13px; color: var(--text-medium); transition: color 0.5s; }
-        .setting-item input { width: 80px; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6mm; background-color: var(--card-bg); color: var(--text-dark); }
+        /* ズームレベルスライダーの新しいスタイル */
+        /* 地図の右下に配置するためのラッパー */
+        .zoom-slider-overlay {
+            position: absolute;
+            bottom: 10px; /* 地図の下端からの距離 */
+            right: 10px; /* 地図の右端からの距離 */
+            background: rgba(255, 255, 255, 0.8); /* 半透明の背景 */
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000; /* マップコントロールより上 */
+            color: var(--text-dark);
+            transition: background 0.5s, color 0.5s, box-shadow 0.5s;
+        }
+
+        body.dark-mode .zoom-slider-overlay {
+            background: rgba(31, 41, 55, 0.8);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+            color: var(--text-dark);
+        }
+
+        .zoom-slider-overlay label {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap; /* テキストの折り返しを防ぐ */
+        }
+        .zoom-slider-overlay input[type="range"] {
+            width: 120px; /* スライダーの幅を調整 */
+            height: 8px; /* スライダーの高さ */
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            transition: background 0.2s;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+        }
+        .zoom-slider-overlay input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            border: 2px solid var(--bg-container);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .zoom-slider-overlay input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            border: 2px solid var(--bg-container);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .zoom-slider-overlay input[type="range"]:hover::-webkit-slider-thumb,
+        .zoom-slider-overlay input[type="range"]:active::-webkit-slider-thumb {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+        .zoom-slider-overlay input[type="range"]:hover::-moz-range-thumb,
+        .zoom-slider-overlay input[type="range"]:active::-moz-range-thumb {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+        .zoom-slider-overlay #zoomLevelDisplay {
+            font-weight: 700;
+            color: var(--primary-color);
+            width: 25px; /* 表示領域の幅を固定 */
+            text-align: center;
+            font-size: 14px;
+        }
+
 
         /* 座標プレビュー（アコーディオン） */
         .map-preview-container { margin-top: 10px; padding-top: 15px; border-top: 1px solid var(--border-color); transition: border-color 0.5s; }
@@ -481,6 +549,7 @@
 
         /* OSMマップコンテナのスタイル */
         #osmClickMap {
+            position: relative; /* スライダーをオーバーレイするために必要 */
             width: 100%; 
             height: 500px;
             border: 3px solid var(--secondary-color); 
@@ -614,24 +683,23 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-/* ★ 修正: オートコンプリートリストのスタイル */
-#autocompleteList {
-    position: absolute;
-    top: 100%; /* inputフィールドの直下に表示 */
-    left: 0;
-    right: 0;
-    background-color: var(--autocomplete-bg);
-    border: 1px solid var(--autocomplete-border);
-    border-radius: var(--radius-base);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1001; /* ★ ここを修正しました。マップよりも高く設定 */
-    list-style: none;
-    padding: 5px 0;
-    margin-top: 5px; /* inputフィールドとの間に少し隙間 */
-    display: none; /* デフォルトは非表示 */
-}
+        #autocompleteList {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--autocomplete-bg);
+            border: 1px solid var(--autocomplete-border);
+            border-radius: var(--radius-base);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            list-style: none;
+            padding: 5px 0;
+            margin-top: 5px;
+            display: none;
+        }
 
         #autocompleteList.show {
             display: block;
@@ -679,12 +747,35 @@
             .filter-row { flex-direction: column; align-items: flex-start; }
             .category-filter-checkboxes { width: 100%; }
 
-            /* ★ オートコンプリートリストのモバイル対応 */
             #autocompleteList {
-                width: calc(100% - 40px); /* 左右のpaddingを考慮 */
-                left: 20px; /* input-sectionのpaddingに合わせる */
+                width: calc(100% - 40px);
+                left: 20px;
                 right: 20px;
-                z-index: 1001; /* ここにも明示的に指定しておくと確実 */
+                z-index: 1001;
+            }
+
+            /* ズームスライダーのモバイル調整 */
+            .zoom-slider-overlay {
+                bottom: 5px;
+                right: 5px;
+                padding: 6px 10px;
+                gap: 5px;
+            }
+            .zoom-slider-overlay label {
+                font-size: 12px;
+            }
+            .zoom-slider-overlay input[type="range"] {
+                width: 80px;
+                height: 6px;
+            }
+            .zoom-slider-overlay input[type="range"]::-webkit-slider-thumb,
+            .zoom-slider-overlay input[type="range"]::-moz-range-thumb {
+                width: 16px;
+                height: 16px;
+            }
+            .zoom-slider-overlay #zoomLevelDisplay {
+                width: 20px;
+                font-size: 13px;
             }
         }
     </style>
@@ -723,7 +814,7 @@
             <div class="usage-toggle">
                 <button class="toggle-btn" onclick="toggleUsage()">
                     💡 使い方を見る
-                    <span class="toggle-icon" id="toggleIcon">▼</span>
+                    <span class="toggle-icon" id="toggleIcon">▶</span>
                 </button>
                 <div class="usage-guide" id="usageGuide">
                     <p>このツールは、入力した緯度・経度をもとに、各種オンライン地図や図面サイトなどの情報ページへ、ワンクリックで素早くアクセスできるものです。</p>
@@ -759,26 +850,28 @@
                     <label for="longitude">📍 経度 (Longitude)</label>
                     <input type="text" id="longitude" placeholder="例: 139.7678439654698" value="139.7678439654698">
                 </div>
-                <div class="input-group" style="position: relative;"> <!-- ★ 修正: position: relative を追加 -->
+                <div class="input-group" style="position: relative;">
                     <label for="addressInput">🏠 住所や名称などから検索</label>
                     <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1、東京タワー">
-                    <div id="autocompleteList" class="autocomplete-list"></div> <!-- ★ 追加: オートコンプリートリスト -->
+                    <div id="autocompleteList" class="autocomplete-list"></div>
                 </div>
                 <button class="btn-base btn-address-search" onclick="searchAddress()" title="住所を検索" aria-label="住所を検索">🔎 検索</button>
             </div>
             
-            <div class="settings-row">
-                <div class="setting-item">
-                    <label for="zoomLevel">ズームレベル (1-20):</label>
-                    <input type="number" id="zoomLevel" value="16" min="1" max="20">
-                </div>
-            </div>
+            <!-- ズームレベルスライダーは地図内に移動するため、ここから削除 -->
 
             <div style="margin-top: 5px; border-top: 1px solid var(--border-color); padding-top: 15px;">
                 <div class="osm-map-header">
                     <h3 style="font-size: 16px; margin: 0; color: var(--text-dark);">🗺️ クリックで座標取得 / 地図プレビュー</h3>
                 </div>
-                <div id="osmClickMap"></div>
+                <div id="osmClickMap">
+                    <!-- ズームレベルスライダーのオーバーレイを地図内に配置 -->
+                    <div class="zoom-slider-overlay">
+                        <label for="zoomLevel">ズーム:</label>
+                        <input type="range" id="zoomLevel" value="16" min="1" max="20">
+                        <span id="zoomLevelDisplay">16</span>
+                    </div>
+                </div>
                 <p style="margin-top: 10px; font-size: 0.85em; color: var(--text-medium);">地図上をクリック → 緯度経度が入力欄に反映 → 下のGoogleマッププレビューも自動更新</p>
             </div>
             
@@ -927,6 +1020,7 @@
         const $lon = document.getElementById('longitude');
         const $coordsDisplay = document.getElementById('currentCoords');
         const $zoom = document.getElementById('zoomLevel');
+        const $zoomDisplay = document.getElementById('zoomLevelDisplay');
         const $container = document.getElementById('map-categories-container');
         const $notification = document.getElementById('notification');
         const $mapPreview = document.getElementById('mapPreview'); 
@@ -938,7 +1032,7 @@
         const $currentZoom = document.getElementById('currentZoom'); 
         const $addressInput = document.getElementById('addressInput');
         const $categoryFilterCheckboxes = document.getElementById('categoryFilterCheckboxes');
-        const $autocompleteList = document.getElementById('autocompleteList'); // ★ 追加
+        const $autocompleteList = document.getElementById('autocompleteList');
 
         const MAX_HISTORY = 100; 
         const BOOKMARK_KEY = 'coordinateBookmarks'; 
@@ -946,9 +1040,9 @@
         let osmMap = null; 
         let osmMarker = null;
         let currentBaseLayer = null; 
-        let autocompleteTimer = null; // ★ 追加: デバウンス用タイマー
-        let currentAutocompleteResults = []; // ★ 追加: 現在のオートコンプリート結果
-        let selectedAutocompleteIndex = -1; // ★ 追加: キーボード選択中のインデックス
+        let autocompleteTimer = null;
+        let currentAutocompleteResults = [];
+        let selectedAutocompleteIndex = -1;
 
         /**
          * 通知ポップアップを表示
@@ -983,6 +1077,7 @@
                 $coordsDisplay.textContent = 
                     `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
                 $currentZoom.textContent = zoomNum;
+                $zoomDisplay.textContent = zoomNum;
 
                 updateMapPreview(latNum, lonNum); 
                 
@@ -1105,6 +1200,7 @@
                     
                     if (newZoom !== currentZoom) {
                         $zoom.value = newZoom;
+                        $zoomDisplay.textContent = newZoom;
                     }
                 });
 
@@ -1116,6 +1212,7 @@
                     $lat.value = newLat;
                     $lon.value = newLon;
                     $zoom.value = newZoom; 
+                    $zoomDisplay.textContent = newZoom;
                     
                     updateCurrentCoords();
                     
@@ -1189,8 +1286,8 @@
          * @param {string} query - 検索クエリ
          * @returns {Array<Object>} 検索結果の配列
          */
-        async function getAddressSuggestions(query) { // ★ 追加
-            if (query.length < 2) return []; // 短すぎるクエリは検索しない
+        async function getAddressSuggestions(query) {
+            if (query.length < 2) return [];
 
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=jp`;
             
@@ -1273,6 +1370,7 @@
             $lat.value = item.lat;
             $lon.value = item.lon;
             $zoom.value = item.zoom;
+            $zoomDisplay.textContent = item.zoom;
             
             updateCurrentCoords(true); 
             toggleHistoryPopup(false); 
@@ -1451,6 +1549,7 @@
             $lat.value = item.lat;
             $lon.value = item.lon;
             $zoom.value = item.zoom;
+            $zoomDisplay.textContent = item.zoom;
             
             updateCurrentCoords(true); 
             toggleBookmarkPopup(false); 
@@ -1608,7 +1707,7 @@
         }
 
         // =========================================================
-        // 6. メイン機能の関数定義 + フィルタリング + オートコンプリート (★ ここを修正)
+        // 6. メイン機能の関数定義 + フィルタリング + オートコンプリート
         // =========================================================
         
         /**
@@ -1632,7 +1731,6 @@
             } else {
                 showNotification('住所が見つかりませんでした。より具体的な住所をお試しください。', 'error');
             }
-             // 検索が完了したらオートコンプリートリストを非表示にする
             $autocompleteList.classList.remove('show');
         }
 
@@ -1640,16 +1738,16 @@
          * オートコンプリート候補を表示/非表示にする
          * @param {Array<Object>} suggestions - 検索候補の配列
          */
-        function renderAutocompleteList(suggestions) { // ★ 追加
+        function renderAutocompleteList(suggestions) {
             $autocompleteList.innerHTML = '';
-            selectedAutocompleteIndex = -1; // リストが更新されたら選択をリセット
+            selectedAutocompleteIndex = -1;
 
             if (suggestions.length === 0 || $addressInput.value.trim() === '') {
                 $autocompleteList.classList.remove('show');
                 return;
             }
 
-            currentAutocompleteResults = suggestions; // 現在の候補を保存
+            currentAutocompleteResults = suggestions;
 
             suggestions.forEach((item, index) => {
                 const li = document.createElement('div');
@@ -1669,14 +1767,14 @@
          * オートコンプリートリストの項目を選択する
          * @param {number} index - 選択された候補のインデックス
          */
-        async function selectAutocompleteItem(index) { // ★ 追加
+        async function selectAutocompleteItem(index) {
             if (index >= 0 && index < currentAutocompleteResults.length) {
                 const selected = currentAutocompleteResults[index];
-                $addressInput.value = selected.display_name.split(',').slice(0, 3).join(', ').trim(); // 住所フィールドに表示名をセット
+                $addressInput.value = selected.display_name.split(',').slice(0, 3).join(', ').trim();
                 $lat.value = selected.lat.toFixed(8);
                 $lon.value = selected.lon.toFixed(8);
                 await updateCurrentCoords();
-                $autocompleteList.classList.remove('show'); // リストを非表示にする
+                $autocompleteList.classList.remove('show');
                 showNotification(`「${$addressInput.value}」の座標を設定しました。`);
             }
         }
@@ -1995,25 +2093,26 @@
             $lon.addEventListener('input', () => updateCurrentCoords());
             
             $zoom.addEventListener('input', (e) => {
-                let val = parseInt(e.target.value, 10);
-                if (isNaN(val) || val < 1) { val = 1; } 
-                else if (val > 20) { val = 20; }
-                e.target.value = val;
-                updateCurrentCoords(); 
+                const val = parseInt(e.target.value, 10);
+                $zoomDisplay.textContent = val;
+                // Leafletマップのズームも同期
+                if (osmMap) {
+                    osmMap.setZoom(val);
+                }
+                updateCurrentCoords(true); // 履歴保存はしない
             });
+            $zoomDisplay.textContent = $zoom.value;
 
-            // Enterキーで住所検索を実行
             $addressInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     if (selectedAutocompleteIndex !== -1) {
-                        selectAutocompleteItem(selectedAutocompleteIndex); // 選択中の項目があればそれを確定
+                        selectAutocompleteItem(selectedAutocompleteIndex);
                     } else {
-                        searchAddress(); // なければ入力されているテキストで検索
+                        searchAddress();
                     }
                 }
             });
 
-            // 座標入力フィールドでもEnterキーで更新
             $lat.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     updateCurrentCoords();
@@ -2026,18 +2125,17 @@
                 }
             });
 
-            // ★ オートコンプリート機能のイベントリスナーを追加
             $addressInput.addEventListener('input', () => {
                 clearTimeout(autocompleteTimer);
                 const query = $addressInput.value.trim();
                 if (query.length < 2) {
-                    renderAutocompleteList([]); // クエリが短い場合はリストを非表示
+                    renderAutocompleteList([]);
                     return;
                 }
                 autocompleteTimer = setTimeout(async () => {
                     const suggestions = await getAddressSuggestions(query);
                     renderAutocompleteList(suggestions);
-                }, 300); // 300msのデバウンス
+                }, 300);
             });
 
             $addressInput.addEventListener('keydown', (e) => {
@@ -2045,20 +2143,19 @@
                 if (items.length === 0) return;
 
                 if (e.key === 'ArrowDown') {
-                    e.preventDefault(); // カーソル移動を防ぐ
+                    e.preventDefault();
                     selectedAutocompleteIndex = (selectedAutocompleteIndex + 1) % items.length;
                     highlightAutocompleteItem(items);
                 } else if (e.key === 'ArrowUp') {
-                    e.preventDefault(); // カーソル移動を防ぐ
+                    e.preventDefault();
                     selectedAutocompleteIndex = (selectedAutocompleteIndex - 1 + items.length) % items.length;
                     highlightAutocompleteItem(items);
                 } else if (e.key === 'Escape') {
-                    $autocompleteList.classList.remove('show'); // ESCでリストを閉じる
+                    $autocompleteList.classList.remove('show');
                     selectedAutocompleteIndex = -1;
                 }
             });
 
-            // 住所入力欄以外をクリックしたらオートコンプリートリストを閉じる
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.input-group') || !e.target.closest('#addressInput')) {
                     $autocompleteList.classList.remove('show');
@@ -2066,12 +2163,12 @@
                 }
             });
 
-            function highlightAutocompleteItem(items) { // ★ 追加
+            function highlightAutocompleteItem(items) {
                 items.forEach((item, i) => {
                     item.classList.remove('selected');
                     if (i === selectedAutocompleteIndex) {
                         item.classList.add('selected');
-                        item.scrollIntoView({ block: 'nearest' }); // 選択項目までスクロール
+                        item.scrollIntoView({ block: 'nearest' });
                     }
                 });
             }
