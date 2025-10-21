@@ -542,12 +542,16 @@
         background: var(--secondary-color);
         transform: scale(1.1);
     }
-    .zoom-slider-overlay #zoomLevelDisplay {
+.zoom-slider-overlay #zoomLevelDisplay {
         font-weight: 700;
-        color: var(--primary-color);
-        width: 25px; /* 表示領域の幅を固定 */
+        color: var(--primary-color); /* ライトモードのデフォルト色 */
+        width: 25px;
         text-align: center;
         font-size: 14px;
+    }
+
+    body.dark-mode .zoom-slider-overlay #zoomLevelDisplay {
+        color: var(--text-dark); /* ダークモードでは--text-dark (白系) を使用 */
     }
 
 
