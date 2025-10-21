@@ -382,6 +382,9 @@ display: flex;
 gap: 15px;
 align-items: end;
 flex-wrap: wrap;
+padding-top: 15px; /* 上部にマージンを追加 */
+border-top: 1px solid var(--border-color); /* 上部に線を追加 */
+margin-top: 20px;
 }
 
 .input-group {
@@ -854,7 +857,7 @@ font-size: 13px;
             <p>このツールは、入力した緯度・経度をもとに、各種オンライン地図や図面サイトなどの情報ページへ、ワンクリックで素早くアクセスできるものです。</p>
             <p class="popup-warning">⚠️ **注意:** 複数の地図を一括で開くには、ブラウザのポップアップブロックを解除（ポップアップを許可）してください。</p>
             <ul>
-                <li>🗺️クリックで座標取得 地図プレビュー:クリックした位置の座標を緯度経度に反映します。全画面で選択した場合はESCで戻ってください。OpenStreetと地理院地図を切り替えられます。</li>
+                <li>🗺️クリックで座標取得 地図プレビュー:🖱️クリックした位置の座標を緯度経度に反映します。全画面で選択した場合はESCで戻ってください。OpenStreetと地理院地図を切り替えられます。</li>
 <li>🗺️現在の座標プレビューは埋め込まれたGoogleマップです。（プレビュー扱いです）</li>               
 <li>「📍現在地」ボタン:お使いのデバイスの位置情報機能を利用して、現在地の座標を自動で入力します。（ブラウザの許可が必要な場合があります）</li>
                 <li>「🌍Googleマップで探す」ボタン：マップを開いて調べたい場所を右クリック → 座標をクリップボードにコピーしてください。</li>
@@ -862,8 +865,8 @@ font-size: 13px;
                 <li>「⭐ ブックマークに保存」ボタン：お気に入りの場所に名前をつけてブックマークに保存できます。</li>
                 <li>「🔎住所検索」ボタン:住所やランドマークなどを入力して検索すると、そこの緯度・経度を地図に反映できます。**入力中に候補が表示されるようになりました。**</li>
                 <li>各種地図カード:画面下部のカテゴリから、利用したい地図サービスをクリックすると、入力座標を中心とした地図が新しいタブで開きます。</li>
-                <li>一括選択・オープン:各カテゴリの「▶️ チェックした項目を一括で開く」ボタンを利用すると、チェックボックスに印を付けた複数の地図を一度に開くことができます。</li>
-                <li>全選択/全解除ボタン:各カテゴリヘッダーにある「✅ 全選択/解除」ボタンで、そのカテゴリ内のすべての地図カードのチェック状態を切り替えられます。</li>
+                <li>全選択/全解除ボタン:各カテゴリヘッダーにある「✅ 全選択/解除」ボタンで、そのカテゴリ内のすべての地図カードのチェック状態を切り替えられます。</li>               
+ <li>一括選択・オープン:各カテゴリの「▶️ チェックした項目を一括で開く」ボタンを利用すると、チェックボックスに印を付けた複数の地図を一度に開くことができます。</li>
                 <li>「⏱️座標履歴・ブックマーク:座標履歴」はクリック位置が自動で保存され、「⭐ブックマーク」は任意の地点を名前を付けて保存できます。</li>
             </ul>
             </div>
@@ -888,7 +891,7 @@ font-size: 13px;
     </div>
 
     <!-- ここにinput-rowを移動 -->
-    <div class="input-row" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+    <div class="input-row">
         <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得" aria-label="現在地を取得">📍</button>
         <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す" aria-label="Googleマップで探す">🌍</button>
         <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け" aria-label="クリップボードから貼り付け">📄</button>
