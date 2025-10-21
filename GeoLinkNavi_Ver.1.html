@@ -816,6 +816,21 @@ width: 20px;
 font-size: 13px;
 }
 }
+
+.footer-copyright {
+    text-align: center; /* テキストを中央揃えにする */
+    margin-top: 20px; /* 上部に余白を追加して、他のコンテンツとの間に間隔を設ける */
+    color: var(--text-medium); /* テキスト色を既存のスタイルに合わせる */
+    font-size: 13px; /* フォントサイズを調整 */
+    padding-bottom: 20px; /* ページ下部との間に余白を追加 */
+}
+
+/* ダークモードでの色調整（オプション） */
+body.dark-mode .footer-copyright {
+    color: var(--text-medium); /* ダークモードでも適切な色を維持 */
+}
+
+
 </style>
 </head>
 <body class="light-mode">
@@ -854,7 +869,7 @@ font-size: 13px;
             <span class="toggle-icon" id="toggleIcon">▶</span>
         </button>
         <div class="usage-guide" id="usageGuide">
-            <p>このツールは、入力した緯度・経度をもとに、各種オンライン地図や図面サイトなどの情報ページへ、ワンクリックで素早くアクセスできるものです。</p>
+            <p>★知りたい場所の緯度・経度から、複数のオンライン地図や専門図面サイトへ瞬時にアクセス。情報収集をサポートします。★</p>
             <p class="popup-warning">⚠️ **注意:** 複数の地図を一括で開くには、ブラウザのポップアップブロックを解除（ポップアップを許可）してください。</p>
             <ul>
                 <li>🗺️クリックで座標取得 地図プレビュー:🖱️クリックした位置の座標を緯度経度に反映します。全画面で選択した場合はESCで戻ってください。OpenStreetと地理院地図を切り替えられます。</li>
@@ -938,7 +953,16 @@ font-size: 13px;
 <div class="status-bar">
     <span id="lastUpdated">最終更新日: 2025年10月21日</span>
 </div>
+</div> <!-- ここが .container の閉じタグです -->
+
+
+<div class="footer-copyright">
+
+© 2025GeoLinkNavi
+本ソースコードおよびデザインの無断転載・改変・再配布を禁止します。
+
 </div>
+
 <script>
 // =========================================================
 // 1. 地図データ定義 (アイコンのみ変更)
