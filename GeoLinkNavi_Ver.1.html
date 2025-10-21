@@ -542,16 +542,15 @@
         background: var(--secondary-color);
         transform: scale(1.1);
     }
-.zoom-slider-overlay #zoomLevelDisplay {
+    .zoom-slider-overlay #zoomLevelDisplay {
         font-weight: 700;
         color: var(--primary-color); /* ライトモードのデフォルト色 */
-        width: 25px;
+        width: 25px; /* 表示領域の幅を固定 */
         text-align: center;
         font-size: 14px;
     }
-
     body.dark-mode .zoom-slider-overlay #zoomLevelDisplay {
-        color: var(--text-dark); /* ダークモードでは--text-dark (白系) を使用 */
+        color: var(--text-dark); /* ★ ここを追加/変更しました ★ */
     }
 
 
@@ -1393,12 +1392,16 @@
             
             const itemDiv = document.createElement('div');
             itemDiv.className = 'history-item';
+            itemDiv.dataset.index = index; // イベント委譲のためにインデックスを保存
             
-            itemDiv.innerHTML = `
-                <strong>${index + 1}. ${item.address || `${item.lat}°N, ${item.lon}°E`}</strong>
-                <span>座標: ${item.lat}°N, ${item.lon}°E | Zoom: ${item.zoom} | ${timeString}</span>
-            `;
-            itemDiv.onclick = () => loadCoordinateFromHistory(item);
+            const strong = document.createElement('strong');
+            strong.textContent = `${index + 1}. ${item.address || `${item.lat}°N, ${item.lon}°E`}`;
+            itemDiv.appendChild(strong);
+
+            const span = document.createElement('span');
+            span.textContent = `座標: ${item.lat}°N, ${item.lon}°E | Zoom: ${item.zoom} | ${timeString}`;
+            itemDiv.appendChild(span);
+
             $historyList.appendChild(itemDiv);
         });
     }
@@ -1565,16 +1568,35 @@
             
             const itemDiv = document.createElement('div');
             itemDiv.className = 'bookmark-item';
+            itemDiv.dataset.index = index; // イベント委譲のためにインデックスを保存
             
-            itemDiv.innerHTML = `
-                <strong>${item.name}</strong>
-                <span>座標: ${item.lat}°N, ${item.lon}°E | Zoom: ${item.zoom} | ${timeString}</span>
-                <div class="bookmark-actions">
-                    <button class="btn-bookmark-load" onclick="loadBookmark(${index})">適用</button>
-                    <button class="btn-bookmark-open" onclick="openBookmarkMap(${index})">地図を開く</button>
-                    <button class="btn-bookmark-delete" onclick="deleteBookmark(${index})">削除</button>
-                </div>
-            `;
+            const strong = document.createElement('strong');
+            strong.textContent = item.name;
+            itemDiv.appendChild(strong);
+
+            const span = document.createElement('span');
+            span.textContent = `座標: ${item.lat}°N, ${item.lon}°E | Zoom: ${item.zoom} | ${timeString}`;
+            itemDiv.appendChild(span);
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'bookmark-actions';
+            
+            const loadButton = document.createElement('button');
+            loadButton.className = 'btn-bookmark-load';
+            loadButton.textContent = '適用';
+            actionsDiv.appendChild(loadButton);
+
+            const openButton = document.createElement('button');
+            openButton.className = 'btn-bookmark-open';
+            openButton.textContent = '地図を開く';
+            actionsDiv.appendChild(openButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn-bookmark-delete';
+            deleteButton.textContent = '削除';
+            actionsDiv.appendChild(deleteButton);
+
+            itemDiv.appendChild(actionsDiv);
             $bookmarkList.appendChild(itemDiv);
         });
     }
@@ -1585,6 +1607,7 @@
     function loadBookmark(index) {
         const bookmarks = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
         const item = bookmarks[index];
+        if (!item) return;
 
         $lat.value = item.lat;
         $lon.value = item.lon;
@@ -1602,6 +1625,7 @@
     function openBookmarkMap(index) {
         const bookmarks = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
         const item = bookmarks[index];
+        if (!item) return;
         
         const url = `https://maps.google.co.jp/maps?q=${item.lat},${item.lon}&z=${item.zoom}`;
         window.open(url, '_blank');
@@ -1613,13 +1637,14 @@
      */
     function deleteBookmark(index) {
         let bookmarks = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
-        const name = bookmarks[index].name;
-        
-        if (confirm(`ブックマーク「${name}」を削除してもよろしいですか？`)) {
+        const itemToDelete = bookmarks[index];
+        if (!itemToDelete) return;
+
+        if (confirm(`ブックマーク「${itemToDelete.name}」を削除してもよろしいですか？`)) {
             bookmarks.splice(index, 1);
             localStorage.setItem(BOOKMARK_KEY, JSON.stringify(bookmarks));
             renderBookmarkList();
-            showNotification(`「${name}」を削除しました`, 'success');
+            showNotification(`「${itemToDelete.name}」を削除しました`, 'success');
         }
     }
     
@@ -1997,31 +2022,52 @@
             const categoryDiv = document.createElement('div');
             categoryDiv.className = 'category';
             categoryDiv.setAttribute('data-category-key', catKey);
-            categoryDiv.innerHTML = `
-                <div class="category-header">
-                    <div class="category-title-group">
-                        <div class="category-icon ${catGroup.meta.class}">${catGroup.meta.icon}</div>
-                        <div class="category-title">${catGroup.meta.title}</div>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <button class="btn-toggle-all-checks" onclick="toggleAllCheckboxes('${catKey}')">
-                        ✅ 全選択/全解除
-                    </button>
-                    <button class="btn-bulk-open" data-category="${catKey}" onclick="openCheckedMaps('${catKey}')">
-                        ▶️ チェックした項目を一括で開く
-                    </button>
-                </div>
-                <div class="map-grid"></div>
-            `;
             
-            const header = categoryDiv.querySelector('.category-header');
-            header.addEventListener('click', (e) => {
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'category-header';
+            categoryHeader.addEventListener('click', (e) => {
                 if (e.target.closest('.btn-bulk-open') || e.target.closest('.btn-toggle-all-checks')) return;
-                toggleCategory(header);
+                toggleCategory(categoryHeader);
             });
-            
-            const mapGrid = categoryDiv.querySelector('.map-grid');
 
+            const categoryTitleGroup = document.createElement('div');
+            categoryTitleGroup.className = 'category-title-group';
+
+            const categoryIcon = document.createElement('div');
+            categoryIcon.className = `category-icon ${catGroup.meta.class}`;
+            categoryIcon.textContent = catGroup.meta.icon;
+            categoryTitleGroup.appendChild(categoryIcon);
+
+            const categoryTitle = document.createElement('div');
+            categoryTitle.className = 'category-title';
+            categoryTitle.textContent = catGroup.meta.title;
+            categoryTitleGroup.appendChild(categoryTitle);
+            
+            const accordionIcon = document.createElement('span');
+            accordionIcon.className = 'accordion-icon';
+            accordionIcon.textContent = '▼';
+            categoryTitleGroup.appendChild(accordionIcon);
+
+            categoryHeader.appendChild(categoryTitleGroup);
+
+            const toggleAllChecksButton = document.createElement('button');
+            toggleAllChecksButton.className = 'btn-toggle-all-checks';
+            toggleAllChecksButton.textContent = '✅ 全選択/全解除';
+            toggleAllChecksButton.onclick = () => toggleAllCheckboxes(catKey);
+            categoryHeader.appendChild(toggleAllChecksButton);
+
+            const bulkOpenButton = document.createElement('button');
+            bulkOpenButton.className = 'btn-bulk-open';
+            bulkOpenButton.textContent = '▶️ チェックした項目を一括で開く';
+            bulkOpenButton.dataset.category = catKey;
+            bulkOpenButton.onclick = () => openCheckedMaps(catKey);
+            categoryHeader.appendChild(bulkOpenButton);
+            
+            categoryDiv.appendChild(categoryHeader);
+
+            const mapGrid = document.createElement('div');
+            mapGrid.className = 'map-grid';
+            
             catGroup.maps.forEach(map => {
                 const card = document.createElement('div'); 
                 card.className = 'map-card';
@@ -2035,23 +2081,41 @@
                     openMap(map.index);
                 };
 
-                let descriptionHtml = `<div class="map-description">${map.desc}</div>`;
+                const mapHeaderWithCheck = document.createElement('div');
+                mapHeaderWithCheck.className = 'map-header-with-check';
+
+                const mapTitleGroupDiv = document.createElement('div');
+                mapTitleGroupDiv.className = 'map-title-group';
+                
+                const mapTitleDiv = document.createElement('div');
+                mapTitleDiv.className = 'map-title';
+                mapTitleDiv.appendChild(document.createTextNode(`${map.icon} `));
+                mapTitleDiv.appendChild(document.createTextNode(map.name));
+                mapTitleGroupDiv.appendChild(mapTitleDiv);
+                mapHeaderWithCheck.appendChild(mapTitleGroupDiv);
+
+                const mapCheckbox = document.createElement('input');
+                mapCheckbox.type = 'checkbox';
+                mapCheckbox.className = 'map-checkbox';
+                mapCheckbox.setAttribute('data-map-index', map.index);
+                mapCheckbox.setAttribute('aria-label', `${map.name}の地図を開く`);
+                mapHeaderWithCheck.appendChild(mapCheckbox);
+                card.appendChild(mapHeaderWithCheck);
+
+                const mapDescriptionDiv = document.createElement('div');
+                mapDescriptionDiv.className = 'map-description';
+                mapDescriptionDiv.textContent = map.desc; // descもtextContentで安全に挿入
+                card.appendChild(mapDescriptionDiv);
                 
                 if (map.noCoords) {
-                    descriptionHtml += `<div class="manual-input-warning">※開いた後に位置情報（経緯度）を手動で検索・設定する必要があります。</div>`;
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'manual-input-warning';
+                    warningDiv.textContent = '※開いた後に位置情報（経緯度）を手動で検索・設定する必要があります。';
+                    card.appendChild(warningDiv);
                 }
-
-                card.innerHTML = `
-                    <div class="map-header-with-check">
-                        <div class="map-title-group">
-                            <div class="map-title">${map.icon} ${map.name}</div>
-                        </div>
-                        <input type="checkbox" class="map-checkbox" data-map-index="${map.index}" aria-label="${map.name}の地図を開く">
-                    </div>
-                    ${descriptionHtml}
-                `;
                 mapGrid.appendChild(card);
             });
+            categoryDiv.appendChild(mapGrid);
             $container.appendChild(categoryDiv);
         }
         filterMapCards(); 
@@ -2217,6 +2281,38 @@
                 $bookmarkPopup.style.display = 'none';
             }
         });
+
+        // イベント委譲：履歴リストのクリックイベント
+        $historyList.addEventListener('click', (e) => {
+            const itemDiv = e.target.closest('.history-item');
+            if (itemDiv) {
+                const index = parseInt(itemDiv.dataset.index, 10);
+                const history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+                if (history[index]) {
+                    loadCoordinateFromHistory(history[index]);
+                }
+            }
+        });
+
+        // イベント委譲：ブックマークリストのクリックイベント
+        $bookmarkList.addEventListener('click', (e) => {
+            const itemDiv = e.target.closest('.bookmark-item');
+            if (itemDiv) {
+                const index = parseInt(itemDiv.dataset.index, 10);
+                
+                if (e.target.classList.contains('btn-bookmark-load')) {
+                    loadBookmark(index);
+                } else if (e.target.classList.contains('btn-bookmark-open')) {
+                    openBookmarkMap(index);
+                } else if (e.target.classList.contains('btn-bookmark-delete')) {
+                    deleteBookmark(index);
+                } else {
+                    // アイテム自体がクリックされた場合はロードする（これは現状のonclickと同様）
+                    loadBookmark(index);
+                }
+            }
+        });
+
 
         function highlightAutocompleteItem(items) {
             items.forEach((item, i) => {
