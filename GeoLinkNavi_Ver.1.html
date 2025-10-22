@@ -161,6 +161,7 @@ display: flex;
 flex-direction: column;
 align-items: center;
 gap: 5px; /* アイコンとテキストの間隔 */
+position: relative; /* ★追加: ポップアップの基準にするため */
 }
 
 .header-button-label {
@@ -193,7 +194,7 @@ transform: scale(1.05);
 
 .history-popup, .bookmark-popup {
 position: absolute;
-top: 100px; /* アイコンのテキスト分下げる */
+/* top: 100px;  ★変更: topとrightを削除 */
 background: var(--bg-container);
 border: 1px solid var(--border-color);
 border-radius: var(--radius-base);
@@ -204,10 +205,20 @@ padding: 10px;
 z-index: 1050; /* マップやオートコンプリートリストよりも高く設定 */
 display: none;
 color: var(--text-dark);
+
+/* ★追加: ポップアップの基準を親ボタンラッパーに変更するためのスタイル */
+top: calc(100% + 10px); /* 親ボタンの下に10pxのマージンで配置 */
+right: 0; /* 親ボタンの右端に合わせる */
 }
 
-.history-popup { right: 15px; z-index: 1050; }
-.bookmark-popup { right: 90px; z-index: 1050; } /* 位置調整 */
+/* ★追加: 各ポップアップの具体的な位置調整 */
+.header-button-wrapper:nth-child(1) .bookmark-popup { /* ブックマークボタンのラッパー */
+    right: 0;
+}
+.header-button-wrapper:nth-child(2) .history-popup { /* 履歴ボタンのラッパー */
+    right: 0;
+}
+
 
 .history-popup h4, .bookmark-popup h4 {
 margin-bottom: 10px;
@@ -829,7 +840,9 @@ margin-top: 2px;
 .settings-row { flex-direction: column; align-items: flex-start; gap: 10px; }
 .status-bar { flex-direction: column; align-items: flex-start; gap: 5px; }
 .category-header { flex-wrap: wrap; gap: 10px; }
-.btn-bulk-open, .btn-toggle-all-checks { width: 100%; order: 1; }
+/* .btn-bulk-open, .btn-toggle-all-checks { width: 100%; order: 1; } ★変更 */
+.btn-bulk-open { width: 100%; order: 2; } /* bulk openを下に */
+.btn-toggle-all-checks { width: 100%; order: 1; } /* toggle allを真ん中に */
 .category-title-group { order: 0; width: 100%; }
 
 .header-buttons { right: 10px; top: 15px; gap: 5px; }
@@ -838,9 +851,19 @@ margin-top: 2px;
 
 .history-popup, .bookmark-popup {
 width: 90%;
-right: 5%;
+/* right: 5%; ★変更 */
+left: 5%; /* ★追加: 左端からの距離を設定 */
 top: 60px;
 }
+/* ★追加: モバイル時のポップアップ微調整 */
+.header-button-wrapper:nth-child(1) .bookmark-popup { /* ブックマークボタンのラッパー */
+    right: auto;
+}
+.header-button-wrapper:nth-child(2) .history-popup { /* 履歴ボタンのラッパー */
+    right: auto;
+}
+
+
 .filter-row { flex-direction: column; align-items: flex-start; }
 .category-filter-checkboxes { width: 100%; }
 
@@ -902,10 +925,30 @@ body.dark-mode .footer-copyright {
         <div class="header-button-wrapper">
             <button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
             <span class="header-button-label">ブックマーク</span>
+            <!-- ★追加: ブックマークポップアップのHTMLをボタンラッパー内に移動 -->
+            <div class="bookmark-popup" id="bookmarkPopup">
+                <h4>⭐ 地点ブックマーク</h4>
+                <div class="popup-buttons">
+                    <button class="btn-clear-bookmarks" onclick="clearBookmarks()">🗑️ 全削除</button>
+                    <button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSV</button>
+                    <button class="btn-export-kml" onclick="exportBookmarksToKML()">🌐 KML</button>
+                </div>
+                <div id="bookmarkList"></div>
+            </div>
         </div>
         <div class="header-button-wrapper">
             <button class="history-button" id="historyButton" onclick="toggleHistoryPopup()" aria-label="履歴" title="履歴を表示">⏱️</button>
             <span class="header-button-label">履歴</span>
+            <!-- ★追加: 履歴ポップアップのHTMLをボタンラッパー内に移動 -->
+            <div class="history-popup" id="historyPopup">
+                <h4>座標履歴 (最新100件)</h4>
+                <div class="popup-buttons">
+                    <button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴クリア</button>
+                    <button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSV</button>
+                    <button class="btn-export-kml" onclick="exportHistoryToKML()">🌐 KML</button>
+                </div>
+                <div id="historyList"></div>
+            </div>
         </div>
         <div class="header-button-wrapper">
             <button class="mode-toggle" id="modeToggle" onclick="toggleDarkMode()" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
@@ -913,25 +956,9 @@ body.dark-mode .footer-copyright {
         </div>
     </div>
     
-    <div class="history-popup" id="historyPopup">
-        <h4>座標履歴 (最新100件)</h4>
-        <div class="popup-buttons">
-            <button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴クリア</button>
-            <button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSV</button>
-            <button class="btn-export-kml" onclick="exportHistoryToKML()">🌐 KML</button>
-        </div>
-        <div id="historyList"></div>
-    </div>
-
-    <div class="bookmark-popup" id="bookmarkPopup">
-        <h4>⭐ 地点ブックマーク</h4>
-        <div class="popup-buttons">
-            <button class="btn-clear-bookmarks" onclick="clearBookmarks()">🗑️ 全削除</button>
-            <button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSV</button>
-            <button class="btn-export-kml" onclick="exportBookmarksToKML()">🌐 KML</button>
-        </div>
-        <div id="bookmarkList"></div>
-    </div>
+    <!-- ★削除: ポップアップのHTMLは上記で各ボタンラッパー内に移動済み -->
+    <!-- <div class="history-popup" id="historyPopup"> ... </div> -->
+    <!-- <div class="bookmark-popup" id="bookmarkPopup"> ... </div> -->
 
     <div class="usage-toggle">
         <button class="toggle-btn" onclick="toggleUsage()">
@@ -1392,12 +1419,14 @@ const data = await response.json();
 
 if (data.display_name) {
 const fullAddress = data.display_name;
+// "日本, 〒XXX-XXXX"のような情報を除外して表示を簡潔にする
 const parts = fullAddress.split(',').map(p => p.trim());
 const filteredParts = parts.filter(part => {
 return !part.includes('日本') && part !== 'Japan' && !/^\d{3}-\d{4}$/.test(part);
 });
-const majorParts = filteredParts.slice(-3);
-const resultAddress = majorParts.reverse().join('').trim();
+// 主要な部分のみを抽出 (例: 最後から3つ)
+const majorParts = filteredParts.slice(-3); // 例: 3つに絞る
+const resultAddress = majorParts.reverse().join('').trim(); // 逆順にして結合
 
 return resultAddress || fullAddress.split(',').slice(0, 3).join(', ').trim() || `${lat}, ${lon}`;
 }
@@ -1541,7 +1570,7 @@ const historyKey = 'coordinateHistory';
 const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
 renderHistoryList(history);
 $historyPopup.style.display = 'block';
-$bookmarkPopup.style.display = 'none';
+$bookmarkPopup.style.display = 'none'; // 他のポップアップを閉じる
 } else {
 $historyPopup.style.display = 'none';
 }
@@ -1767,7 +1796,7 @@ const isOpen = $bookmarkPopup.style.display === 'block';
 if (!isOpen && openIfClosed) {
 renderBookmarkList();
 $bookmarkPopup.style.display = 'block';
-$historyPopup.style.display = 'none';
+$historyPopup.style.display = 'none'; // 他のポップアップを閉じる
 } else {
 $bookmarkPopup.style.display = 'none';
 }
@@ -1890,7 +1919,7 @@ async function exportHistoryToKML() {
 /**
  * ブックマークをKMLファイルとして書き出す
  */
-function exportBookmarksToKML() {
+async function exportBookmarksToKML() { // ★変更: asyncを追加
     const bookmarks = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
 
     if (bookmarks.length === 0) {
@@ -1904,7 +1933,8 @@ function exportBookmarksToKML() {
     <name>GeoLinkNavi 地点ブックマーク</name>
     <description>GeoLinkNaviで保存されたお気に入りの地点</description>\n`;
 
-    bookmarks.forEach(item => {
+    for (const item of bookmarks) { // ★変更: forEachをfor...ofループに変更 (await使用のため)
+        // item.nameがユーザー入力のため、そのまま使用。descriptionに詳細情報を追加
         kmlContent += `    <Placemark>
       <name>${escapeXml(item.name)}</name>
       <description>緯度: ${item.lat}, 経度: ${item.lon}, ズーム: ${item.zoom}, 保存日時: ${item.timestamp}</description>
@@ -1912,7 +1942,7 @@ function exportBookmarksToKML() {
         <coordinates>${item.lon},${item.lat},0</coordinates>
       </Point>
     </Placemark>\n`;
-    });
+    }
 
     kmlContent += `  </Document>
 </kml>`;
@@ -2134,6 +2164,7 @@ localStorage.setItem('popupWarningShown', 'true');
 */
 function toggleAllCheckboxes(categoryKey) {
 const checkboxes = document.querySelectorAll(`.map-card[data-category="${categoryKey}"] .map-checkbox`);
+const toggleButton = document.querySelector(`.category[data-category-key="${categoryKey}"] .btn-toggle-all-checks`);
 let allChecked = true;
 
 checkboxes.forEach(cb => {
@@ -2146,11 +2177,23 @@ checkboxes.forEach(cb => {
 cb.checked = !allChecked;
 });
 
+// ★追加: ボタンのラベルを更新
+updateToggleAllButtonLabel(toggleButton, !allChecked);
+
 if (!allChecked) {
 showNotification(`${CATEGORY_META[categoryKey].title}の項目をすべて選択しました`);
 } else {
 showNotification(`${CATEGORY_META[categoryKey].title}の項目をすべて解除しました`);
 }
+}
+
+// ★追加: 「全選択/全解除」ボタンのラベルを更新する関数
+function updateToggleAllButtonLabel(buttonElement, areAllChecked) {
+    if (areAllChecked) {
+        buttonElement.textContent = '❌ 全解除';
+    } else {
+        buttonElement.textContent = '✅ 全選択';
+    }
 }
 
 /**
@@ -2274,8 +2317,9 @@ categoryHeader.appendChild(categoryTitleGroup);
 
 const toggleAllChecksButton = document.createElement('button');
 toggleAllChecksButton.className = 'btn-toggle-all-checks';
-toggleAllChecksButton.textContent = '✅ 全選択/全解除';
 toggleAllChecksButton.onclick = () => toggleAllCheckboxes(catKey);
+// ★変更: 初期ラベルを設定
+updateToggleAllButtonLabel(toggleAllChecksButton, false);
 categoryHeader.appendChild(toggleAllChecksButton);
 
 const bulkOpenButton = document.createElement('button');
@@ -2321,6 +2365,12 @@ mapCheckbox.type = 'checkbox';
 mapCheckbox.className = 'map-checkbox';
 mapCheckbox.setAttribute('data-map-index', map.index);
 mapCheckbox.setAttribute('aria-label', `${map.name}の地図を開く`);
+// ★追加: チェックボックスの状態が変わったらボタンラベルを更新するイベントリスナー
+mapCheckbox.addEventListener('change', () => {
+    const categoryCheckboxes = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox`);
+    const allChecked = Array.from(categoryCheckboxes).every(cb => cb.checked);
+    updateToggleAllButtonLabel(toggleAllChecksButton, allChecked);
+});
 mapHeaderWithCheck.appendChild(mapCheckbox);
 card.appendChild(mapHeaderWithCheck);
 
