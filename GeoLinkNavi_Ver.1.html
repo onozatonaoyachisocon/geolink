@@ -44,6 +44,10 @@
 --btn-save-bookmark-hover-bg: #e6b000;
 --btn-address-search-bg: #607D8B;
 --btn-address-search-hover-bg: #455A64;
+/* KMLボタン */
+--btn-export-kml-bg: #FBC02D; /* Google Earthの黄色に近い色 */
+--btn-export-kml-hover-bg: #F9A825;
+
 
 /* オートコンプリートリストの変数 */
 --autocomplete-bg: var(--card-bg);
@@ -83,6 +87,10 @@ body.dark-mode {
 --btn-save-bookmark-hover-bg: #e6b000;
 --btn-address-search-bg: #607D8B;
 --btn-address-search-hover-bg: #455A64;
+/* KMLボタン (ダークモード) */
+--btn-export-kml-bg: #FFC107; /* ライトモードのブックマーク色と合わせるか、ダークモード用の色を設定 */
+--btn-export-kml-hover-bg: #E6B300;
+
 
 /* オートコンプリートリストの変数 (ダークモード) */
 --autocomplete-bg: var(--card-bg);
@@ -213,12 +221,12 @@ font-size: 14px;
 display: flex;
 gap: 5px;
 margin: 0 5px 10px;
-flex-wrap: wrap;
+/* flex-wrap: wrap;  ← この行を削除/コメントアウト */
 }
 .popup-buttons button {
 flex: 1;
-min-width: 100px;
-padding: 8px 10px;
+min-width: 80px; /* ボタンの最小幅を調整 */
+padding: 8px 5px; /* パディングを調整 */
 font-size: 12px;
 border-radius: 8px;
 cursor: pointer;
@@ -233,6 +241,10 @@ color: white;
 
 .btn-export-csv { background-color: var(--primary-color); }
 .btn-export-csv:hover { background-color: #5568d3; }
+
+.btn-export-kml { background-color: var(--btn-export-kml-bg); }
+.btn-export-kml:hover { background-color: var(--btn-export-kml-hover-bg); }
+
 
 #historyList, #bookmarkList {
 max-height: 360px;
@@ -904,8 +916,9 @@ body.dark-mode .footer-copyright {
     <div class="history-popup" id="historyPopup">
         <h4>座標履歴 (最新100件)</h4>
         <div class="popup-buttons">
-            <button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴をクリア</button>
-            <button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSVで書き出す</button>
+            <button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴クリア</button>
+            <button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSV</button>
+            <button class="btn-export-kml" onclick="exportHistoryToKML()">🌐 KML</button>
         </div>
         <div id="historyList"></div>
     </div>
@@ -914,7 +927,8 @@ body.dark-mode .footer-copyright {
         <h4>⭐ 地点ブックマーク</h4>
         <div class="popup-buttons">
             <button class="btn-clear-bookmarks" onclick="clearBookmarks()">🗑️ 全削除</button>
-            <button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSVで書き出す</button>
+            <button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSV</button>
+            <button class="btn-export-kml" onclick="exportBookmarksToKML()">🌐 KML</button>
         </div>
         <div id="bookmarkList"></div>
     </div>
@@ -1821,6 +1835,118 @@ document.body.removeChild(a);
 URL.revokeObjectURL(url);
 
 showNotification('ブックマークをCSVで書き出しました', 'success');
+}
+
+/**
+ * 座標履歴をKMLファイルとして書き出す
+ */
+async function exportHistoryToKML() {
+    const historyKey = 'coordinateHistory';
+    const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+
+    if (history.length === 0) {
+        showNotification('書き出す履歴がありません。', 'error');
+        return;
+    }
+
+    let kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>GeoLinkNavi 座標履歴</name>
+    <description>GeoLinkNaviで保存された座標履歴</description>\n`;
+
+    for (const item of history) {
+        // addressが空の場合は逆ジオコーディングを試みる
+        const address = item.address || await getAddressFromCoords(parseFloat(item.lat), parseFloat(item.lon));
+        kmlContent += `    <Placemark>
+      <name>${escapeXml(address)}</name>
+      <description>緯度: ${item.lat}, 経度: ${item.lon}, ズーム: ${item.zoom}, 記録日時: ${item.timestamp}</description>
+      <Point>
+        <coordinates>${item.lon},${item.lat},0</coordinates>
+      </Point>
+    </Placemark>\n`;
+    }
+
+    kmlContent += `  </Document>
+</kml>`;
+
+    const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
+    a.download = `coordinate_history_${dateStr}.kml`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showNotification('座標履歴をKMLで書き出しました', 'success');
+}
+
+/**
+ * ブックマークをKMLファイルとして書き出す
+ */
+function exportBookmarksToKML() {
+    const bookmarks = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
+
+    if (bookmarks.length === 0) {
+        showNotification('書き出すブックマークがありません。', 'error');
+        return;
+    }
+
+    let kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>GeoLinkNavi 地点ブックマーク</name>
+    <description>GeoLinkNaviで保存されたお気に入りの地点</description>\n`;
+
+    bookmarks.forEach(item => {
+        kmlContent += `    <Placemark>
+      <name>${escapeXml(item.name)}</name>
+      <description>緯度: ${item.lat}, 経度: ${item.lon}, ズーム: ${item.zoom}, 保存日時: ${item.timestamp}</description>
+      <Point>
+        <coordinates>${item.lon},${item.lat},0</coordinates>
+      </Point>
+    </Placemark>\n`;
+    });
+
+    kmlContent += `  </Document>
+</kml>`;
+
+    const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
+    a.download = `bookmarks_export_${dateStr}.kml`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showNotification('ブックマークをKMLで書き出しました', 'success');
+}
+
+/**
+ * KMLで使用するためにXML特殊文字をエスケープするヘルパー関数
+ */
+function escapeXml(unsafe) {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
 }
 
 
