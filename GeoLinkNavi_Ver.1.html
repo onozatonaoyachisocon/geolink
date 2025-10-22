@@ -141,11 +141,27 @@ font-size: 14px;
 
 .header-buttons {
 position: absolute;
-top: 25px;
+top: 15px; /* ボタン全体を少し上に移動 */
 right: 20px;
 display: flex;
-gap: 10px;
+gap: 15px; /* ボタン間のスペースを広げる */
 }
+
+/* アイコンとそのテキストのラッパー */
+.header-button-wrapper {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 5px; /* アイコンとテキストの間隔 */
+}
+
+.header-button-label {
+font-size: 11px; /* テキストのサイズを小さく */
+color: white;
+white-space: nowrap; /* テキストが折り返さないように */
+opacity: 0.9;
+}
+
 
 .mode-toggle, .history-button, .bookmark-button {
 background: rgba(255, 255, 255, 0.2);
@@ -169,7 +185,7 @@ transform: scale(1.05);
 
 .history-popup, .bookmark-popup {
 position: absolute;
-top: 70px;
+top: 100px; /* アイコンのテキスト分下げる */
 background: var(--bg-container);
 border: 1px solid var(--border-color);
 border-radius: var(--radius-base);
@@ -183,7 +199,7 @@ color: var(--text-dark);
 }
 
 .history-popup { right: 15px; z-index: 1050; }
-.bookmark-popup { right: 70px; z-index: 1050; }
+.bookmark-popup { right: 90px; z-index: 1050; } /* 位置調整 */
 
 .history-popup h4, .bookmark-popup h4 {
 margin-bottom: 10px;
@@ -380,11 +396,27 @@ accent-color: var(--primary-color);
 .input-row {
 display: flex;
 gap: 15px;
-align-items: end;
+align-items: flex-start; /* アイコンと入力欄の開始位置を合わせる */
 flex-wrap: wrap;
 padding-top: 15px; /* 上部にマージンを追加 */
 border-top: 1px solid var(--border-color); /* 上部に線を追加 */
 margin-top: 20px;
+}
+
+/* アイコンボタンとそのラベルをまとめるラッパー */
+.input-button-wrapper {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 5px; /* アイコンとテキストの間隔 */
+}
+
+.input-button-label {
+font-size: 11px;
+color: var(--text-dark);
+font-weight: 600;
+white-space: nowrap;
+margin-bottom: -5px; /* ボタンとラベルの間の余白調整 */
 }
 
 .input-group {
@@ -392,14 +424,16 @@ flex: 1;
 min-width: 180px;
 position: relative;
 }
-.input-row > .input-group:nth-child(5),
-.input-row > .input-group:nth-child(6) {
+/* 住所検索 input-group のflex-growを調整 */
+.input-row > .input-group:nth-child(5), /* latitude */
+.input-row > .input-group:nth-child(6) { /* longitude */
 flex: 1;
 }
-.input-row > .input-group:nth-child(7) {
-flex: 2;
+.input-row > .input-group:nth-child(7) { /* addressInput */
+flex: 2; /* 以前より広めに設定 */
 min-width: 250px;
 }
+
 
 .input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark); font-size: 14px; transition: color 0.5s; }
 .input-group input, .input-group select {
@@ -455,11 +489,23 @@ font-size: 26px;
 .btn-save-bookmark { background: var(--btn-save-bookmark-bg); color: var(--text-dark); }
 .btn-save-bookmark:hover { background: var(--btn-save-bookmark-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4); }
 
-.btn-address-search { background: var(--btn-address-search-bg); }
-.btn-address-search:hover { background: var(--btn-address-search-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(96, 125, 139, 0.4); }
-.btn-address-search {
-font-size: 18px;
+/* 住所検索ボタンのスタイル変更 */
+.input-button-wrapper.address-search-wrapper {
+    margin-left: 15px; /* 必要であれば左マージンで調整 */
+    align-self: flex-start; /* flex-startに揃える */
 }
+
+.btn-address-search {
+    background: var(--btn-address-search-bg);
+    font-size: 26px; /* アイコンサイズを大きく */
+    color: white;
+    min-width: 0; /* min-widthをリセット */
+    width: 48px; /* 固定幅 */
+    padding: 0; /* パディングをリセット */
+    height: 48px;
+    border-radius: 10px; /* 角を少し丸める */
+}
+.btn-address-search:hover { background: var(--btn-address-search-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(96, 125, 139, 0.4); }
 
 .settings-row {
 margin-top: 5px;
@@ -776,6 +822,7 @@ margin-top: 2px;
 
 .header-buttons { right: 10px; top: 15px; gap: 5px; }
 .mode-toggle, .history-button, .bookmark-button { width: 35px; height: 35px; font-size: 16px; }
+.header-button-label { font-size: 10px; } /* モバイルでさらに小さく */
 
 .history-popup, .bookmark-popup {
 width: 90%;
@@ -840,9 +887,18 @@ body.dark-mode .footer-copyright {
 <h1>🗺️ Geo連携ナビ / Geo Link Navi</h1>
 
 <div class="header-buttons">
-        <button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
-        <button class="history-button" id="historyButton" onclick="toggleHistoryPopup()" aria-label="履歴" title="履歴を表示">⏱️</button>
-        <button class="mode-toggle" id="modeToggle" onclick="toggleDarkMode()" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
+        <div class="header-button-wrapper">
+            <button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
+            <span class="header-button-label">ブックマーク</span>
+        </div>
+        <div class="header-button-wrapper">
+            <button class="history-button" id="historyButton" onclick="toggleHistoryPopup()" aria-label="履歴" title="履歴を表示">⏱️</button>
+            <span class="header-button-label">履歴</span>
+        </div>
+        <div class="header-button-wrapper">
+            <button class="mode-toggle" id="modeToggle" onclick="toggleDarkMode()" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
+            <span class="header-button-label">モード切替</span>
+        </div>
     </div>
     
     <div class="history-popup" id="historyPopup">
@@ -907,10 +963,22 @@ body.dark-mode .footer-copyright {
 
     <!-- ここにinput-rowを移動 -->
     <div class="input-row">
-        <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得" aria-label="現在地を取得">📍</button>
-        <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す" aria-label="Googleマップで探す">🌍</button>
-        <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け" aria-label="クリップボードから貼り付け">📄</button>
-        <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" title="ブックマークに保存" aria-label="ブックマークに保存">⭐</button>
+        <div class="input-button-wrapper">
+            <span class="input-button-label">現在地</span>
+            <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得" aria-label="現在地を取得">📍</button>
+        </div>
+        <div class="input-button-wrapper">
+            <span class="input-button-label">Googleマップ</span>
+            <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す" aria-label="Googleマップで探す">🌍</button>
+        </div>
+        <div class="input-button-wrapper">
+            <span class="input-button-label">貼り付け</span>
+            <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け" aria-label="クリップボードから貼り付け">📄</button>
+        </div>
+        <div class="input-button-wrapper">
+            <span class="input-button-label">ブックマーク保存</span>
+            <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" title="ブックマークに保存" aria-label="ブックマークに保存">⭐</button>
+        </div>
         
         <div class="input-group">
             <label for="latitude">📍 緯度 (Latitude)</label>
@@ -925,7 +993,10 @@ body.dark-mode .footer-copyright {
             <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1、東京タワー">
             <div id="autocompleteList" class="autocomplete-list"></div>
         </div>
-        <button class="btn-base btn-address-search" onclick="searchAddress()" title="住所を検索" aria-label="住所を検索">🔎 検索</button>
+        <div class="input-button-wrapper address-search-wrapper">
+            <span class="input-button-label">検索</span>
+            <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索" aria-label="住所を検索">🔎</button>
+        </div>
     </div>
     <!-- input-rowの移動ここまで -->
     
