@@ -29,7 +29,6 @@
 /* 共通 */
 --radius-base: 12px;
 --red-alert: #E64A19;
-/* ★変更点: ボタン色を淡い色に変更 */
 --btn-bulk: #90CAF9;
 --btn-bulk-hover: #42A5F5;
 --btn-toggle-all: #80CBC4;
@@ -82,7 +81,6 @@ body.dark-mode {
 --shadow-base: 0 10px 30px rgba(0,0,0,0.6);
 --shadow-hover: 0 8px 24px rgba(255,255,255,0.1);
 
-/* ★変更点: ボタン色をダークモード用に調整 */
 --btn-bulk: #448AFF;
 --btn-bulk-hover: #2962FF;
 --btn-toggle-all: #26A69A;
@@ -103,7 +101,6 @@ body.dark-mode {
 --btn-export-kml-hover-bg: #E6B300;
 --btn-format-toggle-bg: #5e35b1;
 --btn-format-toggle-hover-bg: #4527a0;
-
 
 /* オートコンプリートリストの変数 (ダークモード) */
 --autocomplete-bg: var(--card-bg);
@@ -597,6 +594,12 @@ color: var(--text-dark);
 .url-converter-group input { flex-grow: 1; }
 .url-converter-group button { padding: 8px 12px; height: auto; min-width: 0; background-color: var(--btn-paste-bg); }
 
+@media (min-width: 1800px) {
+    .left-panel {
+        flex: 5;
+    }
+}
+
 @media (max-width: 1400px) {
     .input-row {
         flex-direction: column;
@@ -992,7 +995,6 @@ function openGoogleMap() { const {lat,lon}=currentLatLon; if (isNaN(lat)||isNaN(
 async function pasteCoordinates() { try { const text = await navigator.clipboard.readText(), match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/); if (match) { updateLatLonInputs(parseFloat(match[1]), parseFloat(match[2])); await updateCurrentCoords(); showNotification('座標を貼り付けました'); } else showNotification('形式が不正です','error'); } catch (err) { showNotification('クリップボード読取失敗','error'); } }
 function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); document.getElementById('toggleIcon').classList.toggle('open'); }
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
-// ★修正点: isCustomフラグを追加するmap処理を復元
 function getCombinedMapDefinitions() {
     const customLinks = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l);
     const customMaps = customLinks.map(link => ({ ...link, isCustom: true }));
@@ -1019,7 +1021,6 @@ categoryHeader.className = 'category-header';
 categoryHeader.addEventListener('click', e => !e.target.closest('button') && toggleCategory(categoryHeader));
 categoryHeader.innerHTML = `<div class="category-title-group"><div class="category-icon ${catGroup.meta.class}">${catGroup.meta.icon}</div><div class="category-title">${catGroup.meta.title}</div><span class="accordion-icon">▼</span></div>`;
 
-// ★変更点: マイリンクにも「全選択」ボタンを追加
 const toggleBtn = document.createElement('button');
 toggleBtn.className = 'btn-toggle-all-checks';
 toggleBtn.setAttribute('title', '全選択/解除');
