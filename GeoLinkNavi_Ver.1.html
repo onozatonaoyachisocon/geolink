@@ -29,8 +29,11 @@
 /* 共通 */
 --radius-base: 12px;
 --red-alert: #E64A19;
---btn-bulk: #1976D2;
---btn-bulk-hover: #1565C0;
+/* ★変更点: ボタン色を淡い色に変更 */
+--btn-bulk: #90CAF9;
+--btn-bulk-hover: #42A5F5;
+--btn-toggle-all: #80CBC4;
+--btn-toggle-all-hover: #26A69A;
 --success-color: #1a621c;
 --error-color: #E64A19;
 --bookmark-color: #FFC107;
@@ -50,7 +53,6 @@
 --btn-export-kml-hover-bg: #F9A825;
 --btn-format-toggle-bg: #d1c4e9;
 --btn-format-toggle-hover-bg: #9575cd;
-
 
 /* オートコンプリートリストの変数 */
 --autocomplete-bg: var(--card-bg);
@@ -79,6 +81,12 @@ body.dark-mode {
 --card-bg: #374151;
 --shadow-base: 0 10px 30px rgba(0,0,0,0.6);
 --shadow-hover: 0 8px 24px rgba(255,255,255,0.1);
+
+/* ★変更点: ボタン色をダークモード用に調整 */
+--btn-bulk: #448AFF;
+--btn-bulk-hover: #2962FF;
+--btn-toggle-all: #26A69A;
+--btn-toggle-all-hover: #00897B;
 
 /* ボタンカラー変数 (ダークモード) */
 --btn-current-location-bg: #3B82F6;
@@ -400,7 +408,6 @@ gap: 10px;
 .category-header.collapsed .accordion-icon { transform: rotate(-90deg); }
 
 .btn-bulk-open, .btn-toggle-all-checks {
-background: var(--btn-bulk);
 color: white;
 border: none;
 padding: 0;
@@ -419,9 +426,11 @@ position: relative;
 transition: background 0.3s, box-shadow 0.3s;
 }
 
-.btn-bulk-open:hover { background: var(--btn-bulk-hover); box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3); }
-.btn-toggle-all-checks { background: #00897B; }
-.btn-toggle-all-checks:hover { background: #00695C; box-shadow: 0 4px 8px rgba(0, 137, 123, 0.3); }
+.btn-bulk-open { background: var(--btn-bulk); }
+.btn-bulk-open:hover { background: var(--btn-bulk-hover); box-shadow: 0 4px 8px rgba(66, 165, 245, 0.4); }
+.btn-toggle-all-checks { background: var(--btn-toggle-all); }
+.btn-toggle-all-checks:hover { background: var(--btn-toggle-all-hover); box-shadow: 0 4px 8px rgba(38, 166, 154, 0.4); }
+
 
 .btn-bulk-open::before {
 content: '▶️';
@@ -983,7 +992,12 @@ function openGoogleMap() { const {lat,lon}=currentLatLon; if (isNaN(lat)||isNaN(
 async function pasteCoordinates() { try { const text = await navigator.clipboard.readText(), match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/); if (match) { updateLatLonInputs(parseFloat(match[1]), parseFloat(match[2])); await updateCurrentCoords(); showNotification('座標を貼り付けました'); } else showNotification('形式が不正です','error'); } catch (err) { showNotification('クリップボード読取失敗','error'); } }
 function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); document.getElementById('toggleIcon').classList.toggle('open'); }
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
-function getCombinedMapDefinitions() { const custom = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l); return [...MAP_DEFINITIONS, ...custom]; }
+// ★修正点: isCustomフラグを追加するmap処理を復元
+function getCombinedMapDefinitions() {
+    const customLinks = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l);
+    const customMaps = customLinks.map(link => ({ ...link, isCustom: true }));
+    return [...MAP_DEFINITIONS, ...customMaps];
+}
 function renderMapCards() {
 $container.innerHTML = '';
 const allMaps = getCombinedMapDefinitions();
@@ -1005,13 +1019,13 @@ categoryHeader.className = 'category-header';
 categoryHeader.addEventListener('click', e => !e.target.closest('button') && toggleCategory(categoryHeader));
 categoryHeader.innerHTML = `<div class="category-title-group"><div class="category-icon ${catGroup.meta.class}">${catGroup.meta.icon}</div><div class="category-title">${catGroup.meta.title}</div><span class="accordion-icon">▼</span></div>`;
 
-if (catKey !== 'mylink') {
+// ★変更点: マイリンクにも「全選択」ボタンを追加
 const toggleBtn = document.createElement('button');
 toggleBtn.className = 'btn-toggle-all-checks';
 toggleBtn.setAttribute('title', '全選択/解除');
 toggleBtn.onclick = () => toggleAllCheckboxes(catKey, toggleBtn);
 categoryHeader.appendChild(toggleBtn);
-}
+
 const bulkOpenBtn = document.createElement('button');
 bulkOpenBtn.className = 'btn-bulk-open';
 bulkOpenBtn.setAttribute('title', 'チェックした項目を一括で開く');
@@ -1042,7 +1056,6 @@ function createMapCard(map, catKey, categoryHeader) {
     
     const checkbox = card.querySelector('.map-checkbox');
     
-    // ★修正点: クリックイベントの伝播を停止
     checkbox.onclick = (e) => {
         e.stopPropagation();
     };
