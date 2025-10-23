@@ -11,7 +11,6 @@
 <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
 <!-- Proj4JS for Coordinate Conversion -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
-
 <style>
 :root {
 /* ライトモード変数 */
@@ -119,16 +118,21 @@ padding: 20px;
 min-height: 100vh;
 color: var(--text-dark);
 transition: background 0.5s, color 0.5s;
+display: flex;
+flex-direction: column;
 }
 
 .container {
-max-width: 1400px;
+max-width: 95%;
 margin: 0 auto;
 background: var(--bg-container);
 border-radius: 20px;
 box-shadow: var(--shadow-base);
 overflow: hidden;
 transition: background 0.5s, box-shadow 0.5s;
+display: flex;
+flex-direction: column;
+flex-grow: 1;
 }
 
 .header {
@@ -136,6 +140,7 @@ background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-col
 color: white;
 padding: 10px 20px;
 position: relative;
+flex-shrink: 0;
 }
 
 .header h1 { font-size: 28px; margin-bottom: 10px; }
@@ -173,11 +178,11 @@ box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 width: 320px;
 max-height: 450px;
 padding: 10px;
-z-index: 1050; 
+z-index: 1050;
 display: none;
 color: var(--text-dark);
-top: calc(100% + 10px); 
-right: 0; 
+top: calc(100% + 10px);
+right: 0;
 }
 
 .history-popup h4, .bookmark-popup h4 { margin-bottom: 10px; padding: 5px; border-bottom: 2px solid var(--primary-color); color: var(--primary-color); font-size: 14px; }
@@ -215,13 +220,54 @@ right: 0;
 .usage-guide ul { list-style: disc inside; padding-left: 20px; margin-top: 10px; }
 .usage-guide li { margin-bottom: 5px; line-height: 1.5; }
 
-.input-section { background: var(--bg-light); padding: 10px 20px; border-bottom: 1px solid var(--border-color); }
-.filter-row { margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
-.filter-row label { font-weight: 600; font-size: 14px; }
-.category-filter-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; }
-.category-filter-checkboxes label { display: flex; align-items: center; cursor: pointer; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--card-bg); transition: all 0.2s; font-weight: bold; font-size: 14px; }
-.category-filter-checkboxes label:hover { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1); }
-.category-filter-checkboxes input[type="checkbox"] { margin-right: 8px; width: 16px; height: 16px; accent-color: var(--primary-color); }
+.main-layout {
+display: flex;
+flex-grow: 1;
+padding: 20px;
+gap: 20px;
+background: var(--bg-light);
+}
+
+.left-panel {
+flex: 4;
+display: flex;
+flex-direction: column;
+gap: 20px;
+min-width: 400px;
+}
+
+#osmClickMap {
+width: 100%;
+height: 60vh;
+border: 3px solid var(--secondary-color);
+border-radius: var(--radius-base);
+box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+flex-shrink: 0;
+}
+
+.input-section, .map-preview-container {
+background: var(--bg-container);
+padding: 20px;
+border-radius: var(--radius-base);
+box-shadow: var(--shadow-hover);
+border: 1px solid var(--border-color);
+margin-top: 0;
+}
+
+.right-panel {
+flex: 2;
+display: flex;
+flex-direction: column;
+gap: 15px;
+overflow-y: auto;
+padding: 15px;
+background: var(--bg-container);
+border-radius: var(--radius-base);
+box-shadow: var(--shadow-base);
+border: 1px solid var(--border-color);
+min-height: 0;
+}
+
 .input-row { display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; padding-top: 15px; border-top: 1px solid var(--border-color); margin-top: 20px; }
 .input-button-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .input-button-label { font-size: 11px; font-weight: 600; white-space: nowrap; margin-bottom: -5px; }
@@ -256,7 +302,7 @@ body.dark-mode .zoom-slider-overlay { background: rgba(31, 41, 55, 0.8); box-sha
 .zoom-slider-overlay #zoomLevelDisplay { font-weight: 700; color: var(--primary-color); width: 25px; text-align: center; font-size: 14px; }
 body.dark-mode .zoom-slider-overlay #zoomLevelDisplay { color: var(--text-dark); }
 
-.map-preview-container { margin-top: 10px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+.map-preview-container { margin-top: 10px; padding-top: 15px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
 .preview-header { display: flex; align-items: center; font-size: 16px; margin-bottom: 10px; cursor: pointer; }
 .preview-header h3 { font-size: 16px; margin: 0; padding-right: 10px; }
 .preview-header-icon { font-size: 14px; transition: transform 0.3s; }
@@ -264,22 +310,70 @@ body.dark-mode .zoom-slider-overlay #zoomLevelDisplay { color: var(--text-dark);
 .map-preview-container.collapsed .map-preview-wrapper { max-height: 0; }
 .map-preview-container.collapsed .preview-header-icon { transform: rotate(-90deg); }
 #mapPreview { width: 100%; height: 400px; border: 3px solid var(--secondary-color); border-radius: var(--radius-base); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-#osmClickMap { position: relative; width: 100%; height: 500px; border: 3px solid var(--secondary-color); border-radius: var(--radius-base); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .osm-map-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
 
 .content { padding: 10px; }
-.category { margin-bottom: 25px; }
-.category-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 10px 0; border-bottom: 3px solid var(--border-color); cursor: pointer; flex-wrap: wrap; gap: 10px; }
+
+.category { margin-bottom: 15px; }
+
+.category-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 10px;
+padding: 8px 0;
+border-bottom: 3px solid var(--border-color);
+cursor: pointer;
+flex-wrap: wrap;
+gap: 10px;
+}
+
 .category-header:hover { border-bottom-color: var(--primary-color); }
 .category-title-group { display: flex; align-items: center; flex-grow: 1; }
-.category-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-.category-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 15px; color: white; flex-shrink: 0; }
+.category-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.category-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 10px; color: white; flex-shrink: 0; }
 .accordion-icon { font-size: 20px; font-weight: 900; margin-left: 15px; transition: transform 0.3s; }
 .category-header.collapsed .accordion-icon { transform: rotate(-90deg); }
-.btn-bulk-open { background: var(--btn-bulk); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+
+.btn-bulk-open, .btn-toggle-all-checks {
+background: var(--btn-bulk);
+color: white;
+border: none;
+padding: 0;
+border-radius: 8px;
+font-weight: 600;
+cursor: pointer;
+font-size: 0;
+width: 48px;
+height: 48px;
+display: flex;
+align-items: center;
+justify-content: center;
+white-space: nowrap;
+overflow: hidden;
+position: relative;
+transition: background 0.3s, box-shadow 0.3s;
+}
+
 .btn-bulk-open:hover { background: var(--btn-bulk-hover); box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3); }
-.btn-toggle-all-checks { background: #00897B; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+.btn-toggle-all-checks { background: #00897B; }
 .btn-toggle-all-checks:hover { background: #00695C; box-shadow: 0 4px 8px rgba(0, 137, 123, 0.3); }
+
+.btn-bulk-open::before {
+content: '▶️';
+font-size: 20px;
+position: absolute;
+color: white;
+}
+.btn-toggle-all-checks::before {
+content: '✅';
+font-size: 20px;
+position: absolute;
+color: white;
+}
+.btn-toggle-all-checks.checked::before {
+content: '❌';
+}
 
 .map-grid.hidden { display: none; }
 .terrain-icon { background: linear-gradient(135deg, #4CAF50, #45a049); }
@@ -289,8 +383,25 @@ body.dark-mode .zoom-slider-overlay #zoomLevelDisplay { color: var(--text-dark);
 .other-icon { background: linear-gradient(135deg, #9C27B0, #7B1FA2); }
 .mylink-icon { background: linear-gradient(135deg, #FFC107, #FFA000); }
 
-.map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-.map-card { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: var(--radius-base); padding: 20px; transition: all 0.3s; position: relative; display: flex; flex-direction: column; cursor: pointer; }
+.map-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 12px;
+}
+
+.map-card { 
+    background: var(--card-bg); 
+    border: 2px solid var(--border-color); 
+    border-radius: var(--radius-base); 
+    padding: 8px;
+    transition: all 0.3s; 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    cursor: pointer; 
+    min-height: 60px;
+    justify-content: center;
+}
 .map-card:hover { transform: translateY(-4px); border-color: transparent; }
 .map-card[data-category="terrain"]:hover { box-shadow: var(--shadow-terrain); }
 .map-card[data-category="disaster"]:hover { box-shadow: var(--shadow-disaster); }
@@ -305,13 +416,25 @@ body.dark-mode .zoom-slider-overlay #zoomLevelDisplay { color: var(--text-dark);
 .map-card[data-category="other"] { border-left: 4px solid #9C27B0; }
 .map-card[data-category="mylink"] { border-left: 4px solid #FFC107; }
 
-.map-header-with-check { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-right: 5px; }
-.map-title { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
-.map-checkbox { width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; margin-left: 10px; z-index: 10; }
-.map-description { font-size: 13px; color: var(--text-medium); line-height: 1.5; flex-grow: 1; }
+.map-header-with-check { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; padding-right: 5px; }
+.map-title {
+font-weight: 600;
+font-size: 14px;
+display: flex;
+align-items: center;
+gap: 5px;
+margin-bottom: 0;
+flex-grow: 1;
+}
+.map-title .map-icon-in-title {
+font-size: 18px;
+}
+
+.map-checkbox { width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; margin-left: 10px; z-index: 10; }
+.map-description { display: none; }
 .manual-input-warning { color: var(--red-alert); font-size: 11px; margin-top: 5px; font-weight: 600; }
 
-.status-bar { background: var(--bg-light); padding: 15px 40px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-medium); gap: 15px; }
+.status-bar { background: var(--bg-light); padding: 15px 40px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-medium); gap: 15px; flex-shrink: 0; }
 .status-bar strong { color: var(--text-dark); }
 .notification { position: fixed; top: 20px; right: 20px; background: var(--success-color); color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: none; animation: slideIn 0.3s ease; z-index: 2000; font-weight: 600; }
 .notification.error { background: var(--error-color); }
@@ -319,11 +442,11 @@ body.dark-mode .zoom-slider-overlay #zoomLevelDisplay { color: var(--text-dark);
 
 #autocompleteList { position: absolute; top: 100%; left: 0; right: 0; background-color: var(--autocomplete-bg); border: 1px solid var(--autocomplete-border); border-radius: var(--radius-base); box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; z-index: 1001; list-style: none; padding: 5px 0; margin-top: 5px; display: none; }
 #autocompleteList.show { display: block; }
-.autocomplete-item { padding: 10px 15px; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
+.autocomplete-item { padding: 10px 15px; cursor: pointer; font-size: 14px; transition: background-color: 0.2s; }
 .autocomplete-item:hover, .autocomplete-item.selected { background-color: var(--autocomplete-item-hover-bg); }
 .autocomplete-item span { display: block; font-size: 12px; color: var(--text-medium); margin-top: 2px; }
 
-.footer-copyright { text-align: center; margin-top: 20px; color: var(--text-medium); font-size: 13px; padding-bottom: 20px; }
+.footer-copyright { text-align: center; color: var(--text-medium); font-size: 13px; padding-bottom: 20px; flex-shrink: 0; }
 body.dark-mode .footer-copyright { color: var(--text-medium); }
 
 .coord-conversion-section { padding: 15px; margin-top: 20px; border: 1px solid var(--border-color); border-radius: var(--radius-base); background-color: var(--card-bg); }
@@ -336,14 +459,14 @@ body.dark-mode .footer-copyright { color: var(--text-medium); }
 .btn-toggle-format:hover { background-color: var(--btn-paste-hover-bg); }
 
 .analysis-tools-overlay {
-    position: absolute;
-    bottom: 30px;
-    left: 10px;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+position: absolute;
+bottom: 30px;
+left: 10px;
+z-index: 1000;
+background: rgba(255, 255, 255, 0.8);
+border-radius: 10px;
+padding: 10px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 body.dark-mode .analysis-tools-overlay { background: rgba(31, 41, 55, 0.8); box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
 .analysis-tools-overlay h3 { font-size: 14px; margin: 0 0 8px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; }
@@ -367,24 +490,22 @@ body.dark-mode .analysis-tools-overlay { background: rgba(31, 41, 55, 0.8); box-
 .btn-area:hover { background-color: #7B1FA2; }
 .btn-area.active { background-color: #4A148C; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4); }
 
-/* --- ★新機能：リアルタイム面積表示のスタイル --- */
 .area-display-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-left: 10px;
-    display: none;
-    white-space: nowrap;
-    background-color: var(--bg-light);
-    padding: 6px 10px;
-    border-radius: 6px;
+font-size: 13px;
+font-weight: 700;
+color: var(--primary-color);
+margin-left: 10px;
+display: none;
+white-space: nowrap;
+background-color: var(--bg-light);
+padding: 6px 10px;
+border-radius: 6px;
 }
 body.dark-mode .area-display-label {
-    color: var(--text-dark);
+color: var(--text-dark);
 }
 
-
-.btn-add-mylink { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; background-color: var(--btn-save-bookmark-bg); color: var(--text-dark); border: 2px dashed var(--bookmark-color); border-radius: var(--radius-base); cursor: pointer; }
+.btn-add-mylink { width: 100%; padding: 10px; font-size: 14px; font-weight: bold; background-color: var(--btn-save-bookmark-bg); color: var(--text-dark); border: 2px dashed var(--bookmark-color); border-radius: var(--radius-base); cursor: pointer; }
 .btn-add-mylink:hover { background-color: var(--btn-save-bookmark-hover-bg); border-color: var(--btn-save-bookmark-hover-bg); }
 .map-card-actions { display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px; }
 .map-card-actions button { flex: 1; padding: 8px; font-size: 12px; font-weight: 700; border-radius: 8px; border: none; color: white; cursor: pointer; }
@@ -402,13 +523,51 @@ body.dark-mode .area-display-label {
 .modal-buttons button { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
 .btn-modal-save { background-color: var(--success-color); color: white; }
 .btn-modal-cancel { background-color: var(--border-color); color: var(--text-dark); }
+.url-converter-group { display: flex; gap: 10px; align-items: center; }
+.url-converter-group input { flex-grow: 1; }
+.url-converter-group button { padding: 8px 12px; height: auto; min-width: 0; background-color: var(--btn-paste-bg); }
+
+@media (max-width: 1024px) {
+body {
+    height: auto;
+    overflow-y: auto;
+}
+.main-layout {
+flex-direction: column;
+overflow: visible;
+}
+.left-panel, .right-panel {
+flex: none;
+width: 100%;
+min-width: unset;
+min-height: unset;
+overflow-y: visible;
+padding-right: 0;
+}
+#osmClickMap {
+height: 60vh;
+}
+#mapPreview {
+height: 400px;
+}
+.right-panel {
+max-height: 50vh;
+overflow-y: auto;
+}
+}
 
 @media (max-width: 768px) {
-    .header-buttons { right: 10px; top: 15px; gap: 5px; }
-    .mode-toggle, .history-button, .bookmark-button, .share-button { width: 35px; height: 35px; font-size: 16px; }
-    .header-button-label { font-size: 9px; }
-    .history-popup, .bookmark-popup { width: calc(100% - 20px); left: 10px; top: 60px; }
-    .analysis-tools-overlay { bottom: 10px; }
+.header-buttons { right: 10px; top: 15px; gap: 5px; }
+.mode-toggle, .history-button, .bookmark-button, .share-button { width: 35px; height: 35px; font-size: 16px; }
+.header-button-label { font-size: 9px; }
+.history-popup, .bookmark-popup { width: calc(100% - 20px); left: 10px; top: 60px; }
+.analysis-tools-overlay { bottom: 10px; }
+.input-row { flex-direction: column; gap: 10px; }
+.input-group, .input-button-wrapper { width: 100%; }
+.input-button-wrapper.address-search-wrapper { margin-left: 0; }
+#osmClickMap {
+height: 50vh;
+}
 }
 </style>
 </head>
@@ -416,261 +575,262 @@ body.dark-mode .area-display-label {
 <div class="notification" id="notification"></div>
 <div class="container">
 <div class="header">
-    <h1>🗺️ Geo連携ナビ / Geo Link Navi</h1>
-    <div class="header-buttons">
-        <div class="header-button-wrapper">
-            <button class="share-button" id="shareButton" onclick="generateShareUrl()" aria-label="リンク共有" title="現在の状態を共有">🔗</button>
-            <span class="header-button-label">リンク共有</span>
-        </div>
-        <div class="header-button-wrapper">
-            <button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
-            <span class="header-button-label">ブックマーク</span>
-            <div class="bookmark-popup" id="bookmarkPopup">
-                <h4>⭐ 地点ブックマーク</h4>
-                <div class="popup-buttons">
-                    <button class="btn-clear-bookmarks" onclick="clearBookmarks()">🗑️ 全削除</button>
-                    <button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSV</button>
-                    <button class="btn-export-kml" onclick="exportBookmarksToKML()">🌐 KML</button>
-                </div>
-                <div id="bookmarkList"></div>
-            </div>
-        </div>
-        <div class="header-button-wrapper">
-            <button class="history-button" id="historyButton" onclick="toggleHistoryPopup()" aria-label="履歴" title="履歴を表示">⏱️</button>
-            <span class="header-button-label">履歴</span>
-            <div class="history-popup" id="historyPopup">
-                <h4>座標履歴 (最新100件)</h4>
-                <div class="popup-buttons">
-                    <button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴クリア</button>
-                    <button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSV</button>
-                    <button class="btn-export-kml" onclick="exportHistoryToKML()">🌐 KML</button>
-                </div>
-                <div id="historyList"></div>
-            </div>
-        </div>
-        <div class="header-button-wrapper">
-            <button class="mode-toggle" id="modeToggle" onclick="toggleDarkMode()" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
-            <span class="header-button-label">モード切替</span>
-        </div>
-    </div>
-    <div class="usage-toggle">
-        <button class="toggle-btn" onclick="toggleUsage()">💡 使い方を見る <span class="toggle-icon" id="toggleIcon">▶</span></button>
-        <div class="usage-guide" id="usageGuide">
-             <p>★知りたい場所の緯度・経度から、複数のオンライン地図や専門図面サイトへ瞬時にアクセス。情報収集をサポートします。★</p>
-            <p class="popup-warning">⚠️ **注意:** 複数の地図を一括で開くには、ブラウザのポップアップブロックを解除（ポップアップを許可）してください。</p>
-            <ul>
-            <li>「🗺️クリックで座標取得 地図プレビュー」:🖱️クリックした位置の座標を緯度経度に反映します。全画面で選択した場合はESCで戻ってください。OpenStreetと地理院地図を切り替えられます。</li>
-            <li>「🛠️測量ツール」: 「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。面積は3点目以降クリックするたびにリアルタイムで表示され、ダブルクリックで計測が完了します。</li>
-<li>「🗺️現在の座標プレビュー」：🖱️クリックした位置が埋め込まれたGoogleマップに反映されます。（プレビュー扱いです）</li>               
+<h1>🗺️ Geo連携ナビ / Geo Link Navi</h1>
+<div class="header-buttons">
+<div class="header-button-wrapper">
+<button class="share-button" id="shareButton" onclick="generateShareUrl()" aria-label="リンク共有" title="現在の状態を共有">🔗</button>
+<span class="header-button-label">リンク共有</span>
+</div>
+<div class="header-button-wrapper">
+<button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
+<span class="header-button-label">ブックマーク</span>
+<div class="bookmark-popup" id="bookmarkPopup">
+<h4>⭐ 地点ブックマーク</h4>
+<div class="popup-buttons">
+<button class="btn-clear-bookmarks" onclick="clearBookmarks()">🗑️ 全削除</button>
+<button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSV</button>
+<button class="btn-export-kml" onclick="exportBookmarksToKML()">🌐 KML</button>
+</div>
+<div id="bookmarkList"></div>
+</div>
+</div>
+<div class="header-button-wrapper">
+<button class="history-button" id="historyButton" onclick="toggleHistoryPopup()" aria-label="履歴" title="履歴を表示">⏱️</button>
+<span class="header-button-label">履歴</span>
+<div class="history-popup" id="historyPopup">
+<h4>座標履歴 (最新100件)</h4>
+<div class="popup-buttons">
+<button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴クリア</button>
+<button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSV</button>
+<button class="btn-export-kml" onclick="exportHistoryToKML()">🌐 KML</button>
+</div>
+<div id="historyList"></div>
+</div>
+</div>
+<div class="header-button-wrapper">
+<button class="mode-toggle" id="modeToggle" onclick="toggleDarkMode()" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
+<span class="header-button-label">モード切替</span>
+</div>
+</div>
+<div class="usage-toggle">
+<button class="toggle-btn" onclick="toggleUsage()">💡 使い方を見る <span class="toggle-icon" id="toggleIcon">▶</span></button>
+<div class="usage-guide" id="usageGuide">
+<p>★知りたい場所の緯度・経度から、複数のオンライン地図や専門図面サイトへ瞬時にアクセス。情報収集をサポートします。★</p>
+<p class="popup-warning">⚠️ **注意:** 複数の地図を一括で開くには、ブラウザのポップアップブロックを解除（ポップアップを許可）してください。</p>
+<ul>
+<li>「🗺️クリックで座標取得 地図プレビュー」:🖱️クリックした位置の座標を緯度経度に反映します。全画面で選択した場合はESCで戻ってください。OpenStreetと地理院地図を切り替えられます。</li>
+<li>「🛠️測量ツール」: 「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。面積は3点目以降クリックするたびにリアルタイムで表示され、ダブルクリックで計測が完了します。</li>
+<li>「🗺️現在の座標プレビュー」：🖱️クリックした位置が埋め込まれたGoogleマップに反映されます。（プレビュー扱いです）</li>
 <li>「📍現在地」ボタン:お使いのデバイスの位置情報機能を利用して、現在地の座標を自動で入力します。（ブラウザの許可が必要な場合があります）</li>
-                <li>「🌍Googleマップで探す」ボタン：マップを開いて調べたい場所を右クリック → 座標をクリップボードにコピーしてください。</li>
-                <li>「📄 貼り付け」ボタン：クリップボードから緯度・経度を貼り付けます。</li>
-                <li>「⭐ ブックマークに保存」ボタン：お気に入りの場所に名前をつけてブックマークに保存できます。</li>
-                <li>「🔎住所検索」ボタン:住所やランドマークなどを入力して検索すると、そこの緯度・経度を地図に反映できます。入力中に候補が表示されます。</li>
-                <li>各種地図カード:画面下部のカテゴリから、利用したい地図サービスをクリックすると、入力座標を中心とした地図が新しいタブで開きます。</li>
-                <li>全選択/全解除ボタン:各カテゴリヘッダーにある「✅ 全選択/解除」ボタンで、そのカテゴリ内のすべての地図カードのチェック状態を切り替えられます。</li>               
- <li>一括選択・オープン:各カテゴリの「▶️ チェックした項目を一括で開く」ボタンを利用すると、チェックボックスに印を付けた複数の地図を一度に開くことができます。</li>
-<li>「🔗 リンク共有」: 現在の座標やチェック状態をそのまま他の人に共有できるURLを生成します。</li>                
+<li>「🌍Googleマップで探す」ボタン：マップを開いて調べたい場所を右クリック → 座標をクリップボードにコピーしてください。</li>
+<li>「📄 貼り付け」ボタン：クリップボードから緯度・経度を貼り付けます。</li>
+<li>「⭐ ブックマークに保存」ボタン：お気に入りの場所に名前をつけてブックマークに保存できます。</li>
+<li>「🔎住所検索」ボタン:住所やランドマークなどを入力して検索すると、そこの緯度・経度を地図に反映できます。入力中に候補が表示されます。</li>
+<li>各種地図カード:画面下部のカテゴリから、利用したい地図サービスをクリックすると、入力座標を中心とした地図が新しいタブで開きます。</li>
+<li>全選択/全解除ボタン:各カテゴリヘッダーにある「✅ 全選択/解除」ボタンで、そのカテゴリ内のすべての地図カードのチェック状態を切り替えられます。</li>
+<li>一括選択・オープン:各カテゴリの「▶️ チェックした項目を一括で開く」ボタンを利用すると、チェックボックスに印を付けた複数の地図を一度に開くことができます。</li>
+<li>「🔗 リンク共有」: 現在の座標やチェック状態をそのまま他の人に共有できるURLを生成します。</li>
 <li>「⏱️座標履歴・ブックマーク:座標履歴」：クリック位置が自動で保存され、「⭐ブックマーク」は任意の地点を名前を付けて保存できます。記録は💾 CSVまたは🌐 KMLで書き出せます。</li>
 <li>「⚙️座標形式」: 「表示形式切替」ボタンで、緯度経度の表示を「十進数形式」と「度分秒形式」で切り替えられます。</li>
-                <li>⭐ マイリンク: 自分専用のWeb地図へのリンクを自由に追加・管理できます。</li>
-                
-            </ul>
-        </div>
-    </div>
+<li>⭐ マイリンク: 自分専用のWeb地図へのリンクを自由に追加・管理できます。</li>
+</ul>
 </div>
-
-<div class="input-section">
-    <div style="margin-top: 5px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-        <div class="osm-map-header">
-            <h3>🗺️ クリックで座標取得 / 地図プレビュー</h3>
-        </div>
-        <div id="osmClickMap">
-            <div class="analysis-tools-overlay collapsed" id="analysis-tools">
-                <h3 id="analysis-tools-header">🛠️ 測量・解析ツール <span class="toggle-icon">▶</span></h3>
-                <div class="analysis-tools-controls">
-                    <div class="analysis-tool-row">
-                        <button class="btn-base btn-measure" id="measure-tool-btn">📏 距離計測</button>
-                    </div>
-                    <!-- --- ★変更点：面積計測ボタンとリアルタイム表示欄 --- -->
-                    <div class="analysis-tool-row">
-                        <button class="btn-base btn-area" id="area-tool-btn">📐 面積計測</button>
-                        <span id="area-display" class="area-display-label"></span>
-                    </div>
-                    <div class="analysis-tool-row">
-                        <button class="btn-base btn-buffer" id="buffer-tool-btn">⭕ 円作成</button>
-                        <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600; margin: 0 5px;">半径</label>
-                        <input type="number" id="buffer-radius-input" value="500" min="1">
-                        <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600;">m</label>
-                    </div>
-                     <div class="analysis-tool-row">
-                        <button class="btn-base btn-clear-analysis" id="clear-analysis-btn">🗑️ クリア</button>
+</div>
+</div>
+<div class="main-layout">
+    <div class="left-panel">
+        <div>
+            <div class="osm-map-header">
+                <h3>🗺️ クリックで座標取得 / 地図プレビュー</h3>
+            </div>
+            <div id="osmClickMap">
+                <div class="analysis-tools-overlay collapsed" id="analysis-tools">
+                    <h3 id="analysis-tools-header">🛠️ 測量・解析ツール <span class="toggle-icon">▶</span></h3>
+                    <div class="analysis-tools-controls">
+                        <div class="analysis-tool-row">
+                            <button class="btn-base btn-measure" id="measure-tool-btn">📏 距離計測</button>
+                        </div>
+                        <div class="analysis-tool-row">
+                            <button class="btn-base btn-area" id="area-tool-btn">📐 面積計測</button>
+                            <span id="area-display" class="area-display-label"></span>
+                        </div>
+                        <div class="analysis-tool-row">
+                            <button class="btn-base btn-buffer" id="buffer-tool-btn">⭕ 円作成</button>
+                            <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600; margin: 0 5px;">半径</label>
+                            <input type="number" id="buffer-radius-input" value="500" min="1">
+                            <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600;">m</label>
+                        </div>
+                        <div class="analysis-tool-row">
+                            <button class="btn-base btn-clear-analysis" id="clear-analysis-btn">🗑️ クリア</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="zoom-slider-overlay">
-                <label for="zoomLevel">ズーム:</label>
-                <input type="range" id="zoomLevel" value="16" min="1" max="20">
-                <span id="zoomLevelDisplay">16</span>
+                <div class="zoom-slider-overlay">
+                    <label for="zoomLevel">ズーム:</label>
+                    <input type="range" id="zoomLevel" value="16" min="1" max="20">
+                    <span id="zoomLevelDisplay">16</span>
+                </div>
             </div>
         </div>
 
-    </div>
-
-    <div class="input-row">
-        <div class="input-button-wrapper">
-            <span class="input-button-label">現在地</span>
-            <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得">📍</button>
-        </div>
-        <div class="input-button-wrapper">
-            <span class="input-button-label">Googleマップ</span>
-            <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す">🌍</button>
-        </div>
-        <div class="input-button-wrapper">
-            <span class="input-button-label">貼り付け</span>
-            <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け">📄</button>
-        </div>
-        <div class="input-button-wrapper">
-            <span class="input-button-label">ブックマーク保存</span>
-            <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" title="ブックマークに保存">⭐</button>
-        </div>
-        
-        <div class="input-group">
-            <div class="latlon-label-group">
-                <label for="latitude">📍 緯度 (Latitude)</label>
-                <button class="btn-toggle-format" id="coord-format-toggle">表示形式切替</button>
+        <div class="input-section">
+            <div class="input-row">
+                <div class="input-button-wrapper">
+                    <span class="input-button-label">現在地</span>
+                    <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得">📍</button>
+                </div>
+                <div class="input-button-wrapper">
+                    <span class="input-button-label">Googleマップ</span>
+                    <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す">🌍</button>
+                </div>
+                <div class="input-button-wrapper">
+                    <span class="input-button-label">貼り付け</span>
+                    <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け">📄</button>
+                </div>
+                <div class="input-button-wrapper">
+                    <span class="input-button-label">ブックマーク保存</span>
+                    <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" title="ブックマークに保存">⭐</button>
+                </div>
+                
+                <div class="input-group">
+                    <div class="latlon-label-group">
+                        <label for="latitude">📍 緯度 (Latitude)</label>
+                        <button class="btn-toggle-format" id="coord-format-toggle">表示形式切替</button>
+                    </div>
+                    <input type="text" id="latitude" placeholder="例: 35.68107447" value="35.68107447">
+                </div>
+                <div class="input-group">
+                    <label for="longitude">📍 経度 (Longitude)</label>
+                    <input type="text" id="longitude" placeholder="例: 139.76784396" value="139.76784396">
+                </div>
+                <div class="input-group" style="position: relative;">
+                    <label for="addressInput">🏠 住所や名称などから検索</label>
+                    <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1、東京タワー">
+                    <div id="autocompleteList" class="autocomplete-list"></div>
+                </div>
+                <div class="input-button-wrapper address-search-wrapper">
+                    <span class="input-button-label">検索</span>
+                    <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
+                </div>
             </div>
-            <input type="text" id="latitude" placeholder="例: 35.68107447" value="35.68107447">
         </div>
-        <div class="input-group">
-            <label for="longitude">📍 経度 (Longitude)</label>
-            <input type="text" id="longitude" placeholder="例: 139.76784396" value="139.76784396">
-        </div>
-        <div class="input-group" style="position: relative;">
-            <label for="addressInput">🏠 住所や名称などから検索</label>
-            <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1、東京タワー">
-            <div id="autocompleteList" class="autocomplete-list"></div>
-        </div>
-        <div class="input-button-wrapper address-search-wrapper">
-            <span class="input-button-label">検索</span>
-            <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
-        </div>
-    </div>
-    
-    <div class="map-preview-container collapsed" id="previewContainer">
-        <div class="preview-header" onclick="togglePreview()">
-            <h3>🗺️ 現在の座標プレビュー (Google): <strong id="currentCoords">...</strong> (Zoom: <strong id="currentZoom">...</strong>)</h3>
-            <span class="preview-header-icon">▼</span>
-        </div>
-        <div class="map-preview-wrapper">
-            <iframe id="mapPreview" width="100%" height="400" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
+
+        <div class="map-preview-container" id="previewContainer">
+            <div class="preview-header" onclick="togglePreview()">
+                <h3>🗺️ 現在の座標プレビュー (Google): <strong id="currentCoords">...</strong> (Zoom: <strong id="currentZoom">...</strong>)</h3>
+                <span class="preview-header-icon">▼</span>
+            </div>
+            <div class="map-preview-wrapper">
+                <iframe id="mapPreview" width="100%" height="400" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
+            </div>
         </div>
     </div>
 
-    <div class="filter-row" style="margin-top: 5px; padding-top: 20px; border-top: 1px solid var(--border-color);">
-        <label>🔍 地図カテゴリで絞り込み:</label>
-        <div class="category-filter-checkboxes" id="categoryFilterCheckboxes">
-        </div>
+    <div class="right-panel">
+        <div class="content" id="map-categories-container"></div>
     </div>
 </div>
-
-<div class="content" id="map-categories-container"></div>
 
 <div class="status-bar">
-    <span id="lastUpdated">最終更新日: 2025年10月23日</span>
+    <span id="lastUpdated">最終更新日: 2025年10月24日</span>
 </div>
-</div> 
-
+</div>
 <div class="modal-overlay" id="mylink-modal">
-    <div class="modal-content">
-        <h3 id="modal-title"></h3>
-        <form id="mylink-form">
-            <input type="hidden" id="mylink-id">
-            <div class="modal-form-group">
-                <label for="mylink-name">名前</label>
-                <input type="text" id="mylink-name" required placeholder="例: My Favorite Map">
-            </div>
-            <div class="modal-form-group">
-                <label for="mylink-url">URLテンプレート</label>
-                <input type="text" id="mylink-url" required placeholder="https://example.com/?lat={lat}&lon={lon}&z={z}">
-                <small>プレースホルダ: {lat}, {lon}, {z} が使用できます。</small>
-            </div>
-            <div class="modal-form-group">
-                <label for="mylink-desc">説明 (任意)</label>
-                <textarea id="mylink-desc" rows="2" placeholder="このリンクについての簡単な説明"></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn-modal-cancel" id="btn-modal-cancel">キャンセル</button>
-                <button type="submit" class="btn-modal-save">保存</button>
-            </div>
-        </form>
+<div class="modal-content">
+<h3 id="modal-title"></h3>
+<form id="mylink-form">
+<input type="hidden" id="mylink-id">
+<div class="modal-form-group">
+<label for="mylink-name">名前</label>
+<input type="text" id="mylink-name" required placeholder="例: My Favorite Map">
+</div>
+
+<div class="modal-form-group">
+    <label for="mylink-example-url">① 実URLから変換</label>
+    <div class="url-converter-group">
+        <input type="text" id="mylink-example-url" placeholder="座標を含むURLをここに貼り付け">
+        <button type="button" id="btn-convert-url" class="btn-base">変換</button>
     </div>
+    <small>例: https://maps.app.goo.gl/xxxxx のようなURL</small>
 </div>
 
+<div class="modal-form-group">
+<label for="mylink-url">② URLテンプレート</label>
+<input type="text" id="mylink-url" required placeholder="https://example.com/?lat={lat}&lon={lon}&z={z}">
+<small>プレースホルダ: {lat}, {lon}, {z} が使用できます。</small>
+</div>
+<div class="modal-form-group">
+<label for="mylink-desc">説明 (任意)</label>
+<textarea id="mylink-desc" rows="2" placeholder="このリンクについての簡単な説明"></textarea>
+</div>
+<div class="modal-buttons">
+<button type="button" class="btn-modal-cancel" id="btn-modal-cancel">キャンセル</button>
+<button type="submit" class="btn-modal-save">保存</button>
+</div>
+</form>
+</div>
+</div>
 <div class="footer-copyright">
-    © 2025 GeoLinkNavi
-    <br>本ソースコードおよびデザインの無断転載・改変・再配布を禁止します。
+© 2025 GeoLinkNavi
+<br>本ソースコードおよびデザインの無断転載・改変・再配布を禁止します。
 </div>
-
 <script>
-// =========================================================
-// スクリプト全体
-// =========================================================
 const CATEGORY_META = { 'all': { title: 'すべての地図', icon: '🌐', class: '' }, 'terrain': { title: '地図・地理情報', icon: '🗻', class: 'terrain-icon' }, 'geology': { title: '地質・地盤情報', icon: '🏔️', class: 'geology-icon' }, 'disaster': { title: '防災・ハザード情報', icon: '⚠️', class: 'disaster-icon' }, 'survey': { title: '測量・解析ツール', icon: '📐', class: 'survey-icon' }, 'other': { title: 'その他の情報', icon: '💡', class: 'other-icon' }, 'mylink': { title: '⭐ マイリンク', icon: '⭐', class: 'mylink-icon'} };
 const BASE_LAYERS = { 'osm': { name: 'OpenStreetMap', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap contributors', layer: null }, 'gsi_std': { name: '地理院地図（標準）', url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null }, 'gsi_pale': { name: '地理院地図（淡色）', url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null } };
 const MAP_DEFINITIONS = [ { name: '地理院地図', desc: '国土地理院の基本地図。標高、地形、土地利用など', category: 'terrain', icon: '🗺️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c0g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { name: '地理院時系列', desc: '過去から現在までの地図を時系列で比較', category: 'terrain', icon: '⏳', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&ls=gsi-compare-photo&lcd=gsi-compare-photo&vs=c0j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { name: '治水地形分類図', desc: '河川周辺の地形特性と洪水リスクを把握', category: 'terrain', icon: '🖼️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=lcmfc2%2C0.8%7Chillshademap&blend=01&disp=111&lcd=hillshademap&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { name: 'Googleマップ', desc: 'ストリートビューや経路検索も可能', category: 'terrain', icon: '📍', noCoords: false, url: (lat, lon) => `https://maps.google.co.jp/maps?q=${lat},${lon}` }, { name: 'Google Earth', desc: '3D地形と衛星画像で地表を詳細に確認', category: 'terrain', icon: '🌍', noCoords: false, url: (lat, lon, zoom) => `https://earth.google.com/web/@${lat},${lon},0a,${Math.round(300000*Math.pow(0.5,(parseInt(zoom,10)-1)/3))}d,0y,0h` }, { name: '今昔マップ', desc: '明治から現代までの地形図を並べて表示', category: 'terrain', icon: '📜', noCoords: false, url: (lat, lon, zoom) => `https://ktgis.net/kjmapw/kjmapw.html?lat=${lat}&lng=${lon}&zoom=${zoom}&dataset=&age=3&screen=2&scr1tile=k_cj4&scr2tile=k_cj4&scr3tile=k_cj4&mapOpacity=10&overGSItile=no&altitudeOpacity=2` }, { name: '地図・空中写真閲覧', desc: '過去の空中写真を閲覧', category: 'terrain', icon: '📷', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/map-photos/app/map?search=photo#${zoom}/${lat}/${lon}` }, { name: '地質図Navi', desc: '日本全国の地質情報を詳細に表示', category: 'geology', icon: '⛏️', noCoords: false, url: (lat, lon, zoom) => `https://gbank.gsj.jp/geonavi/geonavi.php#${zoom},${lat},${lon}` }, { name: '国土地盤情報 KuniJiban', desc: 'ボーリングデータなど地盤情報を検索', category: 'geology', icon: '📊', noCoords: true, url: () => `https://www.kunijiban.pwri.go.jp/viewer/` }, { name: '国土地盤情報センター', desc: '全国の地盤情報データベース', category: 'geology', icon: '📈', noCoords: true, url: () => `https://publicweb.ngic.or.jp/viewer/` }, { name: 'ジオ・ステーション', desc: '地質・地盤情報の統合プラットフォーム。開いた後に位置を検索してください', category: 'geology', icon: '🧭', noCoords: true, url: () => `https://www.geo-stn.bosai.go.jp/mapping_page.html` }, { name: '東京の地盤（GIS）', desc: '東京都内の詳細な地盤データ。開いた後に位置を検索してください', category: 'geology', icon: '🏢', noCoords: true, url: () => `https://doboku.metro.tokyo.lg.jp/start/03-jyouhou/geo-web/geo-webmap.aspx` }, { name: '重ねるハザードマップ', desc: '洪水、土砂災害、津波などの危険区域を表示', category: 'disaster', icon: '🚨', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=tameike_raster%2C0.75%7Cflood_list_l2%2C0.75%7Cdisaster1&disp=110&vs=c1j0l0u0` }, { name: 'ハザードマップ（治水地形分類図）', desc: '治水地形分類図とハザード情報の重ね合わせ', category: 'disaster', icon: '🚫', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=hillshademap%7CLCMFC02&disp=11&vs=c1j0l0u0t0h0z0` }, { name: '川の防災情報', desc: 'リアルタイムの河川水位と雨量情報', category: 'disaster', icon: '💧', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `https://www.river.go.jp/kawabou/pc/ov?zm=${zoom}&fld=0&clat=${lat}&clon=${lon}&mapType=0&viewGrpStg=0&viewRd=1&viewRW=1&viewRiver=1&viewPoint=1`;} }, { name: 'キキクル（危険度分布）', desc: '土砂災害・浸水・洪水の危険度をリアルタイム表示', category: 'disaster', icon: '⛈️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/risk/#zoom:${zoom}/lat:${lat}/lon:${lon}/colordepth:deep/elements:land` }, { name: '基準点閲覧サービス', desc: '三角点・水準点などの基準点情報', category: 'survey', icon: '📏', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/kijunten/app/map/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c1z0f0` }, { name: '水文水質データベース', desc: '河川の水位・流量・水質データ', category: 'survey', icon: '🔬', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `http://www1.river.go.jp/cgi-bin/SelectMap.do?cntX=${lon}&cntY=${lat}&scaleCd=${s}`;} }, { name: 'Web地形断面メーカー', desc: '2点間の地形断面図を自動作成。開いた後に位置を設定してください', category: 'survey', icon: '〽️', noCoords: true, url: () => `https://ktgis.net/service/topoprofile/` }, { name: 'Web等高線メーカー', desc: '指定範囲の等高線図を作成。開いた後に位置を設定してください', category: 'survey', icon: '🏔️', noCoords: true, url: () => `https://ktgis.net/service/webcontour/index.html` }, { name: 'Yahoo地図', desc: '雨雲レーダーや混雑情報も表示可能', category: 'other', icon: '☁️', noCoords: false, url: (lat, lon, zoom) => `https://map.yahoo.co.jp/?lat=${lat}&lon=${lon}&zoom=${zoom}&maptype=satellite` }, { name: 'Mapion（マップコード）', desc: 'カーナビ用のマップコードを取得。右クリック→地図URLでマップコードを表示', category: 'other', icon: '📍', noCoords: false, url: (lat, lon, zoom) => `https://www.mapion.co.jp/m2/${lat},${lon},${zoom}` }, { name: '地価マップ', desc: '公示地価・基準地価を地図上に表示', category: 'other', icon: '💵', noCoords: false, url: (lat, lon) => `https://www.chikamap.jp/chikamap/Map?mid=220&mps=2500&mpx=${parseFloat(lon)+0.002365}&mpy=${parseFloat(lat)-0.00328}&mtl=47,37,77,27,67,57&mcl=3,30,30,30;2,20,312,312;7,70,310,310;1,10,312,312;1,10,310,310;5,50,50,50;4,40,40,40&gprj=1&flgInit=1&vpc=0` }];
 
-const $lat = document.getElementById('latitude'), $lon = document.getElementById('longitude'), $coordsDisplay = document.getElementById('currentCoords'), $zoom = document.getElementById('zoomLevel'), $zoomDisplay = document.getElementById('zoomLevelDisplay'), $container = document.getElementById('map-categories-container'), $notification = document.getElementById('notification'), $mapPreview = document.getElementById('mapPreview'), $previewContainer = document.getElementById('previewContainer'), $historyPopup = document.getElementById('historyPopup'), $historyList = document.getElementById('historyList'), $bookmarkPopup = document.getElementById('bookmarkPopup'), $bookmarkList = document.getElementById('bookmarkList'), $currentZoom = document.getElementById('currentZoom'), $addressInput = document.getElementById('addressInput'), $categoryFilterCheckboxes = document.getElementById('categoryFilterCheckboxes'), $autocompleteList = document.getElementById('autocompleteList'), $coordFormatToggle = document.getElementById('coord-format-toggle'), $areaDisplay = document.getElementById('area-display'), MAX_HISTORY = 100, BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks';
+const $lat = document.getElementById('latitude'), $lon = document.getElementById('longitude'), $coordsDisplay = document.getElementById('currentCoords'), $zoom = document.getElementById('zoomLevel'), $zoomDisplay = document.getElementById('zoomLevelDisplay'), $container = document.getElementById('map-categories-container'), $notification = document.getElementById('notification'), $mapPreview = document.getElementById('mapPreview'), $previewContainer = document.getElementById('previewContainer'), $historyPopup = document.getElementById('historyPopup'), $historyList = document.getElementById('historyList'), $bookmarkPopup = document.getElementById('bookmarkPopup'), $bookmarkList = document.getElementById('bookmarkList'), $currentZoom = document.getElementById('currentZoom'), $addressInput = document.getElementById('addressInput'), $autocompleteList = document.getElementById('autocompleteList'), $coordFormatToggle = document.getElementById('coord-format-toggle'), $areaDisplay = document.getElementById('area-display'), MAX_HISTORY = 100, BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks';
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 
 function showNotification(message, type = 'success') { $notification.textContent = message; $notification.className = `notification ${type}`; $notification.style.display = 'block'; setTimeout(() => $notification.style.display = 'none', 3000); }
 async function updateCurrentCoords(skipHistorySave = false) {
-    let latNum, lonNum;
-    try {
-        if (isDMSFormat) { latNum = dmsToDecimal($lat.value); lonNum = dmsToDecimal($lon.value); } 
-        else { latNum = parseFloat($lat.value); lonNum = parseFloat($lon.value); }
-        if (isNaN(latNum) || isNaN(lonNum)) throw new Error("Invalid number");
-    } catch (e) { return; }
-    const zoomNum = parseInt($zoom.value, 10);
-    if (latNum>=-90&&latNum<=90&&lonNum>=-180&&lonNum<=180) {
-        currentLatLon = { lat: latNum, lon: lonNum };
-        $coordsDisplay.textContent = `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
-        $currentZoom.textContent = zoomNum;
-        updateMapPreview(latNum, lonNum);
-        initOSMClickMap(latNum, lonNum, zoomNum);
-        if (!skipHistorySave) await saveCoordinateToHistory(latNum, lonNum, zoomNum);
-    }
+let latNum, lonNum;
+try {
+if (isDMSFormat) { latNum = dmsToDecimal($lat.value); lonNum = dmsToDecimal($lon.value); }
+else { latNum = parseFloat($lat.value); lonNum = parseFloat($lon.value); }
+if (isNaN(latNum) || isNaN(lonNum)) throw new Error("Invalid number");
+} catch (e) { return; }
+const zoomNum = parseInt($zoom.value, 10);
+if (latNum>=-90&&latNum<=90&&lonNum>=-180&&lonNum<=180) {
+currentLatLon = { lat: latNum, lon: lonNum };
+$coordsDisplay.textContent = `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
+$currentZoom.textContent = zoomNum;
+updateMapPreview(latNum, lonNum);
+initOSMClickMap(latNum, lonNum, zoomNum);
+if (!skipHistorySave) await saveCoordinateToHistory(latNum, lonNum, zoomNum);
+}
 }
 async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(true); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
 function updateMapPreview(lat, lon) { if (!isNaN(lat) && !isNaN(lon)) $mapPreview.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ja&z=${$zoom.value}&output=embed`; }
 function togglePreview() { $previewContainer.classList.toggle('collapsed'); }
 function initOSMClickMap(lat, lon, zoom) {
-    const latlng = [lat, lon];
-    if (osmMap === null) {
-        osmMap = L.map('osmClickMap', { fullscreenControl: { title: { 'false': '全画面', 'true': '通常表示' } } }).setView(latlng, zoom);
-        setupAnalysisTools();
-        const baseMaps = {};
-        for(const key in BASE_LAYERS) { const config = BASE_LAYERS[key]; config.layer = L.tileLayer(config.url, { maxZoom: 19, attribution: config.attribution }); baseMaps[config.name] = config.layer; }
-        L.control.layers(baseMaps).addTo(osmMap);
-        BASE_LAYERS[localStorage.getItem('osmBaseMap') || 'osm'].layer.addTo(osmMap);
-        osmMap.on('baselayerchange', e => { for (const key in BASE_LAYERS) if (BASE_LAYERS[key].name === e.name) localStorage.setItem('osmBaseMap', key); });
-        osmMap.on('zoomend', () => { const newZoom = osmMap.getZoom(); if (newZoom !== parseInt($zoom.value, 10)) { $zoom.value = newZoom; $zoomDisplay.textContent = newZoom; } });
-        osmMap.on('click', e => { 
-            if (isMeasuring) return handleMeasureClick(e);
-            if (isMeasuringArea) return handleAreaMeasureClick(e);
-            updateLatLonInputs(e.latlng.lat, e.latlng.lng);
-            updateCurrentCoords();
-            showNotification('クリック地点の座標を設定しました');
-        });
-        osmMap.on('dblclick', e => { 
-            if (isMeasuring) return handleMeasureDoubleClick(e);
-            if (isMeasuringArea) return handleAreaMeasureDoubleClick(e);
-        });
-        osmMap.on('mousemove', e => { if (isMeasuring) handleMeasureMouseMove(e); });
-        osmMarker = L.marker(latlng).addTo(osmMap);
-    }
-    osmMap.setView(latlng, zoom);
-    osmMarker.setLatLng(latlng);
+const latlng = [lat, lon];
+if (osmMap === null) {
+osmMap = L.map('osmClickMap', { fullscreenControl: { title: { 'false': '全画面', 'true': '通常表示' } } }).setView(latlng, zoom);
+setupAnalysisTools();
+const baseMaps = {};
+for(const key in BASE_LAYERS) { const config = BASE_LAYERS[key]; config.layer = L.tileLayer(config.url, { maxZoom: 19, attribution: config.attribution }); baseMaps[config.name] = config.layer; }
+L.control.layers(baseMaps).addTo(osmMap);
+BASE_LAYERS[localStorage.getItem('osmBaseMap') || 'osm'].layer.addTo(osmMap);
+osmMap.on('baselayerchange', e => { for (const key in BASE_LAYERS) if (BASE_LAYERS[key].name === e.name) localStorage.setItem('osmBaseMap', key); });
+osmMap.on('zoomend', () => { const newZoom = osmMap.getZoom(); if (newZoom !== parseInt($zoom.value, 10)) { $zoom.value = newZoom; $zoomDisplay.textContent = newZoom; } });
+osmMap.on('click', e => {
+if (isMeasuring) return handleMeasureClick(e);
+if (isMeasuringArea) return handleAreaMeasureClick(e);
+updateLatLonInputs(e.latlng.lat, e.latlng.lng);
+updateCurrentCoords();
+showNotification('クリック地点の座標を設定しました');
+});
+osmMap.on('dblclick', e => {
+if (isMeasuring) return handleMeasureDoubleClick(e);
+if (isMeasuringArea) return handleAreaMeasureDoubleClick(e);
+});
+osmMap.on('mousemove', e => { if (isMeasuring) handleMeasureMouseMove(e); });
+osmMarker = L.marker(latlng).addTo(osmMap);
+}
+osmMap.setView(latlng, zoom);
+osmMarker.setLatLng(latlng);
+osmMap.invalidateSize();
 }
 async function getAddressFromCoords(lat, lon) { try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&lang=ja`); const d = await r.json(); return d.display_name || `${lat}, ${lon}`; } catch (e) { return `${lat}, ${lon}`; } }
 async function getCoordsFromAddress(address) { try { const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=jp`); const d = await r.json(); return d?.[0] ? { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) } : null; } catch (e) { return null; } }
@@ -700,64 +860,83 @@ function renderAutocompleteList(suggestions) { $autocompleteList.innerHTML = '';
 async function selectAutocompleteItem(index) { const selected = currentAutocompleteResults[index]; if(selected) { $addressInput.value = selected.display_name; updateLatLonInputs(parseFloat(selected.lat), parseFloat(selected.lon)); await updateCurrentCoords(); $autocompleteList.classList.remove('show'); } }
 function openMap(mapData, showPopup=true) { const {lat,lon}=currentLatLon, zoom=Math.min(parseInt($zoom.value,10),18); if((isNaN(lat)||isNaN(lon))&&!mapData.noCoords) return showNotification('有効な座標を入力してください','error'); const url = mapData.isCustom ? mapData.url.replace('{lat}',lat).replace('{lon}',lon).replace('{z}',zoom) : mapData.url(lat,lon,zoom); if(showPopup)showNotification(`${mapData.name}を開いています...`); window.open(url,'_blank'); }
 function openCheckedMaps(catKey) { const chks = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox:checked`); if (chks.length === 0) return showNotification('開きたい地図にチェックを入れてください。', 'error'); showNotification(`${chks.length}件のリンクを開きます。`); const allMaps = getCombinedMapDefinitions(); chks.forEach(cb => openMap(allMaps[parseInt(cb.dataset.mapIndex)], false)); }
-function toggleAllCheckboxes(catKey, btn) { const chks = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox`), allChecked = Array.from(chks).every(cb => cb.checked); chks.forEach(cb => cb.checked = !allChecked); updateToggleAllButtonLabel(btn, !allChecked); }
-function updateToggleAllButtonLabel(btn, areAllChecked) { if(btn) btn.textContent = areAllChecked ? '❌ 全解除' : '✅ 全選択'; }
+function toggleAllCheckboxes(catKey, btn) {
+const chks = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox`);
+const allChecked = Array.from(chks).every(cb => cb.checked);
+chks.forEach(cb => cb.checked = !allChecked);
+btn.classList.toggle('checked', !allChecked);
+}
 function openGoogleMap() { const {lat,lon}=currentLatLon; if (isNaN(lat)||isNaN(lon))return; window.open(`https://maps.google.co.jp/maps?q=${lat},${lon}&z=${$zoom.value}`,'_blank'); }
 async function pasteCoordinates() { try { const text = await navigator.clipboard.readText(), match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/); if (match) { updateLatLonInputs(parseFloat(match[1]), parseFloat(match[2])); await updateCurrentCoords(); showNotification('座標を貼り付けました'); } else showNotification('形式が不正です','error'); } catch (err) { showNotification('クリップボード読取失敗','error'); } }
 function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); document.getElementById('toggleIcon').classList.toggle('open'); }
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
 function getCombinedMapDefinitions() { const custom = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').map(link => ({...link, isCustom: true})); return [...MAP_DEFINITIONS, ...custom]; }
 function renderMapCards() {
-    $container.innerHTML = '';
-    const allMaps = getCombinedMapDefinitions();
-    const mapsByCategory = allMaps.reduce((acc, map, index) => {
-        const cat = map.category || 'mylink'; 
-        if (!acc[cat]) acc[cat] = { meta: CATEGORY_META[cat], maps: [] };
-        acc[cat].maps.push({ ...map, index });
-        return acc;
-    }, {});
-    const categoryOrder = ['terrain', 'geology', 'disaster', 'survey', 'other', 'mylink'];
-    for (const catKey of categoryOrder) {
-        if (!mapsByCategory[catKey] && catKey !== 'mylink') continue;
-        const catGroup = mapsByCategory[catKey] || { meta: CATEGORY_META.mylink, maps: [] };
-        const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'category';
-        categoryDiv.setAttribute('data-category-key', catKey);
-        const categoryHeader = document.createElement('div');
-        categoryHeader.className = 'category-header';
-        categoryHeader.addEventListener('click', e => !e.target.closest('button') && toggleCategory(categoryHeader));
-        categoryHeader.innerHTML = `<div class="category-title-group"><div class="category-icon ${catGroup.meta.class}">${catGroup.meta.icon}</div><div class="category-title">${catGroup.meta.title}</div><span class="accordion-icon">▼</span></div>`;
-        if (catKey !== 'mylink') {
-            const toggleBtn = document.createElement('button');
-            toggleBtn.className = 'btn-toggle-all-checks';
-            toggleBtn.onclick = () => toggleAllCheckboxes(catKey, toggleBtn);
-            categoryHeader.appendChild(toggleBtn);
-            updateToggleAllButtonLabel(toggleBtn, false);
-        }
-        const bulkOpenBtn = document.createElement('button');
-        bulkOpenBtn.className = 'btn-bulk-open';
-        bulkOpenBtn.textContent = '▶️ 一括で開く';
-        bulkOpenBtn.onclick = () => openCheckedMaps(catKey);
-        categoryHeader.appendChild(bulkOpenBtn);
-        categoryDiv.appendChild(categoryHeader);
-        const mapGrid = document.createElement('div');
-        mapGrid.className = 'map-grid';
-        catGroup.maps.forEach(map => mapGrid.appendChild(createMapCard(map, catKey, categoryHeader)));
-        if (catKey === 'mylink') {
-            const addBtn = document.createElement('button');
-            addBtn.className = 'btn-add-mylink';
-            addBtn.textContent = '＋ 新しいリンクを追加';
-            addBtn.onclick = () => openMyLinkModal();
-            mapGrid.appendChild(addBtn);
-        }
-        categoryDiv.appendChild(mapGrid);
-        $container.appendChild(categoryDiv);
-    }
-    filterMapCards();
+$container.innerHTML = '';
+const allMaps = getCombinedMapDefinitions();
+const mapsByCategory = allMaps.reduce((acc, map, index) => {
+const cat = map.category || 'mylink';
+if (!acc[cat]) acc[cat] = { meta: CATEGORY_META[cat], maps: [] };
+acc[cat].maps.push({ ...map, index });
+return acc;
+}, {});
+const categoryOrder = ['terrain', 'geology', 'disaster', 'survey', 'other', 'mylink'];
+for (const catKey of categoryOrder) {
+if (!mapsByCategory[catKey] && catKey !== 'mylink') continue;
+const catGroup = mapsByCategory[catKey] || { meta: CATEGORY_META.mylink, maps: [] };
+const categoryDiv = document.createElement('div');
+categoryDiv.className = 'category';
+categoryDiv.setAttribute('data-category-key', catKey);
+const categoryHeader = document.createElement('div');
+categoryHeader.className = 'category-header';
+categoryHeader.addEventListener('click', e => !e.target.closest('button') && toggleCategory(categoryHeader));
+categoryHeader.innerHTML = `<div class="category-title-group"><div class="category-icon ${catGroup.meta.class}">${catGroup.meta.icon}</div><div class="category-title">${catGroup.meta.title}</div><span class="accordion-icon">▼</span></div>`;
+
+if (catKey !== 'mylink') {
+const toggleBtn = document.createElement('button');
+toggleBtn.className = 'btn-toggle-all-checks';
+toggleBtn.setAttribute('title', '全選択/解除');
+toggleBtn.onclick = () => toggleAllCheckboxes(catKey, toggleBtn);
+categoryHeader.appendChild(toggleBtn);
 }
-function createMapCard(map, catKey, categoryHeader) { const card = document.createElement('div'); card.className = 'map-card'; card.dataset.category = catKey; card.dataset.mapIndex = map.index; card.onclick = e => !e.target.closest('.map-checkbox, .map-card-actions') && openMap(map); card.innerHTML = `<div class="map-header-with-check"><div class="map-title">${map.icon || '🔗'} ${map.name}</div><input type="checkbox" class="map-checkbox" data-map-index="${map.index}"></div><div class="map-description">${map.desc || 'カスタムリンク'}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`; if (map.isCustom) { const actions = document.createElement('div'); actions.className = 'map-card-actions'; actions.innerHTML = `<button class="btn-mylink-edit">✏️ 編集</button><button class="btn-mylink-delete">🗑️ 削除</button>`; actions.querySelector('.btn-mylink-edit').onclick = () => openMyLinkModal(map); actions.querySelector('.btn-mylink-delete').onclick = () => deleteMyLink(map.id); card.appendChild(actions); } card.querySelector('.map-checkbox').onchange = () => { const btn = categoryHeader.querySelector('.btn-toggle-all-checks'); if(btn) updateToggleAllButtonLabel(btn, document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox:checked`).length === document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox`).length); }; return card; }
-function filterMapCards() { const sel = Array.from(document.querySelectorAll('.category-filter-checkboxes input:checked')).map(cb=>cb.value); document.querySelectorAll('.category').forEach(div => div.style.display = sel.includes('all') || sel.includes(div.dataset.categoryKey) ? 'block' : 'none'); }
-function populateFilterCheckboxes() { $categoryFilterCheckboxes.innerHTML = ''; const cats = new Set(MAP_DEFINITIONS.map(m => m.category)); cats.add('all'); cats.add('mylink'); const order = ['all', 'terrain', 'geology', 'disaster', 'survey', 'other', 'mylink']; Array.from(cats).sort((a,b)=>order.indexOf(a)-order.indexOf(b)).forEach(key => { const label = document.createElement('label'); label.innerHTML = `<input type="checkbox" value="${key}" ${key==='all'?'checked':''}><span>${CATEGORY_META[key].icon} ${CATEGORY_META[key].title}</span>`; $categoryFilterCheckboxes.appendChild(label); }); $categoryFilterCheckboxes.onchange = e => { const chks = $categoryFilterCheckboxes.querySelectorAll('input'); if(e.target.value==='all'&&e.target.checked) chks.forEach(cb => {if(cb.value!=='all')cb.checked=false}); else if(e.target.value!=='all'&&e.target.checked) chks[0].checked=false; if(Array.from(chks).every(cb=>!cb.checked)) chks[0].checked=true; filterMapCards(); }; }
+const bulkOpenBtn = document.createElement('button');
+bulkOpenBtn.className = 'btn-bulk-open';
+bulkOpenBtn.setAttribute('title', 'チェックした項目を一括で開く');
+bulkOpenBtn.onclick = () => openCheckedMaps(catKey);
+categoryHeader.appendChild(bulkOpenBtn);
+categoryDiv.appendChild(categoryHeader);
+const mapGrid = document.createElement('div');
+mapGrid.className = 'map-grid';
+catGroup.maps.forEach(map => mapGrid.appendChild(createMapCard(map, catKey, categoryHeader)));
+if (catKey === 'mylink') {
+const addBtn = document.createElement('button');
+addBtn.className = 'btn-add-mylink';
+addBtn.textContent = '＋ 新しいリンクを追加';
+addBtn.onclick = () => openMyLinkModal();
+mapGrid.appendChild(addBtn);
+}
+categoryDiv.appendChild(mapGrid);
+$container.appendChild(categoryDiv);
+}
+}
+function createMapCard(map, catKey, categoryHeader) { const card = document.createElement('div'); card.className = 'map-card'; card.dataset.category = catKey; card.dataset.mapIndex = map.index; card.onclick = e => !e.target.closest('.map-checkbox, .map-card-actions') && openMap(map); card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${map.name}</div><input type="checkbox" class="map-checkbox" data-map-index="${map.index}"></div><div class="map-description">${map.desc || 'カスタムリンク'}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
+if (map.isCustom) {
+const actions = document.createElement('div');
+actions.className = 'map-card-actions';
+actions.innerHTML = `<button class="btn-mylink-edit">✏️ 編集</button><button class="btn-mylink-delete">🗑️ 削除</button>`;
+actions.querySelector('.btn-mylink-edit').onclick = (e) => { e.stopPropagation(); openMyLinkModal(map); };
+actions.querySelector('.btn-mylink-delete').onclick = (e) => { e.stopPropagation(); deleteMyLink(map.id); };
+card.appendChild(actions);
+}
+card.querySelector('.map-checkbox').onchange = () => {
+const btn = categoryHeader.querySelector('.btn-toggle-all-checks');
+if(btn) {
+const allChecked = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox:checked`).length === document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox`).length;
+btn.classList.toggle('checked', allChecked);
+}
+};
+return card;
+}
 
 function decimalToDMS(dd, isLat) { const dir = dd < 0 ? (isLat ? 'S' : 'W') : (isLat ? 'N' : 'E'); dd = Math.abs(dd); const d = Math.floor(dd), m = Math.floor((dd - d) * 60), s = (((dd - d) * 60 - m) * 60).toFixed(3); return `${d}°${String(m).padStart(2,'0')}'${String(s).padStart(6,'0')}" ${dir}`; }
 function dmsToDecimal(dms) { dms = String(dms).trim().toUpperCase(); const parts = dms.match(/(-?\d+\.?\d*)[°D\s]+(\d+)[`'’\s]+([\d.]+)[S"”\s]*\s*([NSEW])?/); if (!parts) throw new Error("Invalid DMS format"); let dd = Math.abs(parseFloat(parts[1])) + parseFloat(parts[2])/60 + parseFloat(parts[3])/3600; if (parseFloat(parts[1]) < 0 || parts[4] === 'S' || parts[4] === 'W') dd = -dd; return dd; }
@@ -770,184 +949,250 @@ let areaPoints = [], tempAreaPolygon = null;
 let analysisLayer;
 
 function setupAnalysisTools() {
-    if (!osmMap) return;
-    analysisLayer = L.layerGroup().addTo(osmMap);
-    
-    document.getElementById('measure-tool-btn').addEventListener('click', () => toggleMeasureMode());
-    document.getElementById('area-tool-btn').addEventListener('click', () => toggleAreaMeasureMode());
-    document.getElementById('buffer-tool-btn').addEventListener('click', () => {
-        const r = parseFloat(document.getElementById('buffer-radius-input').value);
-        if(r>0) L.circle(currentLatLon, {radius:r}).addTo(analysisLayer);
-    });
-    document.getElementById('clear-analysis-btn').addEventListener('click', () => {
-        if(analysisLayer) analysisLayer.clearLayers();
-        if(isMeasuring) toggleMeasureMode(true);
-        if(isMeasuringArea) toggleAreaMeasureMode(true);
-    });
+if (!osmMap) return;
+analysisLayer = L.layerGroup().addTo(osmMap);
 
-    const analysisTools = document.getElementById('analysis-tools');
-    const analysisToolsHeader = document.getElementById('analysis-tools-header');
-    if (analysisTools) L.DomEvent.disableClickPropagation(analysisTools);
-    if (analysisToolsHeader) analysisToolsHeader.addEventListener('click', () => analysisTools.classList.toggle('collapsed'));
+document.getElementById('measure-tool-btn').addEventListener('click', () => toggleMeasureMode());
+document.getElementById('area-tool-btn').addEventListener('click', () => toggleAreaMeasureMode());
+document.getElementById('buffer-tool-btn').addEventListener('click', () => {
+const r = parseFloat(document.getElementById('buffer-radius-input').value);
+if(r>0) L.circle(currentLatLon, {radius:r}).addTo(analysisLayer);
+});
+document.getElementById('clear-analysis-btn').addEventListener('click', () => {
+if(analysisLayer) analysisLayer.clearLayers();
+if(isMeasuring) toggleMeasureMode(true);
+if(isMeasuringArea) toggleAreaMeasureMode(true);
+});
+
+const analysisTools = document.getElementById('analysis-tools');
+const analysisToolsHeader = document.getElementById('analysis-tools-header');
+if (analysisTools) L.DomEvent.disableClickPropagation(analysisTools);
+if (analysisToolsHeader) analysisToolsHeader.addEventListener('click', () => analysisTools.classList.toggle('collapsed'));
 }
 
 function disableOtherModes(currentMode) {
-    if (currentMode !== 'measure' && isMeasuring) toggleMeasureMode(true);
-    if (currentMode !== 'area' && isMeasuringArea) toggleAreaMeasureMode(true);
+if (currentMode !== 'measure' && isMeasuring) toggleMeasureMode(true);
+if (currentMode !== 'area' && isMeasuringArea) toggleAreaMeasureMode(true);
 }
 
-function toggleMeasureMode(forceOff = false) { 
-    isMeasuring = forceOff ? false : !isMeasuring;
-    if (isMeasuring) disableOtherModes('measure');
-    document.getElementById('measure-tool-btn').classList.toggle('active', isMeasuring);
-    osmMap.getContainer().style.cursor = isMeasuring ? 'crosshair' : ''; 
-    if (!isMeasuring) {
-        if(tempMeasureLine) analysisLayer.removeLayer(tempMeasureLine);
-        if(tempMeasureMarker) analysisLayer.removeLayer(tempMeasureMarker);
-        if(measureTooltip) osmMap.removeLayer(measureTooltip);
-        tempMeasureLine = tempMeasureMarker = measureTooltip = null;
-    }
-    measurePoints = [];
+function toggleMeasureMode(forceOff = false) {
+isMeasuring = forceOff ? false : !isMeasuring;
+if (isMeasuring) disableOtherModes('measure');
+document.getElementById('measure-tool-btn').classList.toggle('active', isMeasuring);
+osmMap.getContainer().style.cursor = isMeasuring ? 'crosshair' : '';
+if (!isMeasuring) {
+if(tempMeasureLine) analysisLayer.removeLayer(tempMeasureLine);
+if(tempMeasureMarker) analysisLayer.removeLayer(tempMeasureMarker);
+if(measureTooltip) osmMap.removeLayer(measureTooltip);
+tempMeasureLine = tempMeasureMarker = measureTooltip = null;
 }
-function handleMeasureClick(e) { 
-    measurePoints.push(e.latlng);
-    L.circleMarker(e.latlng, { radius: 5, color: 'red' }).addTo(analysisLayer);
-    if (measurePoints.length > 1) {
-        L.polyline(measurePoints.slice(0, measurePoints.length), { color: 'blue' }).addTo(analysisLayer);
-        updateMeasureTooltip(e.latlng);
-    }
-    if (measurePoints.length === 1) {
-        tempMeasureMarker = L.circleMarker(e.latlng, { radius: 5, color: 'red', opacity: 0.5 }).addTo(analysisLayer);
-        measureTooltip = L.tooltip({permanent: true}).setLatLng(e.latlng).setContent('クリックで次点、ダブルクリックで終了').addTo(osmMap);
-    }
+measurePoints = [];
+}
+function handleMeasureClick(e) {
+measurePoints.push(e.latlng);
+L.circleMarker(e.latlng, { radius: 5, color: 'red' }).addTo(analysisLayer);
+if (measurePoints.length > 1) {
+L.polyline(measurePoints.slice(0, measurePoints.length), { color: 'blue' }).addTo(analysisLayer);
+updateMeasureTooltip(e.latlng);
+}
+if (measurePoints.length === 1) {
+tempMeasureMarker = L.circleMarker(e.latlng, { radius: 5, color: 'red', opacity: 0.5 }).addTo(analysisLayer);
+measureTooltip = L.tooltip({permanent: true}).setLatLng(e.latlng).setContent('クリックで次点、ダブルクリックで終了').addTo(osmMap);
+}
 }
 function handleMeasureMouseMove(e) {
-    if (measurePoints.length === 0) return;
-    const currentPoints = [...measurePoints, e.latlng];
-    if (tempMeasureLine) {
-        analysisLayer.removeLayer(tempMeasureLine);
-    }
-    tempMeasureLine = L.polyline(currentPoints, { color: 'blue', dashArray: '5, 5' }).addTo(analysisLayer);
-    if(tempMeasureMarker) tempMeasureMarker.setLatLng(e.latlng);
-    updateMeasureTooltip(e.latlng);
+if (measurePoints.length === 0) return;
+const currentPoints = [...measurePoints, e.latlng];
+if (tempMeasureLine) {
+analysisLayer.removeLayer(tempMeasureLine);
+}
+tempMeasureLine = L.polyline(currentPoints, { color: 'blue', dashArray: '5, 5' }).addTo(analysisLayer);
+if(tempMeasureMarker) tempMeasureMarker.setLatLng(e.latlng);
+updateMeasureTooltip(e.latlng);
 }
 function handleMeasureDoubleClick(e) {
-    if (measurePoints.length < 1) {
-        toggleMeasureMode(true);
-        return;
-    }
-    measurePoints.push(e.latlng);
-    const finalLine = L.polyline(measurePoints, { color: 'blue' }).addTo(analysisLayer);
-    const totalDistance = calculateTotalDistance(measurePoints);
-    const distText = totalDistance > 1000 ? (totalDistance / 1000).toFixed(2) + ' km' : totalDistance.toFixed(1) + ' m';
-    finalLine.bindPopup(`<b>総距離:</b> ${distText}`).openPopup();
-    toggleMeasureMode(true);
+if (measurePoints.length < 1) {
+toggleMeasureMode(true);
+return;
+}
+measurePoints.push(e.latlng);
+const finalLine = L.polyline(measurePoints, { color: 'blue' }).addTo(analysisLayer);
+const totalDistance = calculateTotalDistance(measurePoints);
+const distText = totalDistance > 1000 ? (totalDistance / 1000).toFixed(2) + ' km' : totalDistance.toFixed(1) + ' m';
+finalLine.bindPopup(`<b>総距離:</b> ${distText}`).openPopup();
+toggleMeasureMode(true);
 }
 function updateMeasureTooltip(latlng) {
-    if (!measureTooltip) return;
-    const totalDistance = calculateTotalDistance([...measurePoints, latlng]);
-    const distText = totalDistance > 1000 ? (totalDistance / 1000).toFixed(2) + ' km' : totalDistance.toFixed(1) + ' m';
-    measureTooltip.setLatLng(latlng).setContent(`総距離: ${distText}<br>ダブルクリックで終了`);
+if (!measureTooltip) return;
+const totalDistance = calculateTotalDistance([...measurePoints, latlng]);
+const distText = totalDistance > 1000 ? (totalDistance / 1000).toFixed(2) + ' km' : totalDistance.toFixed(1) + ' m';
+measureTooltip.setLatLng(latlng).setContent(`総距離: ${distText}<br>ダブルクリックで終了`);
 }
 function calculateTotalDistance(points) {
-    let totalDistance = 0;
-    for (let i = 0; i < points.length - 1; i++) {
-        totalDistance += points[i].distanceTo(points[i + 1]);
-    }
-    return totalDistance;
+let totalDistance = 0;
+for (let i = 0; i < points.length - 1; i++) {
+totalDistance += points[i].distanceTo(points[i + 1]);
+}
+return totalDistance;
 }
 
 function toggleAreaMeasureMode(forceOff = false) {
-    isMeasuringArea = forceOff ? false : !isMeasuringArea;
-    if(isMeasuringArea) disableOtherModes('area');
-    document.getElementById('area-tool-btn').classList.toggle('active', isMeasuringArea);
-    osmMap.getContainer().style.cursor = isMeasuringArea ? 'crosshair' : '';
-    if (isMeasuringArea) {
-        areaPoints = [];
-        if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon);
-        tempAreaPolygon = null;
-        $areaDisplay.style.display = 'inline';
-        $areaDisplay.textContent = '--- m²';
-    } else {
-        if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon);
-        tempAreaPolygon = null;
-        $areaDisplay.style.display = 'none';
-    }
+isMeasuringArea = forceOff ? false : !isMeasuringArea;
+if(isMeasuringArea) disableOtherModes('area');
+document.getElementById('area-tool-btn').classList.toggle('active', isMeasuringArea);
+osmMap.getContainer().style.cursor = isMeasuringArea ? 'crosshair' : '';
+if (isMeasuringArea) {
+areaPoints = [];
+if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon);
+tempAreaPolygon = null;
+$areaDisplay.style.display = 'inline';
+$areaDisplay.textContent = '--- m²';
+} else {
+if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon);
+tempAreaPolygon = null;
+$areaDisplay.style.display = 'none';
+}
 }
 function handleAreaMeasureClick(e) {
-    areaPoints.push(e.latlng);
-    L.circleMarker(e.latlng, { radius: 5, color: '#9C27B0' }).addTo(analysisLayer);
-    if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon);
-    if (areaPoints.length > 1) {
-        tempAreaPolygon = L.polygon(areaPoints, { color: '#9C27B0', weight: 2, fillOpacity: 0.1 }).addTo(analysisLayer);
-    }
-    if (areaPoints.length >= 3) {
-        const area = calculatePolygonArea(areaPoints);
-        const areaText = area > 1000000 ? `${(area / 1000000).toFixed(3)} km²` : `${area.toFixed(2)} m²`;
-        $areaDisplay.textContent = `面積: ${areaText}`;
-    } else {
-        $areaDisplay.textContent = '--- m²';
-    }
+areaPoints.push(e.latlng);
+L.circleMarker(e.latlng, { radius: 5, color: '#9C27B0' }).addTo(analysisLayer);
+if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon);
+if (areaPoints.length > 1) {
+tempAreaPolygon = L.polygon(areaPoints, { color: '#9C27B0', weight: 2, fillOpacity: 0.1 }).addTo(analysisLayer);
+}
+if (areaPoints.length >= 3) {
+const area = calculatePolygonArea(areaPoints);
+const areaText = area > 1000000 ? `${(area / 1000000).toFixed(3)} km²` : `${area.toFixed(2)} m²`;
+$areaDisplay.textContent = `面積: ${areaText}`;
+} else {
+$areaDisplay.textContent = '--- m²';
+}
 }
 function handleAreaMeasureDoubleClick() {
-    if (!isMeasuringArea || areaPoints.length < 3) return;
-    const finalPolygon = L.polygon(areaPoints, { color: '#9C27B0' }).addTo(analysisLayer);
-    const area = calculatePolygonArea(areaPoints);
-    const areaText = area > 1000000 ? `${(area / 1000000).toFixed(3)} km²` : `${area.toFixed(2)} m²`;
-    finalPolygon.bindPopup(`<b>面積:</b> ${areaText}`).openPopup();
-    toggleAreaMeasureMode(true);
+if (!isMeasuringArea || areaPoints.length < 3) return;
+const finalPolygon = L.polygon(areaPoints, { color: '#9C27B0' }).addTo(analysisLayer);
+const area = calculatePolygonArea(areaPoints);
+const areaText = area > 1000000 ? `${(area / 1000000).toFixed(3)} km²` : `${area.toFixed(2)} m²`;
+finalPolygon.bindPopup(`<b>面積:</b> ${areaText}`).openPopup();
+toggleAreaMeasureMode(true);
 }
 function calculatePolygonArea(latlngs) {
-    if (latlngs.length < 3) return 0;
-    const centralLon = latlngs.reduce((sum, p) => sum + p.lng, 0) / latlngs.length;
-    const utmZone = Math.floor((centralLon + 180) / 6) + 1;
-    const utmProj = `+proj=utm +zone=${utmZone} +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
-    try {
-        const projectedPoints = latlngs.map(p => proj4('EPSG:4326', utmProj, [p.lng, p.lat]));
-        let area = 0;
-        for (let i = 0, j = projectedPoints.length - 1; i < projectedPoints.length; j = i++) {
-            area += (projectedPoints[j][0] + projectedPoints[i][0]) * (projectedPoints[j][1] - projectedPoints[i][1]);
-        }
-        return Math.abs(area / 2);
-    } catch (e) {
-        console.error("Area calculation error:", e);
-        return 0;
-    }
+if (latlngs.length < 3) return 0;
+const centralLon = latlngs.reduce((sum, p) => sum + p.lng, 0) / latlngs.length;
+const utmZone = Math.floor((centralLon + 180) / 6) + 1;
+const utmProj = `+proj=utm +zone=${utmZone} +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
+try {
+const projectedPoints = latlngs.map(p => proj4('EPSG:4326', utmProj, [p.lng, p.lat]));
+let area = 0;
+for (let i = 0, j = projectedPoints.length - 1; i < projectedPoints.length; j = i++) {
+area += (projectedPoints[j][0] + projectedPoints[i][0]) * (projectedPoints[j][1] - projectedPoints[i][1]);
+}
+return Math.abs(area / 2);
+} catch (e) {
+console.error("Area calculation error:", e);
+return 0;
+}
 }
 
 const $mylinkModal = document.getElementById('mylink-modal'), $mylinkForm = document.getElementById('mylink-form');
-function openMyLinkModal(linkToEdit = null) { $mylinkForm.reset(); document.getElementById('modal-title').textContent = linkToEdit ? 'リンクを編集' : '新しいリンクを追加'; if(linkToEdit) { document.getElementById('mylink-id').value = linkToEdit.id; document.getElementById('mylink-name').value = linkToEdit.name; document.getElementById('mylink-url').value = linkToEdit.url; document.getElementById('mylink-desc').value = linkToEdit.desc; } $mylinkModal.style.display = 'flex'; }
+function openMyLinkModal(linkToEdit = null) {
+$mylinkForm.reset();
+document.getElementById('modal-title').textContent = linkToEdit ? 'リンクを編集' : '新しいリンクを追加';
+if(linkToEdit) {
+document.getElementById('mylink-id').value = linkToEdit.id;
+document.getElementById('mylink-name').value = linkToEdit.name;
+document.getElementById('mylink-url').value = linkToEdit.url;
+document.getElementById('mylink-desc').value = linkToEdit.desc;
+}
+$mylinkModal.style.display = 'flex';
+}
 function closeMyLinkModal() { $mylinkModal.style.display = 'none'; }
-function saveMyLink(e) { e.preventDefault(); let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]'); const linkId = document.getElementById('mylink-id').value, newLink = { id: linkId || `mylink-${Date.now()}`, name: document.getElementById('mylink-name').value, url: document.getElementById('mylink-url').value, desc: document.getElementById('mylink-desc').value, category: 'mylink', }; if (linkId) links = links.map(l => l.id === linkId ? newLink : l); else links.push(newLink); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); populateFilterCheckboxes(); closeMyLinkModal(); showNotification('マイリンクを保存しました'); }
-function deleteMyLink(linkId) { if (confirm('このマイリンクを削除しますか？')) { let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l.id !== linkId); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); populateFilterCheckboxes(); showNotification('マイリンクを削除しました'); } }
+function saveMyLink(e) { e.preventDefault(); let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]'); const linkId = document.getElementById('mylink-id').value, newLink = { id: linkId || `mylink-${Date.now()}`, name: document.getElementById('mylink-name').value, url: document.getElementById('mylink-url').value, desc: document.getElementById('mylink-desc').value, category: 'mylink', }; if (linkId) links = links.map(l => l.id === linkId ? newLink : l); else links.push(newLink); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); closeMyLinkModal(); showNotification('マイリンクを保存しました'); }
+function deleteMyLink(linkId) { if (confirm('このマイリンクを削除しますか？')) { let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l.id !== linkId); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); showNotification('マイリンクを削除しました'); } }
 function generateShareUrl() { const p = new URLSearchParams({ lat: currentLatLon.lat.toFixed(8), lon: currentLatLon.lon.toFixed(8), zoom: $zoom.value }); const c = Array.from(document.querySelectorAll('.map-checkbox:checked')).map(cb=>cb.dataset.mapIndex).join(','); if(c) p.append('checked',c); navigator.clipboard.writeText(`${location.origin}${location.pathname}?${p.toString()}`).then(()=>showNotification('共有URLをコピーしました'),()=>showNotification('コピーに失敗','error')); }
 function applyStateFromUrl() { const p = new URLSearchParams(location.search); const lat=p.get('lat'),lon=p.get('lon'),zoom=p.get('zoom'),chk=p.get('checked'); if (lat&&lon) { updateLatLonInputs(parseFloat(lat),parseFloat(lon)); if(zoom)$zoom.value=zoom; if(chk) chk.split(',').forEach(i=>{const c=document.querySelector(`.map-checkbox[data-map-index="${i}"]`);if(c)c.checked=true;}); history.replaceState(null,'',location.pathname); return true; } return false; }
 
-document.addEventListener('DOMContentLoaded', () => {
-    setInitialMode();
-    populateFilterCheckboxes();
-    renderMapCards();
-    if (applyStateFromUrl()) {
-        updateCurrentCoords(true);
-    } else {
-        updateLatLonInputs(currentLatLon.lat, currentLatLon.lon);
-        updateCurrentCoords(true);
-        initGeolocation();
+// ★新機能: URLをテンプレートに変換する関数
+function convertUrlToTemplate() {
+    const exampleUrl = document.getElementById('mylink-example-url').value.trim();
+    if (!exampleUrl) {
+        showNotification('URLを貼り付けてください。', 'error');
+        return;
     }
-    $lat.addEventListener('change', () => updateCurrentCoords());
-    $lon.addEventListener('change', () => updateCurrentCoords());
-    $zoom.addEventListener('input', e => $zoomDisplay.textContent = e.target.value);
-    $zoom.addEventListener('change', e => { if(osmMap) osmMap.setZoom(parseInt(e.target.value)); });
-    $coordFormatToggle.addEventListener('click', toggleCoordFormat);
-    $addressInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? selectAutocompleteItem(selectedAutocompleteIndex) : searchAddress(); } });
-    $addressInput.addEventListener('input', () => { clearTimeout(autocompleteTimer); if ($addressInput.value.trim().length<2) return renderAutocompleteList([]); autocompleteTimer = setTimeout(async () => renderAutocompleteList(await getAddressSuggestions($addressInput.value.trim())), 300); });
-    $addressInput.addEventListener('keydown', e => { const items = $autocompleteList.querySelectorAll('.autocomplete-item'); if(items.length===0)return; if (e.key==='ArrowDown') selectedAutocompleteIndex=(selectedAutocompleteIndex+1)%items.length; else if (e.key==='ArrowUp') selectedAutocompleteIndex=(selectedAutocompleteIndex-1+items.length)%items.length; else return; e.preventDefault(); items.forEach((item,i)=>item.classList.toggle('selected',i===selectedAutocompleteIndex)); if(items[selectedAutocompleteIndex]) items[selectedAutocompleteIndex].scrollIntoView({block:'nearest'}); });
-    document.addEventListener('click', e => { if (!e.target.closest('.input-group')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } });
-    $historyList.addEventListener('click', e => { const i = e.target.closest('.history-item')?.dataset.index; if (i) loadCoordinateFromHistory(JSON.parse(localStorage.getItem('coordinateHistory'))[i]); });
-    $bookmarkList.addEventListener('click', e => { const i = e.target.closest('.bookmark-item')?.dataset.index, a = e.target.closest('button')?.className.split('-').pop(); if(i&&a) handleBookmarkAction(parseInt(i), a); });
-    $mylinkForm.addEventListener('submit', saveMyLink);
-    document.getElementById('btn-modal-cancel').addEventListener('click', closeMyLinkModal);
-    $mylinkModal.addEventListener('click', e => e.target === $mylinkModal && closeMyLinkModal());
+
+    // 緯度経度らしい数値のペアを探すための正規表現
+    const coordRegex = /(-?\d+\.\d{4,})\D+(-?\d+\.\d{4,})/;
+    const match = exampleUrl.match(coordRegex);
+
+    if (match && match.length >= 3) {
+        const num1Str = match[1];
+        const num2Str = match[2];
+        const num1 = parseFloat(num1Str);
+        const num2 = parseFloat(num2Str);
+
+        let latStr, lonStr;
+
+        // 範囲をチェックして緯度と経度を判定
+        const isNum1Lat = num1 >= -90 && num1 <= 90;
+        const isNum2Lon = num2 >= -180 && num2 <= 180;
+        const isNum1Lon = num1 >= -180 && num1 <= 180;
+        const isNum2Lat = num2 >= -90 && num2 <= 90;
+
+        if (isNum1Lat && isNum2Lon) {
+            latStr = num1Str;
+            lonStr = num2Str;
+        } else if (isNum1Lon && isNum2Lat) {
+            lonStr = num1Str;
+            latStr = num2Str;
+        } else {
+            showNotification('URLから有効な緯度経度のペアを判定できませんでした。', 'error');
+            return;
+        }
+        
+        let template = exampleUrl.replace(latStr, '{lat}');
+        template = template.replace(lonStr, '{lon}');
+        
+        document.getElementById('mylink-url').value = template;
+        showNotification('URLテンプレートを生成しました。');
+
+    } else {
+        showNotification('URL内に緯度経度らしい数値のペアが見つかりませんでした。', 'error');
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+setInitialMode();
+renderMapCards();
+if (applyStateFromUrl()) {
+updateCurrentCoords(true);
+} else {
+updateLatLonInputs(currentLatLon.lat, currentLatLon.lon);
+updateCurrentCoords(true);
+initGeolocation();
+}
+$lat.addEventListener('change', () => updateCurrentCoords());
+$lon.addEventListener('change', () => updateCurrentCoords());
+$zoom.addEventListener('input', e => $zoomDisplay.textContent = e.target.value);
+$zoom.addEventListener('change', e => { if(osmMap) osmMap.setZoom(parseInt(e.target.value)); });
+$coordFormatToggle.addEventListener('click', toggleCoordFormat);
+$addressInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? selectAutocompleteItem(selectedAutocompleteIndex) : searchAddress(); } });
+$addressInput.addEventListener('input', () => { clearTimeout(autocompleteTimer); if ($addressInput.value.trim().length<2) return renderAutocompleteList([]); autocompleteTimer = setTimeout(async () => renderAutocompleteList(await getAddressSuggestions($addressInput.value.trim())), 300); });
+$addressInput.addEventListener('keydown', e => { const items = $autocompleteList.querySelectorAll('.autocomplete-item'); if(items.length===0)return; if (e.key==='ArrowDown') selectedAutocompleteIndex=(selectedAutocompleteIndex+1)%items.length; else if (e.key==='ArrowUp') selectedAutocompleteIndex=(selectedAutocompleteIndex-1+items.length)%items.length; else return; e.preventDefault(); items.forEach((item,i)=>item.classList.toggle('selected',i===selectedAutocompleteIndex)); if(items[selectedAutocompleteIndex]) items[selectedAutocompleteIndex].scrollIntoView({block:'nearest'}); });
+document.addEventListener('click', e => { if (!e.target.closest('.input-group')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } });
+$historyList.addEventListener('click', e => { const i = e.target.closest('.history-item')?.dataset.index; if (i) loadCoordinateFromHistory(JSON.parse(localStorage.getItem('coordinateHistory'))[i]); });
+$bookmarkList.addEventListener('click', e => { const i = e.target.closest('.bookmark-item')?.dataset.index, a = e.target.closest('button')?.className.split('-').pop(); if(i&&a) handleBookmarkAction(parseInt(i), a); });
+$mylinkForm.addEventListener('submit', saveMyLink);
+document.getElementById('btn-modal-cancel').addEventListener('click', closeMyLinkModal);
+$mylinkModal.addEventListener('click', e => e.target === $mylinkModal && closeMyLinkModal());
+
+document.getElementById('btn-convert-url').addEventListener('click', convertUrlToTemplate);
+
+window.addEventListener('resize', () => {
+if (osmMap) {
+osmMap.invalidateSize();
+}
+});
 });
 </script>
 </body>
