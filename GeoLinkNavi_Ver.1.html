@@ -307,7 +307,6 @@ min-height: 0;
 .input-group label {
     display: none;
 }
-/* ★変更点: 検索欄の比率を調整 */
 .input-group.lat-group { flex: 2.5; min-width: 150px; }
 .input-group.lon-group { flex: 2.5; min-width: 150px; }
 .input-group.address-group { flex: 3; min-width: 250px; }
@@ -317,7 +316,6 @@ min-height: 0;
 #latitude, #longitude { font-size: 15px; }
 #addressInput { font-size: 16px; }
 
-/* ★変更点: autocompleteの親をラッパーに */
 .input-wrapper {
     position: relative;
     width: 100%;
@@ -936,6 +934,12 @@ if (isMeasuringArea) return handleAreaMeasureDoubleClick(e);
 });
 osmMap.on('mousemove', e => { if (isMeasuring) handleMeasureMouseMove(e); });
 osmMarker = L.marker(latlng).addTo(osmMap);
+
+const zoomSliderOverlay = document.querySelector('.zoom-slider-overlay');
+if (zoomSliderOverlay) {
+    L.DomEvent.disableClickPropagation(zoomSliderOverlay);
+    L.DomEvent.disableScrollPropagation(zoomSliderOverlay);
+}
 }
 osmMap.setView(latlng, zoom);
 osmMarker.setLatLng(latlng);
@@ -1276,7 +1280,7 @@ $coordFormatToggle.addEventListener('click', toggleCoordFormat);
 $addressInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? selectAutocompleteItem(selectedAutocompleteIndex) : searchAddress(); } });
 $addressInput.addEventListener('input', () => { clearTimeout(autocompleteTimer); if ($addressInput.value.trim().length<2) return renderAutocompleteList([]); autocompleteTimer = setTimeout(async () => renderAutocompleteList(await getAddressSuggestions($addressInput.value.trim())), 300); });
 $addressInput.addEventListener('keydown', e => { const items = $autocompleteList.querySelectorAll('.autocomplete-item'); if(items.length===0)return; if (e.key==='ArrowDown') selectedAutocompleteIndex=(selectedAutocompleteIndex+1)%items.length; else if (e.key==='ArrowUp') selectedAutocompleteIndex=(selectedAutocompleteIndex-1+items.length)%items.length; else return; e.preventDefault(); items.forEach((item,i)=>item.classList.toggle('selected',i===selectedAutocompleteIndex)); if(items[selectedAutocompleteIndex]) items[selectedAutocompleteIndex].scrollIntoView({block:'nearest'}); });
-document.addEventListener('click', e => { if (!e.target.closest('.input-group')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } });
+document.addEventListener('click', e => { if (!e.target.closest('.input-wrapper')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } });
 $historyList.addEventListener('click', e => { const i = e.target.closest('.history-item')?.dataset.index; if (i) loadCoordinateFromHistory(JSON.parse(localStorage.getItem('coordinateHistory'))[i]); });
 $bookmarkList.addEventListener('click', e => { const i = e.target.closest('.bookmark-item')?.dataset.index, a = e.target.closest('button')?.className.split('-').pop(); if(i&&a) handleBookmarkAction(parseInt(i), a); });
 $mylinkForm.addEventListener('submit', saveMyLink);
