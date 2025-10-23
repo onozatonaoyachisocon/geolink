@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Geo連携ナビ</title>
+<title>Geo連携ナビ Ver.33</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <!-- Leaflet.fullscreen plugin -->
@@ -128,7 +128,6 @@ display: flex;
 flex-direction: column;
 }
 
-/* ★変更点: サイト全体の幅を98%に拡大 */
 .container {
 max-width: 98%;
 margin: 0 auto;
@@ -308,12 +307,22 @@ min-height: 0;
 .input-group label {
     display: none;
 }
-.input-group.lat-group { flex: 2; min-width: 150px; }
-.input-group.lon-group { flex: 2; min-width: 150px; }
-.input-group.address-group { flex: 4; min-width: 250px; }
+/* ★変更点: 検索欄の比率を調整 */
+.input-group.lat-group { flex: 2.5; min-width: 150px; }
+.input-group.lon-group { flex: 2.5; min-width: 150px; }
+.input-group.address-group { flex: 3; min-width: 250px; }
 
-.input-group input, .input-group select { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 16px; background-color: var(--card-bg); color: var(--text-dark); height: 48px; }
+.input-group input, .input-group select { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 10px; background-color: var(--card-bg); color: var(--text-dark); height: 48px; }
 .input-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+#latitude, #longitude { font-size: 15px; }
+#addressInput { font-size: 16px; }
+
+/* ★変更点: autocompleteの親をラッパーに */
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
 .btn-base { padding: 12px 25px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px; color: white; min-width: 120px; height: 48px; display: inline-flex; align-items: center; justify-content: center; }
 .btn-icon { min-width: 0; width: 48px; padding: 0; font-size: 26px; }
 
@@ -327,7 +336,7 @@ min-height: 0;
 .btn-save-bookmark:hover { background-color: var(--btn-save-bookmark-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4); }
 .btn-address-search { font-size: 26px; color: white; background-color: var(--btn-address-search-bg); min-width: 0; width: 48px; padding: 0; height: 48px; border-radius: 10px; }
 .btn-address-search:hover { background-color: var(--btn-address-search-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(96, 125, 139, 0.4); }
-.btn-format-toggle { background-color: var(--btn-format-toggle-bg); color: var(--text-dark); }
+.btn-format-toggle { background-color: var(--btn-format-toggle-bg); color: var(--text-dark); font-size: 24px; }
 .btn-format-toggle:hover { background-color: var(--btn-format-toggle-hover-bg); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(149, 117, 205, 0.4); }
 
 .zoom-slider-overlay { position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.8); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 1000; }
@@ -591,13 +600,13 @@ color: var(--text-dark);
         justify-content: space-around;
     }
     .input-group {
-        align-items: stretch; /* 左揃えに戻す */
+        align-items: stretch;
     }
     .input-group label {
-        display: block; /* ラベルを再表示 */
+        display: block;
     }
     .input-field-label {
-        display: none; /* 下のラベルを非表示 */
+        display: none;
     }
 }
 
@@ -779,18 +788,24 @@ height: 50vh;
                 </div>
                 <div class="input-group lat-group">
                     <label for="latitude">📍 緯度 (Latitude)</label>
-                    <input type="text" id="latitude" value="35.68107447">
+                    <div class="input-wrapper">
+                        <input type="text" id="latitude" value="35.68107447">
+                    </div>
                     <span class="input-field-label">📍 緯度 (Latitude)</span>
                 </div>
                 <div class="input-group lon-group">
                     <label for="longitude">📍 経度 (Longitude)</label>
-                    <input type="text" id="longitude" value="139.76784396">
+                    <div class="input-wrapper">
+                        <input type="text" id="longitude" value="139.76784396">
+                    </div>
                     <span class="input-field-label">📍 経度 (Longitude)</span>
                 </div>
                 <div class="input-group address-group">
                     <label for="addressInput">🏠 住所や名称などから検索</label>
-                    <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1">
-                    <div id="autocompleteList" class="autocomplete-list"></div>
+                    <div class="input-wrapper">
+                        <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1">
+                        <div id="autocompleteList" class="autocomplete-list"></div>
+                    </div>
                     <span class="input-field-label">🏠 住所や名称など</span>
                 </div>
                 <div class="input-button-wrapper">
@@ -817,7 +832,7 @@ height: 50vh;
 </div>
 
 <div class="status-bar">
-    <span id="lastUpdated">最終更新日: 2025年10月24日</span>
+    <span id="lastUpdated">最終更新日: 2025年10月23日</span>
 </div>
 </div>
 <div class="modal-overlay" id="mylink-modal">
