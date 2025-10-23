@@ -1032,24 +1032,40 @@ categoryDiv.appendChild(mapGrid);
 $container.appendChild(categoryDiv);
 }
 }
-function createMapCard(map, catKey, categoryHeader) { const card = document.createElement('div'); card.className = 'map-card'; card.dataset.category = catKey; card.dataset.mapIndex = map.index; card.onclick = e => !e.target.closest('.map-checkbox, .map-card-actions') && openMap(map); card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${map.name}</div><input type="checkbox" class="map-checkbox" data-map-index="${map.index}"></div><div class="map-description">${map.desc || 'カスタムリンク'}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
-if (map.isCustom) {
-const actions = document.createElement('div');
-actions.className = 'map-card-actions';
-actions.innerHTML = `<button class="btn-mylink-edit">✏️ 編集</button><button class="btn-mylink-delete">🗑️ 削除</button>`;
-actions.querySelector('.btn-mylink-edit').onclick = (e) => { e.stopPropagation(); openMyLinkModal(map); };
-actions.querySelector('.btn-mylink-delete').onclick = (e) => { e.stopPropagation(); deleteMyLink(map.id); };
-card.appendChild(actions);
+function createMapCard(map, catKey, categoryHeader) {
+    const card = document.createElement('div');
+    card.className = 'map-card';
+    card.dataset.category = catKey;
+    card.dataset.mapIndex = map.index;
+    card.onclick = e => !e.target.closest('.map-checkbox, .map-card-actions') && openMap(map);
+    card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${map.name}</div><input type="checkbox" class="map-checkbox" data-map-index="${map.index}"></div><div class="map-description">${map.desc || 'カスタムリンク'}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
+    
+    const checkbox = card.querySelector('.map-checkbox');
+    
+    // ★修正点: クリックイベントの伝播を停止
+    checkbox.onclick = (e) => {
+        e.stopPropagation();
+    };
+    
+    checkbox.onchange = () => {
+        const btn = categoryHeader.querySelector('.btn-toggle-all-checks');
+        if(btn) {
+            const allChecked = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox:checked`).length === document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox`).length;
+            btn.classList.toggle('checked', allChecked);
+        }
+    };
+    
+    if (map.isCustom) {
+        const actions = document.createElement('div');
+        actions.className = 'map-card-actions';
+        actions.innerHTML = `<button class="btn-mylink-edit">✏️ 編集</button><button class="btn-mylink-delete">🗑️ 削除</button>`;
+        actions.querySelector('.btn-mylink-edit').onclick = (e) => { e.stopPropagation(); openMyLinkModal(map); };
+        actions.querySelector('.btn-mylink-delete').onclick = (e) => { e.stopPropagation(); deleteMyLink(map.id); };
+        card.appendChild(actions);
+    }
+    return card;
 }
-card.querySelector('.map-checkbox').onchange = () => {
-const btn = categoryHeader.querySelector('.btn-toggle-all-checks');
-if(btn) {
-const allChecked = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox:checked`).length === document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox`).length;
-btn.classList.toggle('checked', allChecked);
-}
-};
-return card;
-}
+
 
 function decimalToDMS(dd, isLat) { const dir = dd < 0 ? (isLat ? 'S' : 'W') : (isLat ? 'N' : 'E'); dd = Math.abs(dd); const d = Math.floor(dd), m = Math.floor((dd - d) * 60), s = (((dd - d) * 60 - m) * 60).toFixed(3); return `${d}°${String(m).padStart(2,'0')}'${String(s).padStart(6,'0')}" ${dir}`; }
 function dmsToDecimal(dms) { dms = String(dms).trim().toUpperCase(); const parts = dms.match(/(-?\d+\.?\d*)[°D\s]+(\d+)[`'’\s]+([\d.]+)[S"”\s]*\s*([NSEW])?/); if (!parts) throw new Error("Invalid DMS format"); let dd = Math.abs(parseFloat(parts[1])) + parseFloat(parts[2])/60 + parseFloat(parts[3])/3600; if (parseFloat(parts[1]) < 0 || parts[4] === 'S' || parts[4] === 'W') dd = -dd; return dd; }
