@@ -63,11 +63,11 @@
 
 /* カテゴリ別シャドウカラー変数 (ライトモード) */
 --shadow-terrain: 0 8px 24px rgba(76, 175, 80, 0.3);
---shadow-disaster: 0 8px 24px rgba(255, 87, 34, 0.3);
+--shadow-disaster: 0 8px 24px rgba(255, 87, 34, 0.4);
 --shadow-geology: 0 8px 24px rgba(255, 152, 0, 0.3);
 --shadow-survey: 0 8px 24px rgba(33, 150, 243, 0.3);
---shadow-other: 0 8px 24px rgba(156, 39, 176, 0.3);
---shadow-mylink: 0 8px 24px rgba(255, 193, 7, 0.3);
+--shadow-other: 0 8px 24px rgba(156, 39, 176, 0.4);
+--shadow-mylink: 0 8px 24px rgba(255, 193, 7, 0.4);
 }
 
 /* ダークモード変数 */
@@ -125,7 +125,6 @@ padding: 0;
 box-sizing: border-box;
 }
 
-/* ★変更点: bodyのpaddingを削減 */
 body {
 font-family: 'Segoe UI', 'Yu Gothic', sans-serif;
 background: var(--bg-page);
@@ -164,7 +163,7 @@ flex-shrink: 0;
 .header-button-wrapper { display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
 .header-button-label { font-size: 10px; color: white; white-space: nowrap; opacity: 0.9; }
 
-.mode-toggle, .history-button, .bookmark-button, .share-button, .nav-button {
+.mode-toggle, .history-button, .bookmark-button, .share-button, .nav-button, .settings-button {
 background: rgba(255, 255, 255, 0.2);
 border: none;
 color: white;
@@ -178,7 +177,7 @@ justify-content: center;
 transition: all 0.3s;
 }
 
-.mode-toggle:hover, .history-button:hover, .bookmark-button:hover, .share-button:hover, .nav-button:hover:not(:disabled) {
+.mode-toggle:hover, .history-button:hover, .bookmark-button:hover, .share-button:hover, .nav-button:hover:not(:disabled), .settings-button:hover {
 background: rgba(255, 255, 255, 0.4);
 transform: scale(1.05);
 }
@@ -592,7 +591,7 @@ color: var(--text-dark);
 .modal-content h3 { margin-top: 0; color: var(--primary-color); margin-bottom: 20px; }
 .modal-form-group { margin-bottom: 15px; }
 .modal-form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
-.modal-form-group input, .modal-form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-light); color: var(--text-dark); font-size: 14px; }
+.modal-form-group input, .modal-form-group textarea, .modal-form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-light); color: var(--text-dark); font-size: 14px; }
 .modal-form-group small { font-size: 12px; color: var(--text-medium); }
 .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
 .modal-buttons button { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
@@ -718,7 +717,7 @@ overflow-y: auto;
 
 @media (max-width: 768px) {
 .header-buttons { right: 10px; top: 15px; gap: 5px; }
-.mode-toggle, .history-button, .bookmark-button, .share-button { width: 35px; height: 35px; font-size: 16px; }
+.mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button { width: 35px; height: 35px; font-size: 16px; }
 .header-button-label { font-size: 9px; }
 .history-popup, .bookmark-popup { width: calc(100% - 20px); left: 10px; top: 60px; }
 .analysis-tools-overlay { bottom: 10px; }
@@ -749,39 +748,43 @@ height: 50vh;
         <span class="header-button-label">進む</span>
     </div>
     <div class="header-button-wrapper">
-<button class="share-button" id="shareButton" onclick="generateShareUrl()" aria-label="リンク共有" title="現在の状態を共有">🔗</button>
-<span class="header-button-label">リンク共有</span>
-</div>
-<div class="header-button-wrapper">
-<button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
-<span class="header-button-label">ブックマーク</span>
-<div class="bookmark-popup" id="bookmarkPopup">
-<h4>⭐ 地点ブックマーク</h4>
-<div class="popup-buttons">
-<button class="btn-clear-bookmarks" onclick="clearBookmarks()">🗑️ 全削除</button>
-<button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSV</button>
-<button class="btn-export-kml" onclick="exportBookmarksToKML()">🌐 KML</button>
-</div>
-<div id="bookmarkList"></div>
-</div>
-</div>
-<div class="header-button-wrapper">
-<button class="history-button" id="historyButton" onclick="toggleHistoryPopup()" aria-label="履歴" title="履歴を表示">⏱️</button>
-<span class="header-button-label">履歴</span>
-<div class="history-popup" id="historyPopup">
-<h4>座標履歴 (最新100件)</h4>
-<div class="popup-buttons">
-<button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴クリア</button>
-<button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSV</button>
-<button class="btn-export-kml" onclick="exportHistoryToKML()">🌐 KML</button>
-</div>
-<div id="historyList"></div>
-</div>
-</div>
-<div class="header-button-wrapper">
-<button class="mode-toggle" id="modeToggle" onclick="toggleDarkMode()" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
-<span class="header-button-label">モード切替</span>
-</div>
+        <button class="share-button" id="shareButton" onclick="generateShareUrl()" aria-label="リンク共有" title="現在の状態を共有">🔗</button>
+        <span class="header-button-label">リンク共有</span>
+    </div>
+    <div class="header-button-wrapper">
+        <button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
+        <span class="header-button-label">ブックマーク</span>
+        <div class="bookmark-popup" id="bookmarkPopup">
+            <h4>⭐ 地点ブックマーク</h4>
+            <div class="popup-buttons">
+            <button class="btn-clear-bookmarks" onclick="clearBookmarks()">🗑️ 全削除</button>
+            <button class="btn-export-csv" onclick="exportBookmarksToCSV()">💾 CSV</button>
+            <button class="btn-export-kml" onclick="exportBookmarksToKML()">🌐 KML</button>
+            </div>
+            <div id="bookmarkList"></div>
+        </div>
+    </div>
+    <div class="header-button-wrapper">
+        <button class="history-button" id="historyButton" onclick="toggleHistoryPopup()" aria-label="履歴" title="履歴を表示">⏱️</button>
+        <span class="header-button-label">履歴</span>
+        <div class="history-popup" id="historyPopup">
+            <h4>座標履歴</h4>
+            <div class="popup-buttons">
+            <button class="btn-clear-history" onclick="clearHistory()">🗑️ 履歴クリア</button>
+            <button class="btn-export-csv" onclick="exportHistoryToCSV()">💾 CSV</button>
+            <button class="btn-export-kml" onclick="exportHistoryToKML()">🌐 KML</button>
+            </div>
+            <div id="historyList"></div>
+        </div>
+    </div>
+    <div class="header-button-wrapper">
+        <button class="settings-button" id="settingsButton" title="設定">⚙️</button>
+        <span class="header-button-label">設定</span>
+    </div>
+    <div class="header-button-wrapper">
+        <button class="mode-toggle" id="modeToggle" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
+        <span class="header-button-label">モード切替</span>
+    </div>
 </div>
 <div class="usage-toggle">
 <button class="toggle-btn" onclick="toggleUsage()">💡 使い方を見る <span class="toggle-icon" id="toggleIcon">▶</span></button>
@@ -960,24 +963,143 @@ height: 50vh;
 <textarea id="mylink-desc" rows="2" placeholder="このリンクについての簡単な説明"></textarea>
 </div>
 <div class="modal-buttons">
-<button type="button" class="btn-modal-cancel" id="btn-modal-cancel">キャンセル</button>
+<button type="button" class="btn-modal-cancel" id="btn-mylink-modal-cancel">キャンセル</button>
 <button type="submit" class="btn-modal-save">保存</button>
 </div>
 </form>
 </div>
 </div>
+
+<!-- ★変更: 設定モーダルに機能追加 -->
+<div class="modal-overlay" id="settings-modal">
+    <div class="modal-content">
+        <h3>⚙️ アプリケーション設定</h3>
+        <form id="settings-form">
+            <div class="modal-form-group">
+                <label for="settings-zoom">デフォルトのズームレベル: <span id="settings-zoom-value">16</span></label>
+                <input type="range" id="settings-zoom" min="1" max="20" step="1">
+                <small>起動時の地図のズームレベルを設定します。</small>
+            </div>
+            <div class="modal-form-group">
+                <label for="settings-default-layer">デフォルトの地図レイヤー</label>
+                <select id="settings-default-layer"></select>
+                <small>起動時に最初に表示される地図レイヤーを選択します。</small>
+            </div>
+            <div class="modal-form-group">
+                <label for="settings-theme">カラーテーマ</label>
+                <select id="settings-theme">
+                    <option value="light">ライトモード</option>
+                    <option value="dark">ダークモード</option>
+                </select>
+                <small>アプリ全体の見た目を変更します。</small>
+            </div>
+            <div class="modal-form-group">
+                <label for="settings-coord-format">座標の表示形式</label>
+                <select id="settings-coord-format">
+                    <option value="decimal">十進数 (例: 35.123456)</option>
+                    <option value="dms">度分秒 (例: 35°07'24.4" N)</option>
+                </select>
+                <small>緯度経度の表示・入力形式を選択します。</small>
+            </div>
+            <div class="modal-form-group">
+                <label for="settings-history-size">履歴の保持数</label>
+                <input type="number" id="settings-history-size" min="10" max="500" step="10">
+                <small>座標のクリック履歴を最大何件まで保持するか設定します。</small>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-modal-cancel" id="btn-settings-modal-cancel">キャンセル</button>
+                <button type="submit" class="btn-modal-save">設定を保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="footer-copyright">
 © 2025 GeoLinkNavi
 <br>本ソースコードおよびデザインの無断転載・改変・再配布を禁止します。
 </div>
 <script>
 const CATEGORY_META = { 'all': { title: 'すべての地図', icon: '🌐', class: '' }, 'terrain': { title: '地図・地理情報', icon: '🗻', class: 'terrain-icon' }, 'geology': { title: '地質・地盤情報', icon: '🏔️', class: 'geology-icon' }, 'disaster': { title: '防災・ハザード情報', icon: '⚠️', class: 'disaster-icon' }, 'survey': { title: '測量・解析ツール', icon: '📐', class: 'survey-icon' }, 'other': { title: 'その他の情報', icon: '💡', class: 'other-icon' }, 'mylink': { title: '⭐ マイリンク', icon: '⭐', class: 'mylink-icon'} };
-const BASE_LAYERS = { 'osm': { name: 'OpenStreetMap', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap contributors', layer: null }, 'gsi_std': { name: '地理院地図（標準）', url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null }, 'gsi_pale': { name: '地理院地図（淡色）', url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null } };
+
+// ★変更: 各レイヤーにmaxZoomプロパティを追加
+const BASE_LAYERS = {
+    'osm': { name: 'OpenStreetMap', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap contributors', layer: null, maxZoom: 19 },
+    'gsi_std': { name: '地理院地図（標準）', url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null, maxZoom: 18 },
+    'gsi_pale': { name: '地理院地図（淡色）', url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null, maxZoom: 18 },
+    'gsi_seamlessphoto': { name: '地理院地図（写真）', url: 'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg', attribution: '© 国土地理院', layer: null, maxZoom: 18 },
+    'gsi_relief': { name: '地理院地図（色別標高図）', url: 'https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null, maxZoom: 15 } // ズームレベル15に制限
+};
+
 const MAP_DEFINITIONS = [ { name: '地理院地図', desc: '国土地理院の基本地図。標高、地形、土地利用など', category: 'terrain', icon: '🗺️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c0g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { name: '地理院時系列', desc: '過去から現在までの地図を時系列で比較', category: 'terrain', icon: '⏳', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&ls=gsi-compare-photo&lcd=gsi-compare-photo&vs=c0j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { name: '治水地形分類図', desc: '河川周辺の地形特性と洪水リスクを把握', category: 'terrain', icon: '🖼️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=lcmfc2%2C0.8%7Chillshademap&blend=01&disp=111&lcd=hillshademap&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { name: 'Googleマップ', desc: 'ストリートビューや経路検索も可能', category: 'terrain', icon: '📍', noCoords: false, url: (lat, lon) => `https://maps.google.co.jp/maps?q=${lat},${lon}` }, { name: 'Google Earth', desc: '3D地形と衛星画像で地表を詳細に確認', category: 'terrain', icon: '🌍', noCoords: false, url: (lat, lon, zoom) => `https://earth.google.com/web/@${lat},${lon},0a,${Math.round(300000*Math.pow(0.5,(parseInt(zoom,10)-1)/3))}d,0y,0h` }, { name: '今昔マップ', desc: '明治から現代までの地形図を並べて表示', category: 'terrain', icon: '📜', noCoords: false, url: (lat, lon, zoom) => `https://ktgis.net/kjmapw/kjmapw.html?lat=${lat}&lng=${lon}&zoom=${zoom}&dataset=&age=3&screen=2&scr1tile=k_cj4&scr2tile=k_cj4&scr3tile=k_cj4&mapOpacity=10&overGSItile=no&altitudeOpacity=2` }, { name: '地図・空中写真閲覧', desc: '過去の空中写真を閲覧', category: 'terrain', icon: '📷', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/map-photos/app/map?search=photo#${zoom}/${lat}/${lon}` }, { name: '地質図Navi', desc: '日本全国の地質情報を詳細に表示', category: 'geology', icon: '⛏️', noCoords: false, url: (lat, lon, zoom) => `https://gbank.gsj.jp/geonavi/geonavi.php#${zoom},${lat},${lon}` }, { name: '国土地盤情報 KuniJiban', desc: 'ボーリングデータなど地盤情報を検索', category: 'geology', icon: '📊', noCoords: true, url: () => `https://www.kunijiban.pwri.go.jp/viewer/` }, { name: '国土地盤情報センター', desc: '全国の地盤情報データベース', category: 'geology', icon: '📈', noCoords: true, url: () => `https://publicweb.ngic.or.jp/viewer/` }, { name: 'ジオ・ステーション', desc: '地質・地盤情報の統合プラットフォーム。開いた後に位置を検索してください', category: 'geology', icon: '🧭', noCoords: true, url: () => `https://www.geo-stn.bosai.go.jp/mapping_page.html` }, { name: '東京の地盤（GIS）', desc: '東京都内の詳細な地盤データ。開いた後に位置を検索してください', category: 'geology', icon: '🏢', noCoords: true, url: () => `https://doboku.metro.tokyo.lg.jp/start/03-jyouhou/geo-web/geo-webmap.aspx` }, { name: '重ねるハザードマップ', desc: '洪水、土砂災害、津波などの危険区域を表示', category: 'disaster', icon: '🚨', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=tameike_raster%2C0.75%7Cflood_list_l2%2C0.75%7Cdisaster1&disp=110&vs=c1j0l0u0` }, { name: 'ハザードマップ（治水地形分類図）', desc: '治水地形分類図とハザード情報の重ね合わせ', category: 'disaster', icon: '🚫', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=hillshademap%7CLCMFC02&disp=11&vs=c1j0l0u0t0h0z0` }, { name: '川の防災情報', desc: 'リアルタイムの河川水位と雨量情報', category: 'disaster', icon: '💧', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `https://www.river.go.jp/kawabou/pc/ov?zm=${zoom}&fld=0&clat=${lat}&clon=${lon}&mapType=0&viewGrpStg=0&viewRd=1&viewRW=1&viewRiver=1&viewPoint=1`;} }, { name: 'キキクル（危険度分布）', desc: '土砂災害・浸水・洪水の危険度をリアルタイム表示', category: 'disaster', icon: '⛈️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/risk/#zoom:${zoom}/lat:${lat}/lon:${lon}/colordepth:deep/elements:land` }, { name: '基準点閲覧サービス', desc: '三角点・水準点などの基準点情報', category: 'survey', icon: '📏', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/kijunten/app/map/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c1z0f0` }, { name: '水文水質データベース', desc: '河川の水位・流量・水質データ', category: 'survey', icon: '🔬', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `http://www1.river.go.jp/cgi-bin/SelectMap.do?cntX=${lon}&cntY=${lat}&scaleCd=${s}`;} }, { name: 'Web地形断面メーカー', desc: '2点間の地形断面図を自動作成。開いた後に位置を設定してください', category: 'survey', icon: '〽️', noCoords: true, url: () => `https://ktgis.net/service/topoprofile/` }, { name: 'Web等高線メーカー', desc: '指定範囲の等高線図を作成。開いた後に位置を設定してください', category: 'survey', icon: '🏔️', noCoords: true, url: () => `https://ktgis.net/service/webcontour/index.html` }, { name: 'Yahoo地図', desc: '雨雲レーダーや混雑情報も表示可能', category: 'other', icon: '☁️', noCoords: false, url: (lat, lon, zoom) => `https://map.yahoo.co.jp/?lat=${lat}&lon=${lon}&zoom=${zoom}&maptype=satellite` }, { name: 'Mapion（マップコード）', desc: 'カーナビ用のマップコードを取得。右クリック→地図URLでマップコードを表示', category: 'other', icon: '📍', noCoords: false, url: (lat, lon, zoom) => `https://www.mapion.co.jp/m2/${lat},${lon},${zoom}` }, { name: '地価マップ', desc: '公示地価・基準地価を地図上に表示', category: 'other', icon: '💵', noCoords: false, url: (lat, lon) => `https://www.chikamap.jp/chikamap/Map?mid=220&mps=2500&mpx=${parseFloat(lon)+0.002365}&mpy=${parseFloat(lat)-0.00328}&mtl=47,37,77,27,67,57&mcl=3,30,30,30;2,20,312,312;7,70,310,310;1,10,312,312;1,10,310,310;5,50,50,50;4,40,40,40&gprj=1&flgInit=1&vpc=0` }];
 
-const $lat = document.getElementById('latitude'), $lon = document.getElementById('longitude'), $coordsDisplay = document.getElementById('currentCoords'), $zoom = document.getElementById('zoomLevel'), $zoomDisplay = document.getElementById('zoomLevelDisplay'), $container = document.getElementById('map-categories-container'), $notification = document.getElementById('notification'), $mapPreview = document.getElementById('mapPreview'), $previewContainer = document.getElementById('previewContainer'), $historyPopup = document.getElementById('historyPopup'), $historyList = document.getElementById('historyList'), $bookmarkPopup = document.getElementById('bookmarkPopup'), $bookmarkList = document.getElementById('bookmarkList'), $currentZoom = document.getElementById('currentZoom'), $addressInput = document.getElementById('addressInput'), $autocompleteList = document.getElementById('autocompleteList'), $coordFormatToggle = document.getElementById('coord-format-toggle'), $areaDisplay = document.getElementById('area-display'), $mainMapContainer = document.getElementById('mainMapContainer'), MAX_HISTORY = 100, BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORITE_SETS_KEY = 'favoriteSets';
+const $lat = document.getElementById('latitude'), $lon = document.getElementById('longitude'), $coordsDisplay = document.getElementById('currentCoords'), $zoom = document.getElementById('zoomLevel'), $zoomDisplay = document.getElementById('zoomLevelDisplay'), $container = document.getElementById('map-categories-container'), $notification = document.getElementById('notification'), $mapPreview = document.getElementById('mapPreview'), $previewContainer = document.getElementById('previewContainer'), $historyPopup = document.getElementById('historyPopup'), $historyList = document.getElementById('historyList'), $bookmarkPopup = document.getElementById('bookmarkPopup'), $bookmarkList = document.getElementById('bookmarkList'), $currentZoom = document.getElementById('currentZoom'), $addressInput = document.getElementById('addressInput'), $autocompleteList = document.getElementById('autocompleteList'), $coordFormatToggle = document.getElementById('coord-format-toggle'), $areaDisplay = document.getElementById('area-display'), $mainMapContainer = document.getElementById('mainMapContainer');
+let MAX_HISTORY = 100;
+const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORITE_SETS_KEY = 'favoriteSets', SETTINGS_KEY = 'geoLinkNaviSettings';
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 let navigationHistory = [], historyIndex = -1, MAX_NAV_HISTORY = 100;
+
+const defaultSettings = { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std' };
+let currentSettings = {};
+
+function loadSettings() {
+    const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    currentSettings = { ...defaultSettings, ...savedSettings };
+    applySettings();
+}
+
+function applySettings() {
+    document.body.classList.toggle('dark-mode', currentSettings.theme === 'dark');
+    document.getElementById('modeToggle').textContent = currentSettings.theme === 'dark' ? '☀️' : '🌙';
+    isDMSFormat = (currentSettings.coordFormat === 'dms');
+    updateLatLonInputs(currentLatLon.lat, currentLatLon.lon);
+    MAX_HISTORY = parseInt(currentSettings.historySize, 10);
+    const historyHeader = $historyPopup.querySelector('h4');
+    if(historyHeader) historyHeader.textContent = `座標履歴 (最新${MAX_HISTORY}件)`;
+    if (!location.search) { 
+        $zoom.value = currentSettings.defaultZoom;
+        $zoomDisplay.textContent = currentSettings.defaultZoom;
+    }
+}
+
+// ★追加: 設定のデフォルトレイヤー選択肢を動的に生成
+function populateLayerSettings() {
+    const select = document.getElementById('settings-default-layer');
+    select.innerHTML = '';
+    for (const key in BASE_LAYERS) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = BASE_LAYERS[key].name;
+        select.appendChild(option);
+    }
+}
+
+function openSettingsModal() {
+    document.getElementById('settings-zoom').value = currentSettings.defaultZoom;
+    document.getElementById('settings-zoom-value').textContent = currentSettings.defaultZoom;
+    document.getElementById('settings-default-layer').value = currentSettings.defaultLayer;
+    document.getElementById('settings-theme').value = currentSettings.theme;
+    document.getElementById('settings-coord-format').value = currentSettings.coordFormat;
+    document.getElementById('settings-history-size').value = currentSettings.historySize;
+    document.getElementById('settings-modal').style.display = 'flex';
+}
+
+function closeSettingsModal() {
+    document.getElementById('settings-modal').style.display = 'none';
+}
+
+function saveSettings(e) {
+    e.preventDefault();
+    currentSettings.defaultZoom = document.getElementById('settings-zoom').value;
+    currentSettings.defaultLayer = document.getElementById('settings-default-layer').value;
+    currentSettings.theme = document.getElementById('settings-theme').value;
+    currentSettings.coordFormat = document.getElementById('settings-coord-format').value;
+    currentSettings.historySize = document.getElementById('settings-history-size').value;
+
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+    applySettings();
+    closeSettingsModal();
+    showNotification('設定を保存しました。');
+}
 
 function showNotification(message, type = 'success') { $notification.textContent = message; $notification.className = `notification ${type}`; $notification.style.display = 'block'; setTimeout(() => $notification.style.display = 'none', 3000); }
 async function updateCurrentCoords(skipHistorySave = false, fromNav = false) {
@@ -1028,10 +1150,32 @@ if (osmMap === null) {
 osmMap = L.map('osmClickMap', { fullscreenControl: { title: { 'false': '全画面', 'true': '通常表示' } } }).setView(latlng, zoom);
 setupAnalysisTools();
 const baseMaps = {};
-for(const key in BASE_LAYERS) { const config = BASE_LAYERS[key]; config.layer = L.tileLayer(config.url, { maxZoom: 19, attribution: config.attribution }); baseMaps[config.name] = config.layer; }
+for(const key in BASE_LAYERS) { 
+    const config = BASE_LAYERS[key];
+    config.layer = L.tileLayer(config.url, { maxZoom: config.maxZoom || 19, attribution: config.attribution }); 
+    baseMaps[config.name] = config.layer; 
+}
 L.control.layers(baseMaps).addTo(osmMap);
-BASE_LAYERS[localStorage.getItem('osmBaseMap') || 'osm'].layer.addTo(osmMap);
-osmMap.on('baselayerchange', e => { for (const key in BASE_LAYERS) if (BASE_LAYERS[key].name === e.name) localStorage.setItem('osmBaseMap', key); });
+
+// ★変更: デフォルトレイヤーを設定から読み込む
+const defaultLayerKey = currentSettings.defaultLayer || 'gsi_std';
+BASE_LAYERS[defaultLayerKey].layer.addTo(osmMap);
+osmMap.setMaxZoom(BASE_LAYERS[defaultLayerKey].maxZoom); // 初期レイヤーのズーム制限を適用
+
+// ★変更: baselayerchangeで最大ズームを動的に変更
+osmMap.on('baselayerchange', e => { 
+    for (const key in BASE_LAYERS) {
+        if (BASE_LAYERS[key].name === e.name) {
+            const newMaxZoom = BASE_LAYERS[key].maxZoom;
+            osmMap.setMaxZoom(newMaxZoom);
+            if (osmMap.getZoom() > newMaxZoom) {
+                osmMap.setZoom(newMaxZoom);
+            }
+            break;
+        }
+    }
+});
+
 osmMap.on('zoomend', () => { const newZoom = osmMap.getZoom(); if (newZoom !== parseInt($zoom.value, 10)) { $zoom.value = newZoom; $zoomDisplay.textContent = newZoom; } });
 osmMap.on('click', e => {
 if (isMeasuring) return handleMeasureClick(e);
@@ -1091,8 +1235,13 @@ async function exportHistoryToKML() { exportToKML(JSON.parse(localStorage.getIte
 async function exportBookmarksToKML() { exportToKML(JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), '地点ブックマーク', 'bookmarks_export'); }
 async function exportToKML(data, docName, filename) { if (data.length === 0) return showNotification('データがありません', 'error'); let placemarks = ''; for (const item of data) placemarks += `<Placemark><name>${escapeXml(item.name||item.address||'無題')}</name><Point><coordinates>${item.lon},${item.lat},0</coordinates></Point></Placemark>\n`; const kml = `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${docName}</name>${placemarks}</Document></kml>`, blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `${filename}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.kml`; a.click(); URL.revokeObjectURL(url); showNotification('KMLで書き出しました'); }
 function escapeXml(unsafe) { return unsafe.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','\'':'&apos;','"':'&quot;'})[c]); }
-function toggleDarkMode() { document.body.classList.toggle('dark-mode'); const isDark = document.body.classList.contains('dark-mode'); document.getElementById('modeToggle').textContent = isDark ? '☀️' : '🌙'; localStorage.setItem('colorMode', isDark ? 'dark' : 'light'); }
-function setInitialMode() { if (localStorage.getItem('colorMode') === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('modeToggle').textContent = '☀️'; } }
+
+function toggleDarkMode() {
+    currentSettings.theme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+    applySettings();
+}
+
 async function searchAddress() { const address = $addressInput.value.trim(); if (!address) return showNotification('住所を入力してください', 'error'); showNotification('検索中...'); const coords = await getCoordsFromAddress(address); if (coords) { updateLatLonInputs(coords.lat, coords.lon); await updateCurrentCoords(); showNotification(`「${address}」の座標を設定`); } else { showNotification('住所が見つかりません', 'error'); } $autocompleteList.classList.remove('show'); }
 function renderAutocompleteList(suggestions) { $autocompleteList.innerHTML = ''; selectedAutocompleteIndex = -1; if (suggestions.length === 0) return $autocompleteList.classList.remove('show'); currentAutocompleteResults = suggestions; suggestions.forEach((item, index) => { const li = document.createElement('div'); li.className = 'autocomplete-item'; li.innerHTML = `<strong>${item.display_name}</strong><span>${parseFloat(item.lat).toFixed(6)}, ${parseFloat(item.lon).toFixed(6)}</span>`; li.onclick = () => selectAutocompleteItem(index); $autocompleteList.appendChild(li); }); $autocompleteList.classList.add('show'); }
 async function selectAutocompleteItem(index) { const selected = currentAutocompleteResults[index]; if(selected) { $addressInput.value = selected.display_name; updateLatLonInputs(parseFloat(selected.lat), parseFloat(selected.lon)); await updateCurrentCoords(); $autocompleteList.classList.remove('show'); } }
@@ -1196,7 +1345,11 @@ function createMapCard(map, catKey, categoryHeader) {
 
 function decimalToDMS(dd, isLat) { const dir = dd < 0 ? (isLat ? 'S' : 'W') : (isLat ? 'N' : 'E'); dd = Math.abs(dd); const d = Math.floor(dd), m = Math.floor((dd - d) * 60), s = (((dd - d) * 60 - m) * 60).toFixed(3); return `${d}°${String(m).padStart(2,'0')}'${String(s).padStart(6,'0')}" ${dir}`; }
 function dmsToDecimal(dms) { dms = String(dms).trim().toUpperCase(); const parts = dms.match(/(-?\d+\.?\d*)[°D\s]+(\d+)[`'’\s]+([\d.]+)[S"”\s]*\s*([NSEW])?/); if (!parts) throw new Error("Invalid DMS format"); let dd = Math.abs(parseFloat(parts[1])) + parseFloat(parts[2])/60 + parseFloat(parts[3])/3600; if (parseFloat(parts[1]) < 0 || parts[4] === 'S' || parts[4] === 'W') dd = -dd; return dd; }
-function toggleCoordFormat() { isDMSFormat = !isDMSFormat; updateLatLonInputs(currentLatLon.lat, currentLatLon.lon); }
+function toggleCoordFormat() {
+    currentSettings.coordFormat = isDMSFormat ? 'decimal' : 'dms';
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+    applySettings();
+}
 function updateLatLonInputs(lat, lon) { currentLatLon = {lat, lon}; if (isDMSFormat) { $lat.value = decimalToDMS(lat, true); $lon.value = decimalToDMS(lon, false); } else { $lat.value = lat.toFixed(8); $lon.value = lon.toFixed(8); } }
 
 let isMeasuring = false, isMeasuringArea = false;
@@ -1469,7 +1622,8 @@ function deleteFavoriteSet() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-setInitialMode();
+loadSettings();
+populateLayerSettings(); // ★追加
 renderMapCards();
 loadFavoriteSets();
 
@@ -1477,10 +1631,10 @@ const today = new Date();
 document.getElementById('lastUpdated').textContent = `最終更新日: ${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
 
 if (applyStateFromUrl()) {
-updateCurrentCoords(true, true);
+    updateCurrentCoords(true, true);
 } else {
-updateCurrentCoords(true, true);
-initGeolocation();
+    updateCurrentCoords(true, true);
+    initGeolocation();
 }
 $lat.addEventListener('change', () => updateCurrentCoords());
 $lon.addEventListener('change', () => updateCurrentCoords());
@@ -1494,10 +1648,22 @@ document.addEventListener('click', e => { if (!e.target.closest('.input-wrapper'
 $historyList.addEventListener('click', e => { const i = e.target.closest('.history-item')?.dataset.index; if (i) loadCoordinateFromHistory(JSON.parse(localStorage.getItem('coordinateHistory'))[i]); });
 $bookmarkList.addEventListener('click', e => { const i = e.target.closest('.bookmark-item')?.dataset.index, a = e.target.closest('button')?.className.split('-').pop(); if(i&&a) handleBookmarkAction(parseInt(i), a); });
 $mylinkForm.addEventListener('submit', saveMyLink);
-document.getElementById('btn-modal-cancel').addEventListener('click', closeMyLinkModal);
+document.getElementById('btn-mylink-modal-cancel').addEventListener('click', closeMyLinkModal);
 $mylinkModal.addEventListener('click', e => e.target === $mylinkModal && closeMyLinkModal());
 
 document.getElementById('btn-convert-url').addEventListener('click', convertUrlToTemplate);
+document.getElementById('modeToggle').addEventListener('click', toggleDarkMode);
+
+const $settingsModal = document.getElementById('settings-modal');
+document.getElementById('settingsButton').addEventListener('click', openSettingsModal);
+document.getElementById('settings-form').addEventListener('submit', saveSettings);
+document.getElementById('btn-settings-modal-cancel').addEventListener('click', closeSettingsModal);
+$settingsModal.addEventListener('click', e => e.target === $settingsModal && closeSettingsModal());
+// ★追加: 設定ズームスライダーの数値表示を更新
+document.getElementById('settings-zoom').addEventListener('input', e => {
+    document.getElementById('settings-zoom-value').textContent = e.target.value;
+});
+
 
 document.getElementById('navBack').addEventListener('click', () => {
     if (historyIndex > 0) {
