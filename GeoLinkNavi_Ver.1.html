@@ -56,7 +56,7 @@
 --btn-format-toggle-bg: #d1c4e9;
 --btn-format-toggle-hover-bg: #9575cd;
 
-/* [修正点] ピン留めボタン用の淡い背景色を追加 */
+/* ピン留めボタン用の淡い背景色 */
 --btn-pin-bg: rgba(102, 126, 234, 0.7);
 --btn-pin-pinned-bg: rgba(118, 75, 162, 0.7);
 --btn-pin-hover-bg: rgba(118, 75, 162, 0.9);
@@ -65,6 +65,11 @@
 --autocomplete-bg: var(--card-bg);
 --autocomplete-border: var(--border-color);
 --autocomplete-item-hover-bg: var(--bg-light);
+
+/* [追加] 使い方ガイド用の変数 */
+--usage-guide-bg: rgba(248, 249, 250, 0.97);
+--usage-guide-color: var(--text-dark);
+
 
 /* カテゴリ別シャドウカラー変数 (ライトモード) */
 --shadow-terrain: 0 8px 24px rgba(76, 175, 80, 0.3);
@@ -110,7 +115,7 @@ body.dark-mode {
 --btn-format-toggle-bg: #5e35b1;
 --btn-format-toggle-hover-bg: #4527a0;
 
-/* [修正点] ピン留めボタン用の淡い背景色を追加 (ダークモード) */
+/* ピン留めボタン用の淡い背景色 (ダークモード) */
 --btn-pin-bg: rgba(79, 70, 229, 0.6);
 --btn-pin-pinned-bg: rgba(168, 85, 247, 0.6);
 --btn-pin-hover-bg: rgba(168, 85, 247, 0.8);
@@ -119,6 +124,10 @@ body.dark-mode {
 --autocomplete-bg: var(--card-bg);
 --autocomplete-border: var(--border-color);
 --autocomplete-item-hover-bg: #2d3748;
+
+/* [追加] 使い方ガイド用の変数 (ダークモード) */
+--usage-guide-bg: rgba(31, 41, 55, 0.97);
+--usage-guide-color: var(--text-dark);
 
 /* カテゴリ別シャドウカラー変数 (ダークモード) */
 --shadow-terrain: 0 8px 24px rgba(76, 175, 80, 0.4);
@@ -174,7 +183,7 @@ flex-shrink: 0;
 .header-button-wrapper { display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
 .header-button-label { font-size: 10px; color: white; white-space: nowrap; opacity: 0.9; }
 
-.mode-toggle, .history-button, .bookmark-button, .share-button, .nav-button, .settings-button {
+.mode-toggle, .history-button, .bookmark-button, .share-button, .nav-button, .settings-button, .usage-button {
 background: rgba(255, 255, 255, 0.2);
 border: none;
 color: white;
@@ -188,7 +197,7 @@ justify-content: center;
 transition: all 0.3s;
 }
 
-.mode-toggle:hover, .history-button:hover, .bookmark-button:hover, .share-button:hover, .nav-button:hover:not(:disabled), .settings-button:hover {
+.mode-toggle:hover, .history-button:hover, .bookmark-button:hover, .share-button:hover, .nav-button:hover:not(:disabled), .settings-button:hover, .usage-button:hover {
 background: rgba(255, 255, 255, 0.4);
 transform: scale(1.05);
 }
@@ -238,12 +247,24 @@ right: 0;
 .history-item strong, .bookmark-item strong { display: block; font-weight: 600; color: var(--text-dark); }
 .history-item span, .bookmark-item span { color: var(--text-medium); font-size: 12px; display: block; margin-top: 3px; }
 
-.usage-toggle { margin-top: 10px; }
-.toggle-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-.toggle-btn:hover { background: rgba(255, 255, 255, 0.3); }
-.toggle-icon { transition: transform 0.3s; }
-.toggle-icon.open { transform: rotate(90deg); }
-.usage-guide { background: rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 15px 20px; margin-top: 10px; font-size: 13px; display: none; animation: slideDown 0.3s ease; color: white; }
+/* [修正] 使い方ガイドのスタイル */
+.usage-guide {
+    background: var(--usage-guide-bg);
+    color: var(--usage-guide-color);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-base);
+    border-radius: 10px;
+    padding: 20px 25px;
+    font-size: 13px;
+    display: none;
+    animation: slideDown 0.3s ease;
+    position: absolute;
+    top: 65px;
+    right: 15px;
+    width: 1300px;
+    max-width: 90vw;
+    z-index: 1100;
+}
 .usage-guide.show { display: block; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .popup-warning { color: #FFF3CD; background-color: var(--red-alert); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px; font-weight: 700; }
@@ -321,6 +342,7 @@ margin-top: 0;
     display: flex;
     align-items: flex-end;
     gap: 10px;
+    flex-wrap: wrap;
 }
 .input-buttons-group {
     display: flex;
@@ -381,6 +403,24 @@ margin-top: 0;
 .btn-base { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 13px; color: white; min-width: 100px; height: 42px; display: inline-flex; align-items: center; justify-content: center; }
 .btn-icon { min-width: 0; width: 42px; padding: 0; font-size: 22px; }
 
+/* [追加] 無効化されたボタンのスタイル */
+.btn-base:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+    background-color: var(--border-color) !important;
+}
+
+
+/* パネルボタン用のスタイル */
+#toggleRightPanelBtn { background-color: var(--primary-color); }
+#toggleRightPanelBtn:hover:not(:disabled) { background-color: var(--secondary-color); }
+#pinPanelBtn { background: var(--btn-pin-bg); }
+#pinPanelBtn:hover { background: var(--btn-pin-hover-bg); }
+#pinPanelBtn.pinned { background: var(--btn-pin-pinned-bg); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+
+
 .btn-current-location { background-color: var(--btn-current-location-bg); }
 .btn-current-location:hover { background-color: var(--btn-current-location-hover-bg); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
 .btn-paste { background-color: var(--btn-paste-bg); }
@@ -429,8 +469,8 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 0px;    /* 上の余白を2pxに設定 */
-    padding-bottom: 0px; /* 下の余白を2pxに設定 */
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 .osm-map-wrapper {
     max-height: 1000px;
@@ -759,14 +799,9 @@ color: var(--text-dark);
 
 @media (max-width: 768px) {
     .header-buttons { right: 10px; top: 15px; gap: 5px; }
-    .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button { width: 35px; height: 35px; font-size: 16px; }
+    .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button, .usage-button { width: 35px; height: 35px; font-size: 16px; }
     .header-button-label { font-size: 9px; }
     .history-popup, .bookmark-popup {
-        /*
-         [修正点1] スマホ表示崩れの修正
-         widthの基準を親要素(%)からビューポート(vw)に変更し、
-         rightプロパティをautoに設定してレイアウトの競合を防ぎます。
-        */
         width: calc(100vw - 20px);
         left: 10px;
         right: auto;
@@ -810,60 +845,6 @@ color: var(--text-dark);
     pointer-events: auto;
 }
 
-/* 右上固定ボタン */
-#toggleRightPanelBtn {
-    position: fixed;
-    top: 75px;
-    /* [修正点] アイコンのみになったピンボタンの幅に合わせて調整 */
-    right: 55px;
-    z-index: 1550;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 14px;
-    cursor: pointer;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    transition: background 0.3s, transform 0.3s;
-}
-#toggleRightPanelBtn:hover {
-    background: var(--secondary-color);
-    transform: scale(1.05);
-}
-
-/*
- [修正点] ピン留めボタンのスタイルをアイコン表示用に修正
-*/
-#pinPanelBtn {
-    position: fixed;
-    top: 75px;
-    right: 15px;
-    z-index: 1500;
-    background: var(--btn-pin-bg); /* 淡い背景色に変更 */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    width: 38px; /* 固定幅 */
-    height: 38px; /* 固定高 */
-    cursor: pointer;
-    font-size: 20px; /* アイコンサイズを調整 */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#pinPanelBtn:hover {
-    background: var(--btn-pin-hover-bg); /* ホバー時の色を設定 */
-    transform: scale(1.05);
-}
-#pinPanelBtn.pinned {
-    background: var(--btn-pin-pinned-bg); /* 固定時の淡い背景色に変更 */
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-}
-
 /* main-layoutがpinnedクラスを持つ時のスタイル変更 */
 .main-layout.pinned {
     overflow-x: auto;
@@ -880,10 +861,10 @@ color: var(--text-dark);
     pointer-events: auto;
 }
 
-.main-layout.pinned #panelOverlay,
-.main-layout.pinned #toggleRightPanelBtn {
+.main-layout.pinned #panelOverlay {
     display: none !important;
 }
+
 </style>
 </head>
 <body class="light-mode">
@@ -938,83 +919,42 @@ color: var(--text-dark);
         <button class="mode-toggle" id="modeToggle" aria-label="ダークモード切り替え" title="ダーク/ライトモード切替">🌙</button>
         <span class="header-button-label">モード切替</span>
     </div>
+    <div class="header-button-wrapper">
+        <button class="usage-button" onclick="toggleUsage()" title="使い方を表示">？</button>
+        <span class="header-button-label">使い方</span>
+    </div>
 </div>
-<div class="usage-toggle">
-<button class="toggle-btn" onclick="toggleUsage()">💡 使い方を見る <span class="toggle-icon" id="toggleIcon">▶</span></button>
 <div class="usage-guide" id="usageGuide">
-<p>★知りたい場所の緯度・経度から、複数のオンライン地図や専門図面サイトへ瞬時にアクセス。情報収集をサポートします。★</p>
-<p class="popup-warning">⚠️ **注意:** 複数の地図を一括で開くには、ブラウザのポップアップブロックを解除（ポップアップを許可）してください。</p>
-<ul>
-<li>「🗺️クリックで座標取得 地図プレビュー」:🖱️クリックした位置の座標を緯度経度に反映します。全画面で選択した場合はESCで戻ってください。OpenStreetと地理院地図を切り替えられます。</li>
-<li>「🛠️測量ツール」: 「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。面積は3点目以降クリックするたびにリアルタイムで表示され、ダブルクリックで計測が完了します。</li>
-<li>「🗺️現在の座標プレビュー」：🖱️クリックした位置が埋め込まれたGoogleマップに反映されます。（プレビュー扱いです）</li>
-<li>「📍現在地」ボタン:お使いのデバイスの位置情報機能を利用して、現在地の座標を自動で入力します。（ブラウザの許可が必要な場合があります）</li>
-<li>「🌍Googleマップで探す」ボタン：マップを開いて調べたい場所を右クリック → 座標をクリップボードにコピーしてください。</li>
-<li>「📄 貼り付け」ボタン：クリップボードから緯度・経度を貼り付けます。</li>
-<li>「⭐ ブックマークに保存」ボタン：お気に入りの場所に名前をつけてブックマークに保存できます。</li>
-<li>「⚙️形式切替」: 「座標表示形式切替」ボタンで、緯度経度の表示を「十進数形式」と「度分秒形式」で切り替えられます。</li>
-<li>「🔎住所検索」ボタン:住所やランドマークなどを入力して検索すると、そこの緯度・経度を地図に反映できます。入力中に候補が表示されます。</li>
-<li>「◀ パネル」ボタン：画面右の地図選択パネルを開閉します。</li>
-<li>「📌 ピン留め」ボタン：パネルを開いた状態で画面に固定します。広い画面で地図と情報を同時に見たい場合に便利です。ピン留めを解除するとパネルは自動的に閉じます。</li>
-<li>各種地図カード:画面下部のカテゴリから、利用したい地図サービスをクリックすると、入力座標を中心とした地図が新しいタブで開きます。</li>
-<li>全選択/全解除ボタン:各カテゴリヘッダーにある「✅ 全選択/解除」ボタンで、そのカテゴリ内のすべての地図カードのチェック状態を切り替えられます。</li>
-<li>一括選択・オープン:各カテゴリの「▶️ チェックした項目を一括で開く」ボタンを利用すると、チェックボックスに印を付けた複数の地図を一度に開くことができます。</li>
-<li>「🔗 リンク共有」: 現在の座標やチェック状態をそのまま他の人に共有できるURLを生成します。</li>
-<li>「⭐ブックマーク」：任意の地点を名前を付けて保存できます。「⏱️履歴」：クリック位置が自動で保存されます。どちらも、記録は💾 CSVまたは🌐 KMLで書き出せます。</li>
-<li>「⚙️設定」: 起動時のズームレベル、テーマカラー、パネルの表示状態などをカスタマイズできます。</li>
-<li>⭐ マイリンク: 自分専用のWeb地図へのリンクを自由に追加・管理できます。</li>
-</ul>
-</div>
+    <p>★知りたい場所の緯度・経度から、複数のオンライン地図や専門図面サイトへ瞬時にアクセス。情報収集をサポートします。★</p>
+    <p class="popup-warning">⚠️ **注意:** 複数の地図を一括で開くには、ブラウザのポップアップブロックを解除（ポップアップを許可）してください。</p>
+    <ul>
+    <li>「🗺️クリックで座標取得 地図プレビュー」:🖱️クリックした位置の座標を緯度経度に反映します。全画面で選択した場合はESCで戻ってください。OpenStreetと地理院地図を切り替えられます。</li>
+    <li>「🛠️測量ツール」: 「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。面積は3点目以降クリックするたびにリアルタイムで表示され、ダブルクリックで計測が完了します。</li>
+    <li>「🗺️現在の座標プレビュー」：🖱️クリックした位置が埋め込まれたGoogleマップに反映されます。（プレビュー扱いです）</li>
+    <li>「📍現在地」ボタン:お使いのデバイスの位置情報機能を利用して、現在地の座標を自動で入力します。（ブラウザの許可が必要な場合があります）</li>
+    <li>「🌍Googleマップで探す」ボタン：マップを開いて調べたい場所を右クリック → 座標をクリップボードにコピーしてください。</li>
+    <li>「📄 貼り付け」ボタン：クリップボードから緯度・経度を貼り付けます。</li>
+    <li>「⭐ ブックマークに保存」ボタン：お気に入りの場所に名前をつけてブックマークに保存できます。</li>
+    <li>「⚙️形式切替」: 「座標表示形式切替」ボタンで、緯度経度の表示を「十進数形式」と「度分秒形式」で切り替えられます。</li>
+    <li>「🔎住所検索」ボタン:住所やランドマークなどを入力して検索すると、そこの緯度・経度を地図に反映できます。入力中に候補が表示されます。</li>
+    <li>「◀ パネル」ボタン：画面右の地図選択パネルを開閉します。</li>
+    <li>「📌 ピン留め」ボタン：パネルを開いた状態で画面に固定します。広い画面で地図と情報を同時に見たい場合に便利です。ピン留めを解除するとパネルは自動的に閉じます。</li>
+    <li>各種地図カード:画面下部のカテゴリから、利用したい地図サービスをクリックすると、入力座標を中心とした地図が新しいタブで開きます。</li>
+    <li>全選択/全解除ボタン:各カテゴリヘッダーにある「✅ 全選択/解除」ボタンで、そのカテゴリ内のすべての地図カードのチェック状態を切り替えられます。</li>
+    <li>一括選択・オープン:各カテゴリの「▶️ チェックした項目を一括で開く」ボタンを利用すると、チェックボックスに印を付けた複数の地図を一度に開くことができます。</li>
+    <li>「🔗 リンク共有」: 現在の座標やチェック状態をそのまま他の人に共有できるURLを生成します。</li>
+    <li>「⭐ブックマーク」：任意の地点を名前を付けて保存できます。「⏱️履歴」：クリック位置が自動で保存されます。どちらも、記録は💾 CSVまたは🌐 KMLで書き出せます。</li>
+    <li>「⚙️設定」: 起動時のズームレベル、テーマカラー、パネルの表示状態などをカスタマイズできます。</li>
+    <li>⭐ マイリンク: 自分専用のWeb地図へのリンクを自由に追加・管理できます。</li>
+    </ul>
 </div>
 </div>
 
 <!-- 半透明オーバーレイ -->
 <div id="panelOverlay" onclick="toggleRightPanel()"></div>
 
-<!-- パネル開閉ボタン（右上固定） -->
-<button id="toggleRightPanelBtn" onclick="toggleRightPanel()">◀ パネル</button>
-<!-- [修正点] ピン留めボタンからテキストを削除 -->
-<button id="pinPanelBtn" onclick="togglePinPanel()" title="パネルをピン留め">📌</button>
-
 <div class="main-layout">
     <div class="left-panel">
-        <div class="osm-map-container" id="mainMapContainer">
-            <div class="osm-map-header" onclick="toggleMainMap()">
-                <h3>🗺️ クリックで座標取得 / 地図プレビュー</h3>
-                <span class="preview-header-icon" id="mainMapToggleIcon">▼</span>
-            </div>
-            <div class="osm-map-wrapper">
-                <div id="osmClickMap">
-                    <div class="analysis-tools-overlay collapsed" id="analysis-tools">
-                        <h3 id="analysis-tools-header">🛠️ 測量・解析ツール <span class="toggle-icon">▶</span></h3>
-                        <div class="analysis-tools-controls">
-                            <div class="analysis-tool-row">
-                                <button class="btn-base btn-measure" id="measure-tool-btn">📏 距離計測</button>
-                            </div>
-                            <div class="analysis-tool-row">
-                                <button class="btn-base btn-area" id="area-tool-btn">📐 面積計測</button>
-                                <span id="area-display" class="area-display-label"></span>
-                            </div>
-                            <div class="analysis-tool-row">
-                                <button class="btn-base btn-buffer" id="buffer-tool-btn">⭕ 円作成</button>
-                                <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600; margin: 0 5px;">半径</label>
-                                <input type="number" id="buffer-radius-input" value="500" min="1">
-                                <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600;">m</label>
-                            </div>
-                            <div class="analysis-tool-row">
-                                <button class="btn-base btn-clear-analysis" id="clear-analysis-btn">🗑️ クリア</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="zoom-slider-overlay">
-                        <label for="zoomLevel">ズーム:</label>
-                        <input type="range" id="zoomLevel" value="16" min="1" max="20">
-                        <span id="zoomLevelDisplay">16</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="input-section">
             <div class="input-row">
                 <div class="input-buttons-group">
@@ -1066,6 +1006,52 @@ color: var(--text-dark);
                 <div class="input-button-wrapper">
                     <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
                     <span class="input-button-label">検索</span>
+                </div>
+                <!-- [変更点] パネル操作ボタンをアイコン形式に変更 -->
+                <div class="input-button-wrapper">
+                    <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+                    <span class="input-button-label">パネル</span>
+                </div>
+                <div class="input-button-wrapper">
+                    <button class="btn-base btn-icon" id="pinPanelBtn" onclick="togglePinPanel()" title="パネルをピン留め">📌</button>
+                    <span class="input-button-label">ピン留め</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="osm-map-container" id="mainMapContainer">
+            <div class="osm-map-header" onclick="toggleMainMap()">
+                <h3>🗺️ クリックで座標取得 / 地図プレビュー</h3>
+                <span class="preview-header-icon" id="mainMapToggleIcon">▼</span>
+            </div>
+            <div class="osm-map-wrapper">
+                <div id="osmClickMap">
+                    <div class="analysis-tools-overlay collapsed" id="analysis-tools">
+                        <h3 id="analysis-tools-header">🛠️ 測量・解析ツール <span class="toggle-icon">▶</span></h3>
+                        <div class="analysis-tools-controls">
+                            <div class="analysis-tool-row">
+                                <button class="btn-base btn-measure" id="measure-tool-btn">📏 距離計測</button>
+                            </div>
+                            <div class="analysis-tool-row">
+                                <button class="btn-base btn-area" id="area-tool-btn">📐 面積計測</button>
+                                <span id="area-display" class="area-display-label"></span>
+                            </div>
+                            <div class="analysis-tool-row">
+                                <button class="btn-base btn-buffer" id="buffer-tool-btn">⭕ 円作成</button>
+                                <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600; margin: 0 5px;">半径</label>
+                                <input type="number" id="buffer-radius-input" value="500" min="1">
+                                <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600;">m</label>
+                            </div>
+                            <div class="analysis-tool-row">
+                                <button class="btn-base btn-clear-analysis" id="clear-analysis-btn">🗑️ クリア</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="zoom-slider-overlay">
+                        <label for="zoomLevel">ズーム:</label>
+                        <input type="range" id="zoomLevel" value="16" min="1" max="20">
+                        <span id="zoomLevelDisplay">16</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1360,7 +1346,7 @@ const latlng = [lat, lon];
 if (osmMap === null) {
 osmMap = L.map('osmClickMap', { fullscreenControl: { title: { 'false': '全画面', 'true': '通常表示' } } }).setView(latlng, zoom);
 
-L.control.scale({ imperial: false }).addTo(osmMap); // この行を追加
+L.control.scale({ imperial: false }).addTo(osmMap);
 
 setupAnalysisTools();
 const baseMaps = {};
@@ -1434,8 +1420,9 @@ if (isFirstMapLoad) {
 
 function applyInitialPanelState() {
     if (window.innerWidth <= 1024) return;
-    const rightPanel = document.querySelector('.right-panel');
+    
     if (currentSettings.panelState === 'open') {
+        const rightPanel = document.querySelector('.right-panel');
         if (rightPanel.classList.contains('hidden')) {
             toggleRightPanel();
         }
@@ -1488,7 +1475,7 @@ btn.classList.toggle('checked', !allChecked);
 }
 function openGoogleMap() { const {lat,lon}=currentLatLon; if (isNaN(lat)||isNaN(lon))return; window.open(`https://maps.google.co.jp/maps?q=${lat},${lon}&z=${$zoom.value}`,'_blank'); }
 async function pasteCoordinates() { try { const text = await navigator.clipboard.readText(), match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/); if (match) { updateLatLonInputs(parseFloat(match[1]), parseFloat(match[2])); await updateCurrentCoords(); showNotification('座標を貼り付けました'); } else showNotification('形式が不正です','error'); } catch (err) { showNotification('クリップボード読取失敗','error'); } }
-function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); document.getElementById('toggleIcon').classList.toggle('open'); }
+function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); }
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
 function getCombinedMapDefinitions() {
     const customLinks = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l);
@@ -1921,6 +1908,7 @@ function deleteFavoriteSet() {
     }
 }
 
+// [修正] パネル開閉ボタンのアイコンを切り替えるように変更
 function toggleRightPanel() {
     if (document.querySelector('.main-layout').classList.contains('pinned')) {
         return;
@@ -1934,10 +1922,12 @@ function toggleRightPanel() {
     const isHidden = rightPanel.classList.contains('hidden');
 
     if (isHidden) {
-        btn.innerText = '◀ パネル';
+        btn.innerHTML = '◀';
+        btn.title = 'パネルを開く';
         overlay.classList.remove('show');
     } else {
-        btn.innerText = '▶ 閉じる';
+        btn.innerHTML = '▶';
+        btn.title = 'パネルを閉じる';
         overlay.classList.add('show');
     }
 
@@ -1946,6 +1936,7 @@ function toggleRightPanel() {
     }, 400);
 }
 
+// [修正] ピン留め時にパネル開閉ボタンを無効化する処理を追加
 function togglePinPanel() {
     const mainLayout = document.querySelector('.main-layout');
     const pinBtn = document.getElementById('pinPanelBtn');
@@ -1954,10 +1945,11 @@ function togglePinPanel() {
 
     const isPinned = mainLayout.classList.toggle('pinned');
     pinBtn.classList.toggle('pinned', isPinned);
+    
+    if (toggleBtn) {
+        toggleBtn.disabled = isPinned;
+    }
 
-    /*
-     [修正点] ピン留めボタンの表示をアイコンのみに切り替え
-    */
     if (isPinned) {
         pinBtn.innerHTML = '📍';
         pinBtn.title = 'パネルのピン留めを解除';
@@ -1969,9 +1961,16 @@ function togglePinPanel() {
     if (isPinned) {
         rightPanel.classList.remove('hidden');
         document.getElementById('panelOverlay').classList.remove('show');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = '▶';
+            toggleBtn.title = 'パネルを閉じる';
+        }
     } else {
         rightPanel.classList.add('hidden');
-        toggleBtn.innerText = '◀ パネル';
+        if (toggleBtn) {
+            toggleBtn.innerHTML = '◀';
+            toggleBtn.title = 'パネルを開く';
+        }
     }
 
     setTimeout(() => {
@@ -2005,7 +2004,7 @@ $coordFormatToggle.addEventListener('click', toggleCoordFormat);
 $addressInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? selectAutocompleteItem(selectedAutocompleteIndex) : searchAddress(); } });
 $addressInput.addEventListener('input', () => { clearTimeout(autocompleteTimer); if ($addressInput.value.trim().length<2) return renderAutocompleteList([]); autocompleteTimer = setTimeout(async () => renderAutocompleteList(await getAddressSuggestions($addressInput.value.trim())), 300); });
 $addressInput.addEventListener('keydown', e => { const items = $autocompleteList.querySelectorAll('.autocomplete-item'); if(items.length===0)return; if (e.key==='ArrowDown') selectedAutocompleteIndex=(selectedAutocompleteIndex+1)%items.length; else if (e.key==='ArrowUp') selectedAutocompleteIndex=(selectedAutocompleteIndex-1+items.length)%items.length; else return; e.preventDefault(); items.forEach((item,i)=>item.classList.toggle('selected',i===selectedAutocompleteIndex)); if(items[selectedAutocompleteIndex]) items[selectedAutocompleteIndex].scrollIntoView({block:'nearest'}); });
-document.addEventListener('click', e => { if (!e.target.closest('.input-wrapper')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } });
+document.addEventListener('click', e => { if (!e.target.closest('.input-wrapper')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper, .usage-button')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } if(!e.target.closest('.usage-button, .usage-guide')) { document.getElementById('usageGuide').classList.remove('show'); } });
 $historyList.addEventListener('click', e => { const i = e.target.closest('.history-item')?.dataset.index; if (i) loadCoordinateFromHistory(JSON.parse(localStorage.getItem('coordinateHistory'))[i]); });
 $bookmarkList.addEventListener('click', e => { const i = e.target.closest('.bookmark-item')?.dataset.index, a = e.target.closest('button')?.className.split('-').pop(); if(i&&a) handleBookmarkAction(parseInt(i), a); });
 $mylinkForm.addEventListener('submit', saveMyLink);
