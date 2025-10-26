@@ -56,6 +56,11 @@
 --btn-format-toggle-bg: #d1c4e9;
 --btn-format-toggle-hover-bg: #9575cd;
 
+/* [修正点] ピン留めボタン用の淡い背景色を追加 */
+--btn-pin-bg: rgba(102, 126, 234, 0.7);
+--btn-pin-pinned-bg: rgba(118, 75, 162, 0.7);
+--btn-pin-hover-bg: rgba(118, 75, 162, 0.9);
+
 /* オートコンプリートリストの変数 */
 --autocomplete-bg: var(--card-bg);
 --autocomplete-border: var(--border-color);
@@ -104,6 +109,11 @@ body.dark-mode {
 --btn-export-kml-hover-bg: #E6B300;
 --btn-format-toggle-bg: #5e35b1;
 --btn-format-toggle-hover-bg: #4527a0;
+
+/* [修正点] ピン留めボタン用の淡い背景色を追加 (ダークモード) */
+--btn-pin-bg: rgba(79, 70, 229, 0.6);
+--btn-pin-pinned-bg: rgba(168, 85, 247, 0.6);
+--btn-pin-hover-bg: rgba(168, 85, 247, 0.8);
 
 /* オートコンプリートリストの変数 (ダークモード) */
 --autocomplete-bg: var(--card-bg);
@@ -804,8 +814,9 @@ color: var(--text-dark);
 #toggleRightPanelBtn {
     position: fixed;
     top: 75px;
-    right: 125px; /* ピンボタンの幅に合わせて調整 */
-    z-index: 1500;
+    /* [修正点] アイコンのみになったピンボタンの幅に合わせて調整 */
+    right: 55px;
+    z-index: 1550;
     background: var(--primary-color);
     color: white;
     border: none;
@@ -822,38 +833,34 @@ color: var(--text-dark);
 }
 
 /*
- [修正点2] ピン留めボタンのスタイル修正
- テキスト表示に対応するため、widthをautoにし、paddingでサイズを調整します。
+ [修正点] ピン留めボタンのスタイルをアイコン表示用に修正
 */
 #pinPanelBtn {
     position: fixed;
     top: 75px;
     right: 15px;
     z-index: 1500;
-    background: var(--primary-color);
+    background: var(--btn-pin-bg); /* 淡い背景色に変更 */
     color: white;
     border: none;
     border-radius: 8px;
-    width: auto; /* autoに変更 */
-    padding: 0 12px; /* paddingで幅を確保 */
-    height: 38px;
+    width: 38px; /* 固定幅 */
+    height: 38px; /* 固定高 */
     cursor: pointer;
-    font-size: 14px; /* テキストに合わせてフォントサイズを調整 */
-    font-weight: 600;
+    font-size: 20px; /* アイコンサイズを調整 */
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    transition: background 0.3s, transform 0.3s, width 0.3s;
+    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-    white-space: nowrap; /* テキストの折り返しを防ぐ */
 }
 
 #pinPanelBtn:hover {
-    background: var(--secondary-color);
+    background: var(--btn-pin-hover-bg); /* ホバー時の色を設定 */
     transform: scale(1.05);
 }
 #pinPanelBtn.pinned {
-    background: var(--secondary-color);
+    background: var(--btn-pin-pinned-bg); /* 固定時の淡い背景色に変更 */
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
 }
 
@@ -966,8 +973,8 @@ color: var(--text-dark);
 
 <!-- パネル開閉ボタン（右上固定） -->
 <button id="toggleRightPanelBtn" onclick="toggleRightPanel()">◀ パネル</button>
-<!-- [修正点2] ピン留めボタンの初期テキストを変更 -->
-<button id="pinPanelBtn" onclick="togglePinPanel()" title="パネルをピン留め">📌解除中</button>
+<!-- [修正点] ピン留めボタンからテキストを削除 -->
+<button id="pinPanelBtn" onclick="togglePinPanel()" title="パネルをピン留め">📌</button>
 
 <div class="main-layout">
     <div class="left-panel">
@@ -1949,13 +1956,13 @@ function togglePinPanel() {
     pinBtn.classList.toggle('pinned', isPinned);
 
     /*
-     [修正点2] ピン留めボタンのテキストを状態に応じて切り替え
+     [修正点] ピン留めボタンの表示をアイコンのみに切り替え
     */
     if (isPinned) {
-        pinBtn.innerHTML = '📍固定中';
+        pinBtn.innerHTML = '📍';
         pinBtn.title = 'パネルのピン留めを解除';
     } else {
-        pinBtn.innerHTML = '📌解除中';
+        pinBtn.innerHTML = '📌';
         pinBtn.title = 'パネルをピン留め';
     }
 
