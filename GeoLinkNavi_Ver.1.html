@@ -400,10 +400,18 @@ body.dark-mode .zoom-slider-overlay #zoomLevelDisplay { color: var(--text-dark);
 .preview-header h3 { font-size: 16px; margin: 0; padding-right: 10px; display: flex; align-items: center; gap: 8px; }
 .preview-header h3 .btn-copy { position: static; height: auto; padding: 0 4px; }
 .preview-header-icon { font-size: 14px; transition: transform 0.3s; margin-left: auto; }
-.map-preview-wrapper { max-height: 400px; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+.map-preview-wrapper { max-height: 600px; overflow: hidden; transition: max-height 0.3s ease-in-out; }
 .map-preview-container.collapsed .map-preview-wrapper { max-height: 0; }
 .map-preview-container.collapsed .preview-header-icon { transform: rotate(-90deg); }
-#mapPreview { width: 100%; height: 400px; border: 2px solid var(--secondary-color); border-radius: var(--radius-base); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+#mapPreview { 
+width: 100%; 
+height: 600px; 
+border: 2px solid var(--secondary-color); 
+border-radius: var(--radius-base); 
+box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+}
+
 .osm-map-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
 
 .osm-map-header {
@@ -729,56 +737,29 @@ color: var(--text-dark);
 }
 
 @media (max-width: 1024px) {
-body {
-    height: auto;
-    overflow-y: auto;
-}
-.main-layout {
-flex-direction: column;
-overflow: visible;
-position: static;
-}
-.left-panel, .right-panel {
-flex: none;
-width: 100%;
-min-width: unset;
-min-height: unset;
-overflow-y: visible;
-padding-right: 0;
-position: static;
-transform: none !important;
-opacity: 1 !important;
-}
-#toggleRightPanelBtn, #panelOverlay, #pinPanelBtn {
-    display: none !important;
-}
-#osmClickMap {
-height: 60vh;
-}
-#mapPreview {
-height: 400px;
-}
-.right-panel {
-max-height: 50vh;
-overflow-y: auto;
-}
+    #osmClickMap {
+        height: 60vh;
+    }
+    #mapPreview {
+        height: 400px;
+    }
 }
 
 @media (max-width: 768px) {
-.header-buttons { right: 10px; top: 15px; gap: 5px; }
-.mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button { width: 35px; height: 35px; font-size: 16px; }
-.header-button-label { font-size: 9px; }
-.history-popup, .bookmark-popup { width: calc(100% - 20px); left: 10px; top: 60px; }
-.analysis-tools-overlay { bottom: 10px; }
-.input-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-}
-.input-group, .input-button-wrapper { width: 100%; }
-#osmClickMap {
-height: 50vh;
-}
+    .header-buttons { right: 10px; top: 15px; gap: 5px; }
+    .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button { width: 35px; height: 35px; font-size: 16px; }
+    .header-button-label { font-size: 9px; }
+    .history-popup, .bookmark-popup { width: calc(100% - 20px); left: 10px; top: 60px; }
+    .analysis-tools-overlay { bottom: 10px; }
+    .input-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .input-group, .input-button-wrapper { width: 100%; }
+    #osmClickMap {
+        height: 50vh;
+    }
 }
 
 /* --- パネル開閉＋オーバーレイ付きスライド動作 --- */
@@ -878,7 +859,6 @@ height: 50vh;
 .main-layout.pinned #toggleRightPanelBtn {
     display: none !important;
 }
-
 </style>
 </head>
 <body class="light-mode">
@@ -1074,7 +1054,7 @@ height: 50vh;
                 <span class="preview-header-icon">▼</span>
             </div>
             <div class="map-preview-wrapper">
-                <iframe id="mapPreview" width="100%" height="400" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
+                <iframe id="mapPreview" width="100%" height="600" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
             </div>
         </div>
     </div>
@@ -1171,7 +1151,6 @@ height: 50vh;
                 <input type="number" id="settings-history-size" min="10" max="500" step="10">
                 <small>座標のクリック履歴を最大何件まで保持するか設定します。</small>
             </div>
-            <!-- --- ▼▼▼【設定項目追加】ここから追加 ▼▼▼ --- -->
             <div class="modal-form-group">
                 <label for="settings-panel-state">起動時のパネル表示</label>
                 <select id="settings-panel-state">
@@ -1181,7 +1160,6 @@ height: 50vh;
                 </select>
                 <small>アプリ起動時の右側パネルの表示状態を選択します。（PC表示のみ）</small>
             </div>
-            <!-- --- ▲▲▲【設定項目追加】ここまで追加 ▲▲▲ --- -->
             <div class="modal-buttons">
                 <button type="button" class="btn-modal-cancel" id="btn-settings-modal-cancel">キャンセル</button>
                 <button type="submit" class="btn-modal-save">設定を保存</button>
@@ -1189,8 +1167,6 @@ height: 50vh;
         </form>
     </div>
 </div>
-
-
 <script>
 const CATEGORY_META = { 'all': { title: 'すべての地図', icon: '🌐', class: '' }, 'terrain': { title: '地図・地理情報', icon: '🗻', class: 'terrain-icon' }, 'geology': { title: '地質・地盤情報', icon: '🏔️', class: 'geology-icon' }, 'disaster': { title: '防災・ハザード情報', icon: '⚠️', class: 'disaster-icon' }, 'survey': { title: '測量・解析ツール', icon: '📐', class: 'survey-icon' }, 'other': { title: 'その他の情報', icon: '💡', class: 'other-icon' }, 'mylink': { title: '⭐ マイリンク', icon: '⭐', class: 'mylink-icon'} };
 
@@ -1209,9 +1185,8 @@ let MAX_HISTORY = 100;
 const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORITE_SETS_KEY = 'favoriteSets', SETTINGS_KEY = 'geoLinkNaviSettings';
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 let navigationHistory = [], historyIndex = -1, MAX_NAV_HISTORY = 100;
-let isFirstMapLoad = true; // 起動時処理用のフラグ
+let isFirstMapLoad = true; 
 
-// --- ▼▼▼【設定項目追加】デフォルト設定に追加 ▼▼▼ ---
 const defaultSettings = { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std', panelState: 'closed' };
 let currentSettings = {};
 
@@ -1246,7 +1221,6 @@ function populateLayerSettings() {
     }
 }
 
-// --- ▼▼▼【設定項目追加】設定モーダル表示関数を修正 ▼▼▼ ---
 function openSettingsModal() {
     document.getElementById('settings-zoom').value = currentSettings.defaultZoom;
     document.getElementById('settings-zoom-value').textContent = currentSettings.defaultZoom;
@@ -1262,7 +1236,6 @@ function closeSettingsModal() {
     document.getElementById('settings-modal').style.display = 'none';
 }
 
-// --- ▼▼▼【設定項目追加】設定保存関数を修正 ▼▼▼ ---
 function saveSettings(e) {
     e.preventDefault();
     currentSettings.defaultZoom = document.getElementById('settings-zoom').value;
@@ -1328,7 +1301,6 @@ function toggleMainMap() {
     }
 }
 
-// --- ▼▼▼【設定項目追加】起動時処理を地図初期化関数に追加 ▼▼▼ ---
 function initOSMClickMap(lat, lon, zoom) {
 const latlng = [lat, lon];
 if (osmMap === null) {
@@ -1403,12 +1375,9 @@ if (isFirstMapLoad) {
 }
 }
 
-// --- ▼▼▼【設定項目追加】起動時のパネル状態を適用する新関数 ▼▼▼ ---
 function applyInitialPanelState() {
     if (window.innerWidth <= 1024) return;
-
     const rightPanel = document.querySelector('.right-panel');
-    
     if (currentSettings.panelState === 'open') {
         if (rightPanel.classList.contains('hidden')) {
             toggleRightPanel();
