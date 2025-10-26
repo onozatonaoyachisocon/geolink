@@ -128,7 +128,7 @@ box-sizing: border-box;
 body {
 font-family: 'Segoe UI', 'Yu Gothic', sans-serif;
 background: var(--bg-page);
-padding: 0; 
+padding: 0;
 min-height: 100vh;
 color: var(--text-dark);
 transition: background 0.5s, color 0.5s;
@@ -138,10 +138,10 @@ flex-direction: column;
 
 .container {
 max-width: 100%;
-margin: 0; 
-width: 100vw; 
+margin: 0;
+width: 100vw;
 background: var(--bg-container);
-border-radius: 0; 
+border-radius: 0;
 box-shadow: var(--shadow-base);
 overflow: hidden;
 transition: background 0.5s, box-shadow 0.5s;
@@ -264,7 +264,7 @@ right: 0;
     right: 0;
     height: 100%;
     width: 500px;
-    max-width: 90%; 
+    max-width: 90%;
 
     display: flex;
     flex-direction: column;
@@ -343,7 +343,7 @@ margin-top: 0;
 .input-wrapper {
     position: relative;
     width: 100%;
-    display: flex; 
+    display: flex;
     align-items: center;
 }
 .btn-copy {
@@ -365,7 +365,7 @@ margin-top: 0;
     color: var(--primary-color);
 }
 .input-wrapper input {
-    padding-right: 35px; 
+    padding-right: 35px;
 }
 
 .btn-base { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 13px; color: white; min-width: 100px; height: 42px; display: inline-flex; align-items: center; justify-content: center; }
@@ -404,12 +404,12 @@ body.dark-mode .zoom-slider-overlay #zoomLevelDisplay { color: var(--text-dark);
 .map-preview-container.collapsed .map-preview-wrapper { max-height: 0; }
 .map-preview-container.collapsed .preview-header-icon { transform: rotate(-90deg); }
 
-#mapPreview { 
-width: 100%; 
-height: 600px; 
-border: 2px solid var(--secondary-color); 
-border-radius: 0; 
-box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+#mapPreview {
+width: 100%;
+height: 600px;
+border: 2px solid var(--secondary-color);
+border-radius: 0;
+box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .osm-map-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
@@ -511,16 +511,16 @@ grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 gap: 8px;
 }
 
-.map-card { 
-    background: var(--card-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: var(--radius-base); 
+.map-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-base);
     padding: 6px;
-    transition: all 0.3s; 
-    position: relative; 
-    display: flex; 
-    flex-direction: column; 
-    cursor: pointer; 
+    transition: all 0.3s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
     min-height: 50px;
     justify-content: center;
 }
@@ -751,7 +751,17 @@ color: var(--text-dark);
     .header-buttons { right: 10px; top: 15px; gap: 5px; }
     .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button { width: 35px; height: 35px; font-size: 16px; }
     .header-button-label { font-size: 9px; }
-    .history-popup, .bookmark-popup { width: calc(100% - 20px); left: 10px; top: 60px; }
+    .history-popup, .bookmark-popup {
+        /*
+         [修正点1] スマホ表示崩れの修正
+         widthの基準を親要素(%)からビューポート(vw)に変更し、
+         rightプロパティをautoに設定してレイアウトの競合を防ぎます。
+        */
+        width: calc(100vw - 20px);
+        left: 10px;
+        right: auto;
+        top: 60px;
+    }
     .analysis-tools-overlay { bottom: 10px; }
     .input-row {
         flex-direction: column;
@@ -793,8 +803,8 @@ color: var(--text-dark);
 /* 右上固定ボタン */
 #toggleRightPanelBtn {
     position: fixed;
-    top: 75px; 
-    right: 60px;
+    top: 75px;
+    right: 125px; /* ピンボタンの幅に合わせて調整 */
     z-index: 1500;
     background: var(--primary-color);
     color: white;
@@ -811,7 +821,10 @@ color: var(--text-dark);
     transform: scale(1.05);
 }
 
-/* ピン留めボタンのスタイル */
+/*
+ [修正点2] ピン留めボタンのスタイル修正
+ テキスト表示に対応するため、widthをautoにし、paddingでサイズを調整します。
+*/
 #pinPanelBtn {
     position: fixed;
     top: 75px;
@@ -821,17 +834,20 @@ color: var(--text-dark);
     color: white;
     border: none;
     border-radius: 8px;
-    width: 40px;
+    width: auto; /* autoに変更 */
+    padding: 0 12px; /* paddingで幅を確保 */
     height: 38px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 14px; /* テキストに合わせてフォントサイズを調整 */
     font-weight: 600;
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    transition: background 0.3s, transform 0.3s;
+    transition: background 0.3s, transform 0.3s, width 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap; /* テキストの折り返しを防ぐ */
 }
+
 #pinPanelBtn:hover {
     background: var(--secondary-color);
     transform: scale(1.05);
@@ -950,7 +966,8 @@ color: var(--text-dark);
 
 <!-- パネル開閉ボタン（右上固定） -->
 <button id="toggleRightPanelBtn" onclick="toggleRightPanel()">◀ パネル</button>
-<button id="pinPanelBtn" onclick="togglePinPanel()" title="パネルをピン留め">📌</button>
+<!-- [修正点2] ピン留めボタンの初期テキストを変更 -->
+<button id="pinPanelBtn" onclick="togglePinPanel()" title="パネルをピン留め">📌解除中</button>
 
 <div class="main-layout">
     <div class="left-panel">
@@ -1048,8 +1065,8 @@ color: var(--text-dark);
 
         <div class="map-preview-container" id="previewContainer">
             <div class="preview-header" onclick="togglePreview(event)">
-                <h3>🗺️ 現在の座標プレビュー (Google): 
-                    <strong id="currentCoords">...</strong> 
+                <h3>🗺️ 現在の座標プレビュー (Google):
+                    <strong id="currentCoords">...</strong>
                     <button class="btn-copy" title="座標をコピー (lat, lon)" onclick="copyToClipboard('currentCoords')">📋</button>
                      (Zoom: <strong id="currentZoom">...</strong>)
                 </h3>
@@ -1215,7 +1232,7 @@ let MAX_HISTORY = 100;
 const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORITE_SETS_KEY = 'favoriteSets', SETTINGS_KEY = 'geoLinkNaviSettings';
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 let navigationHistory = [], historyIndex = -1, MAX_NAV_HISTORY = 100;
-let isFirstMapLoad = true; 
+let isFirstMapLoad = true;
 
 const defaultSettings = { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std', panelState: 'closed' };
 let currentSettings = {};
@@ -1234,7 +1251,7 @@ function applySettings() {
     MAX_HISTORY = parseInt(currentSettings.historySize, 10);
     const historyHeader = $historyPopup.querySelector('h4');
     if(historyHeader) historyHeader.textContent = `座標履歴 (最新${MAX_HISTORY}件)`;
-    if (!location.search) { 
+    if (!location.search) {
         $zoom.value = currentSettings.defaultZoom;
         $zoomDisplay.textContent = currentSettings.defaultZoom;
     }
@@ -1315,12 +1332,12 @@ updateNavButtons();
 async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(true); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
 function updateMapPreview(lat, lon) { if (!isNaN(lat) && !isNaN(lon)) $mapPreview.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ja&z=${$zoom.value}&output=embed`; }
 
-function togglePreview(event) { 
+function togglePreview(event) {
     if (event.target.classList.contains('btn-copy')) {
         event.stopPropagation();
         return;
     }
-    $previewContainer.classList.toggle('collapsed'); 
+    $previewContainer.classList.toggle('collapsed');
 }
 
 function toggleMainMap() {
@@ -1340,10 +1357,10 @@ L.control.scale({ imperial: false }).addTo(osmMap); // この行を追加
 
 setupAnalysisTools();
 const baseMaps = {};
-for(const key in BASE_LAYERS) { 
+for(const key in BASE_LAYERS) {
     const config = BASE_LAYERS[key];
-    config.layer = L.tileLayer(config.url, { maxZoom: config.maxZoom || 19, attribution: config.attribution }); 
-    baseMaps[config.name] = config.layer; 
+    config.layer = L.tileLayer(config.url, { maxZoom: config.maxZoom || 19, attribution: config.attribution });
+    baseMaps[config.name] = config.layer;
 }
 L.control.layers(baseMaps).addTo(osmMap);
 
@@ -1351,7 +1368,7 @@ const defaultLayerKey = currentSettings.defaultLayer || 'gsi_std';
 BASE_LAYERS[defaultLayerKey].layer.addTo(osmMap);
 osmMap.setMaxZoom(BASE_LAYERS[defaultLayerKey].maxZoom);
 
-osmMap.on('baselayerchange', e => { 
+osmMap.on('baselayerchange', e => {
     for (const key in BASE_LAYERS) {
         if (BASE_LAYERS[key].name === e.name) {
             const newMaxZoom = BASE_LAYERS[key].maxZoom;
@@ -1530,13 +1547,13 @@ function createMapCard(map, catKey, categoryHeader) {
     card.dataset.mapId = map.id;
     card.onclick = e => !e.target.closest('.map-checkbox, .map-card-actions') && openMap(map);
     card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${map.name}</div><input type="checkbox" class="map-checkbox" data-map-id="${map.id}"></div><div class="map-description">${map.desc || 'カスタムリンク'}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
-    
+
     const checkbox = card.querySelector('.map-checkbox');
-    
+
     checkbox.onclick = (e) => {
         e.stopPropagation();
     };
-    
+
     checkbox.onchange = () => {
         const btn = categoryHeader.querySelector('.btn-toggle-all-checks');
         if(btn) {
@@ -1544,7 +1561,7 @@ function createMapCard(map, catKey, categoryHeader) {
             btn.classList.toggle('checked', allChecked);
         }
     };
-    
+
     if (map.category === 'mylink') {
         const actions = document.createElement('div');
         actions.className = 'map-card-actions';
@@ -1916,7 +1933,7 @@ function toggleRightPanel() {
         btn.innerText = '▶ 閉じる';
         overlay.classList.add('show');
     }
-    
+
     setTimeout(() => {
         if (window.osmMap) window.osmMap.invalidateSize();
     }, 400);
@@ -1927,11 +1944,21 @@ function togglePinPanel() {
     const pinBtn = document.getElementById('pinPanelBtn');
     const rightPanel = document.querySelector('.right-panel');
     const toggleBtn = document.getElementById('toggleRightPanelBtn');
-    
+
     const isPinned = mainLayout.classList.toggle('pinned');
     pinBtn.classList.toggle('pinned', isPinned);
-    pinBtn.title = isPinned ? 'パネルのピン留めを解除' : 'パネルをピン留め';
-    
+
+    /*
+     [修正点2] ピン留めボタンのテキストを状態に応じて切り替え
+    */
+    if (isPinned) {
+        pinBtn.innerHTML = '📍固定中';
+        pinBtn.title = 'パネルのピン留めを解除';
+    } else {
+        pinBtn.innerHTML = '📌解除中';
+        pinBtn.title = 'パネルをピン留め';
+    }
+
     if (isPinned) {
         rightPanel.classList.remove('hidden');
         document.getElementById('panelOverlay').classList.remove('show');
@@ -1939,7 +1966,7 @@ function togglePinPanel() {
         rightPanel.classList.add('hidden');
         toggleBtn.innerText = '◀ パネル';
     }
-    
+
     setTimeout(() => {
         if (window.osmMap) {
             window.osmMap.invalidateSize();
