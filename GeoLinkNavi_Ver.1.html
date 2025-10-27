@@ -13,6 +13,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
 <!-- GPX/KML Importer Plugin -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+<!-- [追加] QRコード生成ライブラリ -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
 :root {
@@ -183,7 +185,7 @@ flex-shrink: 0;
 .header-button-wrapper { display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
 .header-button-label { font-size: 10px; color: white; white-space: nowrap; opacity: 0.9; }
 
-.mode-toggle, .history-button, .bookmark-button, .share-button, .nav-button, .settings-button, .usage-button {
+.mode-toggle, .history-button, .bookmark-button, .share-button, .nav-button, .settings-button, .usage-button, .qr-button {
 background: rgba(255, 255, 255, 0.2);
 border: none;
 color: white;
@@ -197,7 +199,7 @@ justify-content: center;
 transition: all 0.3s;
 }
 
-.mode-toggle:hover, .history-button:hover, .bookmark-button:hover, .share-button:hover, .nav-button:hover:not(:disabled), .settings-button:hover, .usage-button:hover {
+.mode-toggle:hover, .history-button:hover, .bookmark-button:hover, .share-button:hover, .nav-button:hover:not(:disabled), .settings-button:hover, .usage-button:hover, .qr-button:hover {
 background: rgba(255, 255, 255, 0.4);
 transform: scale(1.05);
 }
@@ -261,8 +263,8 @@ right: 0;
     position: absolute;
     top: 65px;
     right: 15px;
-    width: 1400px;  /* [変更点] 横幅を1400pxに */
-    max-width: 95vw; /* 画面幅に対する最大値も調整 */
+    width: 1400px;
+    max-width: 95vw;
     z-index: 1100;
 }
 .usage-guide.show { display: block; }
@@ -366,6 +368,7 @@ margin-top: 0;
 .input-group.lat-group { flex: 2.5; min-width: 140px; }
 .input-group.lon-group { flex: 2.5; min-width: 140px; }
 .input-group.address-group { flex: 3; min-width: 220px; }
+.input-row-bottom-buttons { display: contents; } /* Gridレイアウトのためのヘルパー */
 
 .input-group input, .input-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--card-bg); color: var(--text-dark); height: 42px; }
 .input-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
@@ -415,7 +418,6 @@ margin-top: 0;
 
 /* パネルボタン用のスタイル */
 #toggleRightPanelBtn { background-color: var(--primary-color); }
-/* [変更点] パネルボタンにも浮き上がる効果を追加 */
 #toggleRightPanelBtn:hover:not(:disabled) {
     background-color: var(--secondary-color);
     transform: translateY(-2px);
@@ -724,7 +726,7 @@ color: var(--text-dark);
     background-color: var(--btn-pin-bg);
     color: white;
     border-color: transparent;
-    flex-grow: 0.5; /* [修正] 少し幅を狭く */
+    flex-grow: 0.5;
 }
 #pinPanelBtn:hover:not(:disabled) {
     background-color: var(--btn-pin-hover-bg);
@@ -781,6 +783,21 @@ color: var(--text-dark);
     background-color: var(--btn-bulk-hover);
 }
 
+/* [追加] QRコードモーダルのスタイル */
+#qr-modal .modal-content { max-width: 320px; }
+#qrcode {
+    padding: 20px;
+    background: white;
+    border-radius: var(--radius-base);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#qrcode img {
+    max-width: 100%;
+    height: auto;
+}
+
 
 @media (min-width: 1800px) {
     .left-panel {
@@ -817,10 +834,10 @@ color: var(--text-dark);
     }
 }
 
-/* [変更点] スマホ/狭い画面でのレイアウトを改善 */
+/* [変更点] スマホ/狭い画面でのレイアウトをCSS Gridで改善 */
 @media (max-width: 768px) {
     .header-buttons { right: 10px; top: 15px; gap: 5px; }
-    .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button, .usage-button { width: 35px; height: 35px; font-size: 16px; }
+    .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button, .usage-button, .qr-button { width: 35px; height: 35px; font-size: 16px; }
     .header-button-label { font-size: 9px; }
     .history-popup, .bookmark-popup {
         width: calc(100vw - 20px);
@@ -829,26 +846,32 @@ color: var(--text-dark);
         top: 60px;
     }
     .analysis-tools-overlay { bottom: 10px; }
+    
     .input-row {
-        flex-direction: row; /* 縦並びではなく、折り返しを基本に */
-        flex-wrap: wrap;
-        align-items: flex-end;
+        display: grid;
         gap: 10px;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "buttons buttons"
+            "lat lon"
+            "address address"
+            "search panel";
     }
     .input-buttons-group {
+        grid-area: buttons;
         width: 100%;
         justify-content: space-between;
     }
-    .input-group.lat-group, .input-group.lon-group {
-        flex: 1 1 calc(50% - 5px); /* 緯度・経度を横並びに */
-        min-width: 120px;
+    .input-group.lat-group { grid-area: lat; }
+    .input-group.lon-group { grid-area: lon; }
+    .input-group.address-group { grid-area: address; }
+    .input-row-bottom-buttons {
+        grid-area: search / span 2;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
     }
-    .input-group.address-group {
-        flex: 1 1 100%; /* 住所は常に1行全体 */
-    }
-    .input-button-wrapper {
-        flex-grow: 1; /* 検索とパネルボタンが残りのスペースを均等に使う */
-    }
+    
     #osmClickMap {
         height: 50vh;
     }
@@ -919,6 +942,11 @@ color: var(--text-dark);
     <div class="header-button-wrapper">
         <button class="share-button" id="shareButton" onclick="generateShareUrl()" aria-label="リンク共有" title="現在の状態を共有">🔗</button>
         <span class="header-button-label">リンク共有</span>
+    </div>
+    <!-- [追加] QRコードボタン -->
+    <div class="header-button-wrapper">
+        <button class="qr-button" onclick="openQrModal()" aria-label="QRコードで共有" title="QRコードで共有">📱</button>
+        <span class="header-button-label">QRコード</span>
     </div>
     <div class="header-button-wrapper">
         <button class="bookmark-button" id="bookmarkButton" onclick="toggleBookmarkPopup()" aria-label="ブックマーク" title="ブックマークを表示">⭐</button>
@@ -1038,13 +1066,16 @@ color: var(--text-dark);
                     </div>
                     <span class="input-field-label">🏠 住所や名称など</span>
                 </div>
-                <div class="input-button-wrapper">
-                    <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
-                    <span class="input-button-label">検索</span>
-                </div>
-                <div class="input-button-wrapper">
-                    <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
-                    <span class="input-button-label">パネル</span>
+                <!-- [変更点] スマホ表示でgrid-areaを適用するためラッパーを追加 -->
+                <div class="input-row-bottom-buttons">
+                    <div class="input-button-wrapper">
+                        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
+                        <span class="input-button-label">検索</span>
+                    </div>
+                    <div class="input-button-wrapper">
+                        <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+                        <span class="input-button-label">パネル</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1210,6 +1241,16 @@ color: var(--text-dark);
         </form>
     </div>
 </div>
+<!-- [追加] QRコード表示用モーダル -->
+<div class="modal-overlay" id="qr-modal" onclick="closeQrModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3>📱 QRコードで共有</h3>
+        <div id="qrcode"></div>
+        <div class="modal-buttons">
+            <button type="button" class="btn-modal-cancel" onclick="closeQrModal()">閉じる</button>
+        </div>
+    </div>
+</div>
 <script>
 /**
  * 世界測地系(WGS84)から日本測地系(Tokyo Datum)へ座標を変換する関数
@@ -1335,7 +1376,7 @@ if (latNum>=-90&&latNum<=90&&lonNum>=-180&&lonNum<=180) {
 currentLatLon = { lat: latNum, lon: lonNum };
 $coordsDisplay.textContent = `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
 $currentZoom.textContent = zoomNum;
-updateMapPreview(latNum, lonNum);
+updateMapPreview(latNum, lonNum, zoomNum); // [変更点] ズーム同期のため引数を渡す
 initOSMClickMap(latNum, lonNum, zoomNum);
 
 if (!fromNav) {
@@ -1354,7 +1395,15 @@ updateNavButtons();
 }
 }
 async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(true); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
-function updateMapPreview(lat, lon) { if (!isNaN(lat) && !isNaN(lon)) $mapPreview.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ja&z=${$zoom.value}&output=embed`; }
+
+// [変更点] updateMapPreview がズームレベルを受け取るように変更
+function updateMapPreview(lat, lon, zoom) {
+    const currentZoom = zoom || parseInt($zoom.value, 10);
+    if (!isNaN(lat) && !isNaN(lon)) {
+        $mapPreview.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ja&z=${currentZoom}&output=embed`;
+    }
+}
+
 
 function togglePreview(event) {
     if (event.target.classList.contains('btn-copy')) {
@@ -1405,7 +1454,17 @@ osmMap.on('baselayerchange', e => {
     }
 });
 
-osmMap.on('zoomend', () => { const newZoom = osmMap.getZoom(); if (newZoom !== parseInt($zoom.value, 10)) { $zoom.value = newZoom; $zoomDisplay.textContent = newZoom; } });
+// [変更点] ズームイベントでプレビューを更新
+osmMap.on('zoomend', () => {
+    const newZoom = osmMap.getZoom();
+    if (newZoom !== parseInt($zoom.value, 10)) {
+        $zoom.value = newZoom;
+        $zoomDisplay.textContent = newZoom;
+        // プレビューマップのズームも同期
+        updateMapPreview(currentLatLon.lat, currentLatLon.lon, newZoom);
+        $currentZoom.textContent = newZoom;
+    }
+});
 osmMap.on('click', e => {
 if (isMeasuring) return handleMeasureClick(e);
 if (isMeasuringArea) return handleAreaMeasureClick(e);
@@ -1815,7 +1874,40 @@ $mylinkModal.style.display = 'flex';
 function closeMyLinkModal() { $mylinkModal.style.display = 'none'; }
 function saveMyLink(e) { e.preventDefault(); let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]'); const linkId = document.getElementById('mylink-id').value, newLink = { id: linkId || `mylink-${Date.now()}`, name: document.getElementById('mylink-name').value, url: document.getElementById('mylink-url').value, desc: document.getElementById('mylink-desc').value }; if (linkId) links = links.map(l => l.id === linkId ? newLink : l); else links.push(newLink); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); closeMyLinkModal(); showNotification('マイリンクを保存しました'); }
 function deleteMyLink(linkId) { if (confirm('このマイリンクを削除しますか？')) { let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l.id !== linkId); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); showNotification('マイリンクを削除しました'); } }
-function generateShareUrl() { const p = new URLSearchParams({ lat: currentLatLon.lat.toFixed(8), lon: currentLatLon.lon.toFixed(8), zoom: $zoom.value }); const c = Array.from(document.querySelectorAll('.map-checkbox:checked')).map(cb=>cb.dataset.mapId).join(','); if(c) p.append('checked',c); navigator.clipboard.writeText(`${location.origin}${location.pathname}?${p.toString()}`).then(()=>showNotification('共有URLをコピーしました'),()=>showNotification('コピーに失敗','error')); }
+
+// [変更点] 共有URL生成ロジックを分離
+function getShareUrl() {
+    const p = new URLSearchParams({ lat: currentLatLon.lat.toFixed(8), lon: currentLatLon.lon.toFixed(8), zoom: $zoom.value });
+    const c = Array.from(document.querySelectorAll('.map-checkbox:checked')).map(cb => cb.dataset.mapId).join(',');
+    if (c) p.append('checked', c);
+    return `${location.origin}${location.pathname}?${p.toString()}`;
+}
+function generateShareUrl() {
+    navigator.clipboard.writeText(getShareUrl()).then(() => showNotification('共有URLをコピーしました'), () => showNotification('コピーに失敗', 'error'));
+}
+
+// [追加] QRコードモーダルの開閉と生成
+function openQrModal() {
+    const modal = document.getElementById('qr-modal');
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = ''; // 既存のQRコードをクリア
+
+    new QRCode(qrContainer, {
+        text: getShareUrl(),
+        width: 256,
+        height: 256,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    modal.style.display = 'flex';
+}
+function closeQrModal() {
+    document.getElementById('qr-modal').style.display = 'none';
+}
+
+
 function applyStateFromUrl() { const p = new URLSearchParams(location.search); const lat=p.get('lat'),lon=p.get('lon'),zoom=p.get('zoom'),chk=p.get('checked'); if (lat&&lon) { updateLatLonInputs(parseFloat(lat),parseFloat(lon)); if(zoom)$zoom.value=zoom; if(chk) chk.split(',').forEach(i=>{const c=document.querySelector(`.map-checkbox[data-map-id="${i}"]`);if(c)c.checked=true;}); history.replaceState(null,'',location.pathname); return true; } return false; }
 
 function convertUrlToTemplate() {
@@ -2024,7 +2116,13 @@ if (applyStateFromUrl()) {
 $lat.addEventListener('change', () => updateCurrentCoords());
 $lon.addEventListener('change', () => updateCurrentCoords());
 $zoom.addEventListener('input', e => $zoomDisplay.textContent = e.target.value);
-$zoom.addEventListener('change', e => { if(osmMap) osmMap.setZoom(parseInt(e.target.value)); });
+// [変更点] スライダー操作完了時にもズーム同期
+$zoom.addEventListener('change', e => {
+    const newZoom = parseInt(e.target.value, 10);
+    if(osmMap) osmMap.setZoom(newZoom);
+    updateMapPreview(currentLatLon.lat, currentLatLon.lon, newZoom);
+    $currentZoom.textContent = newZoom;
+});
 $coordFormatToggle.addEventListener('click', toggleCoordFormat);
 $addressInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? selectAutocompleteItem(selectedAutocompleteIndex) : searchAddress(); } });
 $addressInput.addEventListener('input', () => { clearTimeout(autocompleteTimer); if ($addressInput.value.trim().length<2) return renderAutocompleteList([]); autocompleteTimer = setTimeout(async () => renderAutocompleteList(await getAddressSuggestions($addressInput.value.trim())), 300); });
