@@ -261,8 +261,8 @@ right: 0;
     position: absolute;
     top: 65px;
     right: 15px;
-    width: 1400px;  /* 横幅を広げました */
-    max-width: 90vw;
+    width: 1400px;  /* [変更点] 横幅を1400pxに */
+    max-width: 95vw; /* 画面幅に対する最大値も調整 */
     z-index: 1100;
 }
 .usage-guide.show { display: block; }
@@ -413,10 +413,14 @@ margin-top: 0;
     color: var(--text-medium) !important;
 }
 
-
 /* パネルボタン用のスタイル */
 #toggleRightPanelBtn { background-color: var(--primary-color); }
-#toggleRightPanelBtn:hover:not(:disabled) { background-color: var(--secondary-color); }
+/* [変更点] パネルボタンにも浮き上がる効果を追加 */
+#toggleRightPanelBtn:hover:not(:disabled) {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.4);
+}
 
 
 .btn-current-location { background-color: var(--btn-current-location-bg); }
@@ -715,11 +719,12 @@ color: var(--text-dark);
 .bulk-toggle-container button:hover:not(:disabled) {
     background-color: var(--border-color);
 }
-/* [追加] ピン留めボタンの専用スタイル */
+/* ピン留めボタンの専用スタイル */
 #pinPanelBtn {
     background-color: var(--btn-pin-bg);
     color: white;
     border-color: transparent;
+    flex-grow: 0.5; /* [修正] 少し幅を狭く */
 }
 #pinPanelBtn:hover:not(:disabled) {
     background-color: var(--btn-pin-hover-bg);
@@ -812,6 +817,7 @@ color: var(--text-dark);
     }
 }
 
+/* [変更点] スマホ/狭い画面でのレイアウトを改善 */
 @media (max-width: 768px) {
     .header-buttons { right: 10px; top: 15px; gap: 5px; }
     .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button, .usage-button { width: 35px; height: 35px; font-size: 16px; }
@@ -824,11 +830,25 @@ color: var(--text-dark);
     }
     .analysis-tools-overlay { bottom: 10px; }
     .input-row {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row; /* 縦並びではなく、折り返しを基本に */
+        flex-wrap: wrap;
+        align-items: flex-end;
         gap: 10px;
     }
-    .input-group, .input-button-wrapper { width: 100%; }
+    .input-buttons-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .input-group.lat-group, .input-group.lon-group {
+        flex: 1 1 calc(50% - 5px); /* 緯度・経度を横並びに */
+        min-width: 120px;
+    }
+    .input-group.address-group {
+        flex: 1 1 100%; /* 住所は常に1行全体 */
+    }
+    .input-button-wrapper {
+        flex-grow: 1; /* 検索とパネルボタンが残りのスペースを均等に使う */
+    }
     #osmClickMap {
         height: 50vh;
     }
@@ -1026,7 +1046,6 @@ color: var(--text-dark);
                     <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
                     <span class="input-button-label">パネル</span>
                 </div>
-                <!-- [削除] ピン留めボタンは right-panel の中に移動しました -->
             </div>
         </div>
 
@@ -1086,7 +1105,6 @@ color: var(--text-dark);
         <div class="bulk-toggle-container">
             <button id="expandAllCategories">➕ すべて展開</button>
             <button id="collapseAllCategories">➖ すべて折りたたみ</button>
-            <!-- [変更点] ピン留めボタンをここに追加 -->
             <button id="pinPanelBtn" onclick="togglePinPanel()">📌 ピン留め</button>
         </div>
         <div class="favorite-sets-container">
@@ -1958,11 +1976,11 @@ function togglePinPanel() {
     }
 
     if (isPinned) {
-        pinBtn.innerHTML = '📍 ピン固定中';
-        pinBtn.title = 'パネルのピン留めを解除';
+        pinBtn.innerHTML = '📍 固定中';
+        pinBtn.title = 'パネルの固定を解除';
     } else {
         pinBtn.innerHTML = '📌 ピン留め';
-        pinBtn.title = 'パネルをピン留め';
+        pinBtn.title = 'パネルを固定';
     }
 
     if (isPinned) {
@@ -1970,7 +1988,7 @@ function togglePinPanel() {
         document.getElementById('panelOverlay').classList.remove('show');
         if (toggleBtn) {
             toggleBtn.innerHTML = '▶';
-            toggleBtn.title = 'パネルを閉じる';
+            toggleBtn.title = 'パネルは固定されています';
         }
     } else {
         rightPanel.classList.add('hidden');
