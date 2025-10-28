@@ -802,6 +802,22 @@ color: var(--text-dark);
 .btn-open-set:hover {
     background-color: var(--btn-bulk-hover);
 }
+/* ★★★ 修正点2：「解除」ボタンのスタイルを追加 ★★★ */
+.btn-clear-checks {
+    background-color: #B0BEC5;
+    color: var(--text-dark);
+}
+.btn-clear-checks:hover {
+    background-color: #78909C;
+    color: white;
+}
+body.dark-mode .btn-clear-checks {
+    background-color: #455A64;
+    color: var(--text-dark);
+}
+body.dark-mode .btn-clear-checks:hover {
+    background-color: #607D8B;
+}
 
 #qr-modal .modal-content { max-width: 320px; }
 #qrcode {
@@ -1159,11 +1175,12 @@ color: var(--text-dark);
 
         <div class="map-preview-container" id="previewContainer">
             <div class="preview-header" onclick="togglePreview(event)">
-                <h3>🗺️ 現在の座標プレビュー (Google):
-                    <strong id="currentCoords">...</strong>
-                    <button class="btn-copy" title="座標をコピー (lat, lon)" onclick="copyToClipboard('currentCoords')">📋</button>
-                     (Zoom: <strong id="currentZoom">...</strong>)
-                </h3>
+<h3>🗺️ 現在の座標プレビュー (Google):
+    <strong id="currentCoords">...</strong>
+    <button class="btn-copy" title="座標をコピー (lat, lon)" onclick="copyToClipboard('currentCoords')">📋</button>
+     (Zoom: <strong id="currentZoom">...</strong>)
+    <button id="toggleMapTypeBtn" style="font-size: 12px; padding: 4px 8px; margin-left: 10px;">市街地地図</button>
+</h3>
                 <span class="preview-header-icon">▼</span>
             </div>
             <div class="map-preview-wrapper">
@@ -1185,9 +1202,10 @@ color: var(--text-dark);
             <div class="favorite-sets-container">
                 <label for="favorite-sets">お気に入りセット:</label>
                 <select id="favorite-sets"></select>
-                <button id="open-set" class="btn-open-set">開く</button>
-                <button id="clear-all-checks">解除</button>
-                <button id="save-set" class="btn-save-set">✓保存</button>
+                <!-- ★★★ 修正点3：ボタンにアイコンを追加 ★★★ -->
+                <button id="open-set" class="btn-open-set">▶️ 開く</button>
+                <button id="clear-all-checks" class="btn-clear-checks">❌ 解除</button>
+                <button id="save-set" class="btn-save-set">💾保存</button>
                 <button id="delete-set" class="btn-delete-set">🗑️削除</button>
             </div>
         </div>
@@ -1248,31 +1266,11 @@ color: var(--text-dark);
     <div class="modal-content">
         <h3>⚙️ アプリケーション設定</h3>
         <form id="settings-form">
-            <div class="modal-form-group">
-                <label for="settings-zoom">デフォルトのズームレベル: <span id="settings-zoom-value">16</span></label>
-                <input type="range" id="settings-zoom" min="1" max="20" step="1">
-                <small>起動時の地図のズームレベルを設定します。</small>
-            </div>
-            <div class="modal-form-group">
-                <label for="settings-panel-width">デフォルトのパネル幅 (px): <span id="settings-panel-width-value">500</span></label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="range" id="settings-panel-width" min="320" max="1000" step="10" style="flex-grow: 1;">
-                    <button type="button" id="reset-panel-width" style="padding: 0 10px; font-size: 12px;">リセット</button>
-                </div>
-                <small>ピン留め時の右側パネルの幅を設定します。ドラッグで変更した幅は自動保存されます。</small>
-            </div>
+            <!-- ★★★ 修正点1：設定の順序を変更 ★★★ -->
             <div class="modal-form-group">
                 <label for="settings-default-layer">デフォルトの地図レイヤー</label>
                 <select id="settings-default-layer"></select>
                 <small>起動時に最初に表示される地図レイヤーを選択します。</small>
-            </div>
-            <div class="modal-form-group">
-                <label for="settings-theme">カラーテーマ</label>
-                <select id="settings-theme">
-                    <option value="light">ライトモード</option>
-                    <option value="dark">ダークモード</option>
-                </select>
-                <small>アプリ全体の見た目を変更します。</small>
             </div>
             <div class="modal-form-group">
                 <label for="settings-coord-format">座標の表示形式</label>
@@ -1296,6 +1294,28 @@ color: var(--text-dark);
                 </select>
                 <small>アプリ起動時の右側パネルの表示状態を選択します。（PC表示のみ）</small>
             </div>
+            <div class="modal-form-group">
+                <label for="settings-theme">カラーテーマ</label>
+                <select id="settings-theme">
+                    <option value="light">ライトモード</option>
+                    <option value="dark">ダークモード</option>
+                </select>
+                <small>アプリ全体の見た目を変更します。</small>
+            </div>
+            <div class="modal-form-group">
+                <label for="settings-panel-width">デフォルトのパネル幅 (px): <span id="settings-panel-width-value">500</span></label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="range" id="settings-panel-width" min="320" max="1000" step="10" style="flex-grow: 1;">
+                    <button type="button" id="reset-panel-width" style="padding: 0 10px; font-size: 12px; white-space: nowrap;">リセット</button>
+                </div>
+                <small>ピン留め時の右側パネルの幅を設定します。ピン留め固定してドラッグで変更した幅は自動保存されます。</small>
+            </div>
+            <div class="modal-form-group">
+                <label for="settings-zoom">デフォルトのズームレベル: <span id="settings-zoom-value">16</span></label>
+                <input type="range" id="settings-zoom" min="1" max="20" step="1">
+                <small>起動時の地図のズームレベルを設定します。</small>
+            </div>
+            <!-- ★★★ 修正ここまで ★★★ -->
             <div class="modal-buttons">
                 <button type="button" class="btn-modal-cancel" id="btn-settings-modal-cancel">キャンセル</button>
                 <button type="submit" class="btn-modal-save">設定を保存</button>
@@ -1348,6 +1368,7 @@ const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORI
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 let navigationHistory = [], historyIndex = -1, MAX_NAV_HISTORY = 100;
 let isFirstMapLoad = true;
+let googleMapType = 'k'; // 'k' = 航空写真(satellite), 'm' = 市街地地図(roadmap)
 
 const defaultSettings = { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std', panelState: 'closed', panelWidth: 500 };
 let currentSettings = {};
@@ -1457,7 +1478,8 @@ async function initGeolocation() { if (navigator.geolocation) { showNotification
 function updateMapPreview(lat, lon, zoom) {
     const currentZoom = zoom || parseInt($zoom.value, 10);
     if (!isNaN(lat) && !isNaN(lon)) {
-        $mapPreview.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ja&z=${currentZoom}&output=embed`;
+        // 変数 googleMapType を使ってURLの 't' パラメータを動的に設定
+        $mapPreview.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ja&z=${currentZoom}&output=embed&t=${googleMapType}`;
     }
 }
 
@@ -2342,7 +2364,20 @@ document.getElementById('clear-all-checks').addEventListener('click', () => {
     showNotification('すべてのチェックを解除しました。');
 });
 document.getElementById('open-set').addEventListener('click', openFavoriteSet);
-
+// ★★★ Googleマッププレビューの表示切替ボタンの処理 ★★★
+document.getElementById('toggleMapTypeBtn').addEventListener('click', (e) => {
+    e.stopPropagation(); // ヘッダーの折りたたみイベントを発火させないため
+    const btn = e.currentTarget;
+    if (googleMapType === 'k') {
+        googleMapType = 'm'; // 市街地地図へ
+        btn.textContent = '航空写真';
+    } else {
+        googleMapType = 'k'; // 航空写真へ
+        btn.textContent = '市街地地図';
+    }
+    // 現在の座標で地図プレビューを再読み込み
+    updateMapPreview(currentLatLon.lat, currentLatLon.lon, $zoom.value);
+});
 
 window.addEventListener('resize', () => {
 if (osmMap) {
