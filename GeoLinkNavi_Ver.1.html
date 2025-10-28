@@ -777,14 +777,14 @@ color: var(--text-dark);
     border: 1px solid var(--border-color);
     background-color: var(--card-bg);
     color: var(--text-dark);
-    font-size: 13px;
+    font-size: 12px;
 }
 .favorite-sets-container button {
     cursor: pointer;
     padding: 6px 8px;
     border-radius: 6px;
     border: 1px solid var(--border-color);
-    font-size: 13px;
+    font-size: 12px;
     flex-shrink: 0;
 }
 .btn-save-set {
@@ -1176,11 +1176,12 @@ color: var(--text-dark);
 
     <div class="right-panel hidden">
         <div class="right-panel-header">
+            <!-- ★★★ ここからが変更点 ★★★ -->
             <div class="bulk-toggle-container">
-                <button id="expandAllCategories">➕ すべて展開</button>
-                <button id="collapseAllCategories">➖ すべて折りたたみ</button>
+                <button id="toggleAllCategoriesBtn">➖ すべて折りたたみ</button>
                 <button id="pinPanelBtn" onclick="togglePinPanel()">📌 ピン留め</button>
             </div>
+            <!-- ★★★ ここまでが変更点 ★★★ -->
             <div class="favorite-sets-container">
                 <label for="favorite-sets">お気に入りセット:</label>
                 <select id="favorite-sets"></select>
@@ -2308,19 +2309,29 @@ document.getElementById('navForward').addEventListener('click', () => {
     }
 });
 
-document.getElementById('expandAllCategories').addEventListener('click', () => {
-    document.querySelectorAll('.category-header').forEach(header => {
-        header.classList.remove('collapsed');
-        header.nextElementSibling.classList.remove('hidden');
-    });
-});
+// ★★★ ここからが変更点 ★★★
+document.getElementById('toggleAllCategoriesBtn').addEventListener('click', (e) => {
+    const btn = e.currentTarget;
+    // 最初のカテゴリが折りたたまれているかで、現在の状態を判断
+    const isCurrentlyCollapsed = document.querySelector('.category-header')?.classList.contains('collapsed');
 
-document.getElementById('collapseAllCategories').addEventListener('click', () => {
-    document.querySelectorAll('.category-header').forEach(header => {
-        header.classList.add('collapsed');
-        header.nextElementSibling.classList.add('hidden');
-    });
+    if (isCurrentlyCollapsed) {
+        // 現在折りたたまれていれば、すべて展開する
+        document.querySelectorAll('.category-header').forEach(header => {
+            header.classList.remove('collapsed');
+            header.nextElementSibling.classList.remove('hidden');
+        });
+        btn.textContent = '➖ すべて折りたたみ';
+    } else {
+        // 現在展開されていれば、すべて折りたたむ
+        document.querySelectorAll('.category-header').forEach(header => {
+            header.classList.add('collapsed');
+            header.nextElementSibling.classList.add('hidden');
+        });
+        btn.textContent = '➕ すべて展開';
+    }
 });
+// ★★★ ここまでが変更点 ★★★
 
 document.getElementById('favorite-sets').addEventListener('change', applyFavoriteSet);
 document.getElementById('save-set').addEventListener('click', saveFavoriteSet);
