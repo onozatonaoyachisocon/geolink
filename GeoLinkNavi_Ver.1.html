@@ -236,7 +236,7 @@ right: 0;
 .btn-export-kml { background-color: var(--btn-export-kml-bg); }
 .btn-export-kml:hover { background-color: var(--btn-export-kml-hover-bg); }
 
-#historyList, #bookmarkList { max-height: 360px; overflow-y: auto; }
+#historyList, #bookmarkList { max-height: 340px; overflow-y: auto; }
 
 .history-item, .bookmark-item { padding: 8px 10px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: background-color: 0.2s; border: 1px solid transparent; }
 .history-item:hover, .bookmark-item:hover { background-color: var(--bg-light); border-color: var(--primary-color); }
@@ -671,12 +671,10 @@ body.dark-mode .analysis-tools-overlay { background: rgba(31, 41, 55, 0.8); box-
 .analysis-tool-row { display: flex; gap: 5px; align-items: center; }
 .analysis-tools-controls .btn-base { height: 32px; width: 110px; padding: 0 10px; font-size: 12px; }
 .analysis-tools-controls input[type="number"] { height: 32px; width: 60px; padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; background-color: var(--card-bg); color: var(--text-dark); }
-.btn-measure { background-color: #2962FF; } /* より強い青色に変更 */
-.btn-measure:hover { background-color: #0039cb; } /* さらに濃い青色に変更 */
-.btn-buffer { background-color: #03A9F4; } /* 水色系の色に変更 */
-.btn-buffer:hover { background-color: #0288D1; } /* 少し濃い水色に変更 */
-.btn-export-analysis { background-color: var(--btn-export-kml-bg); }
-.btn-export-analysis:hover { background-color: var(--btn-export-kml-hover-bg); }
+.btn-measure { background-color: #2962FF; }
+.btn-measure:hover { background-color: #0039cb; }
+.btn-buffer { background-color: #03A9F4; }
+.btn-buffer:hover { background-color: #0288D1; }
 .btn-clear-analysis { background-color: var(--error-color); }
 .btn-clear-analysis:hover { background-color: #C62828; }
 .btn-measure.active { background-color: #004D40; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4); }
@@ -684,6 +682,9 @@ body.dark-mode .analysis-tools-overlay { background: rgba(31, 41, 55, 0.8); box-
 .btn-area { background-color: #9C27B0; }
 .btn-area:hover { background-color: #7B1FA2; }
 .btn-area.active { background-color: #4A148C; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4); }
+
+.btn-export-analysis { background-color: var(--btn-export-kml-bg); }
+.btn-export-analysis:hover { background-color: var(--btn-export-kml-hover-bg); }
 
 .area-display-label {
 font-size: 13px;
@@ -720,14 +721,7 @@ color: var(--text-dark);
 .btn-modal-cancel { background-color: var(--border-color); color: var(--text-dark); }
 .url-converter-group { display: flex; gap: 10px; align-items: center; }
 .url-converter-group input { flex-grow: 1; }
-.url-converter-group button { 
-    padding: 8px 12px; 
-    height: auto; 
-    min-width: 0; 
-    background-color: var(--btn-paste-bg); 
-    flex-shrink: 0;       /* ★追加: ボタンが縮まないようにする */
-    white-space: nowrap;    /* ★追加: 文字が折り返さないようにする */
-}
+.url-converter-group button { padding: 8px 12px; height: auto; min-width: 0; background-color: var(--btn-paste-bg); flex-shrink: 0; white-space: nowrap; }
 
 .bulk-toggle-container {
     display: flex;
@@ -840,6 +834,9 @@ body.dark-mode .btn-clear-checks:hover {
     height: auto;
 }
 
+.desktop-hidden {
+    display: none !important;
+}
 
 @media (min-width: 1800px) {
     .left-panel {
@@ -877,14 +874,27 @@ body.dark-mode .btn-clear-checks:hover {
 }
 
 @media (max-width: 768px) {
+    .mobile-hidden {
+        display: none !important;
+    }
+    .desktop-hidden {
+        display: flex !important;
+    }
+    .zoom-preview-display {
+        display: none;
+    }
+    .zoom-slider-overlay {
+        display: none;
+    }
+
     .header-buttons { right: 10px; top: 15px; gap: 5px; }
     .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button, .usage-button, .qr-button { width: 35px; height: 35px; font-size: 16px; }
     .header-button-label { font-size: 9px; }
     .history-popup, .bookmark-popup {
-        width: calc(100vw - 20px);
-        left: 10px;
-        right: auto;
-        top: 60px;
+        left: -150px;    
+        right: 10px;   
+        width: 300px;   
+        top: 60px;     
     }
     .analysis-tools-overlay { bottom: 10px; }
     
@@ -895,8 +905,7 @@ body.dark-mode .btn-clear-checks:hover {
         grid-template-areas:
             "buttons buttons"
             "lat lon"
-            "address address"
-            "search panel";
+            "address address";
     }
     .input-buttons-group {
         grid-area: buttons;
@@ -906,12 +915,6 @@ body.dark-mode .btn-clear-checks:hover {
     .input-group.lat-group { grid-area: lat; }
     .input-group.lon-group { grid-area: lon; }
     .input-group.address-group { grid-area: address; }
-    .input-row-bottom-buttons {
-        grid-area: search / span 2;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 10px;
-    }
     
     #osmClickMap {
         height: 50vh;
@@ -1091,11 +1094,11 @@ body.dark-mode .btn-clear-checks:hover {
                         <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得">📍</button>
                         <span class="input-button-label">現在地</span>
                     </div>
-                    <div class="input-button-wrapper">
+                    <div class="input-button-wrapper mobile-hidden">
                         <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す">🌍</button>
                         <span class="input-button-label">Googleマップ</span>
                     </div>
-                    <div class="input-button-wrapper">
+                    <div class="input-button-wrapper mobile-hidden">
                         <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け">📄</button>
                         <span class="input-button-label">貼り付け</span>
                     </div>
@@ -1106,6 +1109,14 @@ body.dark-mode .btn-clear-checks:hover {
                     <div class="input-button-wrapper">
                         <button class="btn-base btn-icon btn-format-toggle" id="coord-format-toggle" title="表示形式切替">⚙️</button>
                         <span class="input-button-label">形式切替</span>
+                    </div>
+                    <div class="input-button-wrapper desktop-hidden">
+                        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
+                        <span class="input-button-label">検索</span>
+                    </div>
+                    <div class="input-button-wrapper desktop-hidden">
+                        <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+                        <span class="input-button-label">パネル</span>
                     </div>
                 </div>
                 <div class="input-group lat-group">
@@ -1132,7 +1143,7 @@ body.dark-mode .btn-clear-checks:hover {
                     </div>
                     <span class="input-field-label">🏠 住所や名称など</span>
                 </div>
-                <div class="input-row-bottom-buttons">
+                <div class="input-row-bottom-buttons mobile-hidden">
                     <div class="input-button-wrapper">
                         <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
                         <span class="input-button-label">検索</span>
@@ -1187,12 +1198,12 @@ body.dark-mode .btn-clear-checks:hover {
 
         <div class="map-preview-container" id="previewContainer">
             <div class="preview-header" onclick="togglePreview(event)">
-<h3>🗺️ 現在の座標プレビュー (Google):
-    <strong id="currentCoords">...</strong>
-    <button class="btn-copy" title="座標をコピー (lat, lon)" onclick="copyToClipboard('currentCoords')">📋</button>
-     (Zoom: <strong id="currentZoom">...</strong>)
-    <button id="toggleMapTypeBtn" style="font-size: 12px; padding: 4px 8px; margin-left: 10px;">市街地地図</button>
-</h3>
+                <h3>🗺️ 現在の座標プレビュー (Google):
+                    <strong id="currentCoords">...</strong>
+                    <button class="btn-copy" title="座標をコピー (lat, lon)" onclick="copyToClipboard('currentCoords')">📋</button>
+                    <span class="zoom-preview-display"> (Zoom: <strong id="currentZoom">...</strong>)</span>
+                    <button id="toggleMapTypeBtn" style="font-size: 12px; padding: 4px 8px; margin-left: 10px;">市街地地図</button>
+                </h3>
                 <span class="preview-header-icon">▼</span>
             </div>
             <div class="map-preview-wrapper">
@@ -1375,7 +1386,7 @@ const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORI
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 let navigationHistory = [], historyIndex = -1, MAX_NAV_HISTORY = 100;
 let isFirstMapLoad = true;
-let googleMapType = 'k'; // 'k' = 航空写真(satellite), 'm' = 市街地地図(roadmap)
+let googleMapType = 'k';
 
 const defaultSettings = { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std', panelState: 'closed', panelWidth: 500 };
 let currentSettings = {};
@@ -2008,97 +2019,44 @@ function circleToPolygonPoints(circle) {
     return points;
 }
 
-/**
- * 解析レイヤー上の図形をKMLファイルとしてエクスポートする
- */
 function exportAnalysisToKML() {
     if (!analysisLayer || analysisLayer.getLayers().length === 0) {
         showNotification('エクスポートする図形がありません。', 'error');
         return;
     }
-
     let placemarks = '';
     let itemCounter = { line: 1, area: 1, circle: 1 };
 
     analysisLayer.eachLayer(layer => {
         let kmlGeom = '';
         let name = '';
-        let styleUrl = ''; // ★ 変更: 各図形に適用するスタイルURLを格納する変数
-
-        // ポリライン（距離計測） -> 青色
+        let styleUrl = '';
         if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
             name = `距離計測 ${itemCounter.line++}`;
             styleUrl = '#lineStyle';
             const coords = latLngsToKmlCoordinates(layer.getLatLngs());
             kmlGeom = `<LineString><coordinates>${coords}</coordinates></LineString>`;
-        }
-        // ポリゴン（面積計測） -> 紫色 (線の色: #9C27B0, 塗りの透明度: 10%)
-        else if (layer instanceof L.Polygon && !(layer instanceof L.Circle)) {
+        } else if (layer instanceof L.Polygon && !(layer instanceof L.Circle)) {
             name = `面積計測 ${itemCounter.area++}`;
             styleUrl = '#areaStyle';
             const coords = latLngsToKmlCoordinates(layer.getLatLngs()[0], true);
             kmlGeom = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
-        }
-        // 円（バッファ） -> ピンク色 (線の色: #E91E63, 塗りの透明度: 20%)
-        else if (layer instanceof L.Circle) {
+        } else if (layer instanceof L.Circle) {
             name = `円 ${itemCounter.circle++}`;
             styleUrl = '#circleStyle';
             const points = circleToPolygonPoints(layer);
             const coords = latLngsToKmlCoordinates(points, true);
             kmlGeom = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
         }
-
         if (kmlGeom) {
-            // ★ 変更: Placemarkに<styleUrl>を追加してスタイルを適用
             placemarks += `<Placemark><name>${escapeXml(name)}</name><styleUrl>${styleUrl}</styleUrl>${kmlGeom}</Placemark>\n`;
         }
     });
-    
     if (!placemarks) {
         showNotification('エクスポート対象の図形がありません。', 'error');
         return;
     }
-
-    // ★ 変更: HTMLの表示に合わせた3つのスタイルを定義
-    const kml = `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>解析結果</name>
-    
-    <!-- 距離計測のスタイル (青線) -->
-    <Style id="lineStyle">
-      <LineStyle>
-        <color>ffff0000</color> <!-- AABBGGRR: 青 -->
-        <width>3</width>
-      </LineStyle>
-    </Style>
-    
-    <!-- 面積計測のスタイル (紫の線、10%不透明度の紫の塗り) -->
-    <Style id="areaStyle">
-      <LineStyle>
-        <color>ffb07b9c</color> <!-- #9C7BB0 -->
-        <width>2</width>
-      </LineStyle>
-      <PolyStyle>
-        <color>1ab07b9c</color> <!-- 1aは10%の透明度 -->
-      </PolyStyle>
-    </Style>
-    
-    <!-- 円のスタイル (ピンクの線、20%不透明度のピンクの塗り) -->
-    <Style id="circleStyle">
-      <LineStyle>
-        <color>ff631ee9</color> <!-- #E91E63 -->
-        <width>2</width>
-      </LineStyle>
-      <PolyStyle>
-        <color>33631ee9</color> <!-- 33は20%の透明度 -->
-      </PolyStyle>
-    </Style>
-    
-    ${placemarks}
-  </Document>
-</kml>`;
-
+    const kml = `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>解析結果</name><Style id="lineStyle"><LineStyle><color>ffff0000</color><width>3</width></LineStyle></Style><Style id="areaStyle"><LineStyle><color>ffb07b9c</color><width>2</width></LineStyle><PolyStyle><color>1ab07b9c</color></PolyStyle></Style><Style id="circleStyle"><LineStyle><color>fff4a903</color><width>2</width></LineStyle><PolyStyle><color>33f4a903</color></PolyStyle></Style>${placemarks}</Document></kml>`;
     const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
