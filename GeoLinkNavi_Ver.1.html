@@ -316,13 +316,38 @@ right: 0;
     position: absolute;
     top: 0;
     right: var(--panel-width, 500px);
-    width: 10px;
+    width: 12px; /* ★ 幅を少し広げて掴みやすく */
     height: 100%;
-    cursor: col-resize;
+    cursor: ew-resize; /* ★ 分かりやすいカーソルに変更 */
     z-index: 1003;
     transform: translateX(50%);
     -webkit-user-drag: none;
     user-select: none;
+    transition: background-color 0.2s; /* ★ ホバー時の背景色変化を滑らかに */
+}
+
+/* ★ マウスを乗せたときに背景色を付けて、領域を分かりやすくする */
+#resizer:hover {
+    background-color: rgba(102, 126, 234, 0.2);
+}
+
+/* ★ 掴むための「取っ手」アイコン（縦の三点リーダー）を追加 */
+#resizer::before {
+    content: '⋮';
+    color: var(--primary-color);
+    font-size: 20px;
+    line-height: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0; /* ★ 普段は隠しておく */
+    transition: opacity 0.2s;
+}
+
+/* ★ マウスを乗せたときに「取っ手」アイコンを表示 */
+#resizer:hover::before {
+    opacity: 1;
 }
 .main-layout:not(.pinned) #resizer {
     display: none;
