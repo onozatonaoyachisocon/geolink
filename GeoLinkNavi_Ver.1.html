@@ -671,10 +671,12 @@ body.dark-mode .analysis-tools-overlay { background: rgba(31, 41, 55, 0.8); box-
 .analysis-tool-row { display: flex; gap: 5px; align-items: center; }
 .analysis-tools-controls .btn-base { height: 32px; width: 110px; padding: 0 10px; font-size: 12px; }
 .analysis-tools-controls input[type="number"] { height: 32px; width: 60px; padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; background-color: var(--card-bg); color: var(--text-dark); }
-.btn-measure { background-color: #009688; }
-.btn-measure:hover { background-color: #00796B; }
-.btn-buffer { background-color: #E91E63; }
-.btn-buffer:hover { background-color: #C2185B; }
+.btn-measure { background-color: #2962FF; } /* より強い青色に変更 */
+.btn-measure:hover { background-color: #0039cb; } /* さらに濃い青色に変更 */
+.btn-buffer { background-color: #03A9F4; } /* 水色系の色に変更 */
+.btn-buffer:hover { background-color: #0288D1; } /* 少し濃い水色に変更 */
+.btn-export-analysis { background-color: var(--btn-export-kml-bg); }
+.btn-export-analysis:hover { background-color: var(--btn-export-kml-hover-bg); }
 .btn-clear-analysis { background-color: var(--error-color); }
 .btn-clear-analysis:hover { background-color: #C62828; }
 .btn-measure.active { background-color: #004D40; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4); }
@@ -718,7 +720,14 @@ color: var(--text-dark);
 .btn-modal-cancel { background-color: var(--border-color); color: var(--text-dark); }
 .url-converter-group { display: flex; gap: 10px; align-items: center; }
 .url-converter-group input { flex-grow: 1; }
-.url-converter-group button { padding: 8px 12px; height: auto; min-width: 0; background-color: var(--btn-paste-bg); }
+.url-converter-group button { 
+    padding: 8px 12px; 
+    height: auto; 
+    min-width: 0; 
+    background-color: var(--btn-paste-bg); 
+    flex-shrink: 0;       /* ★追加: ボタンが縮まないようにする */
+    white-space: nowrap;    /* ★追加: 文字が折り返さないようにする */
+}
 
 .bulk-toggle-container {
     display: flex;
@@ -1163,7 +1172,7 @@ body.dark-mode .btn-clear-checks:hover {
                                 <button class="btn-base btn-clear-analysis" id="clear-analysis-btn">🗑️ クリア</button>
                             </div>
                             <div class="analysis-tool-row">
-                                <button class="btn-base" id="export-analysis-btn" style="background-color: #4CAF50;">🌐 KML保存</button>
+                                <button class="btn-base btn-export-analysis" id="export-analysis-btn">🌐 KML保存</button>
                             </div>
                         </div>
                     </div>
