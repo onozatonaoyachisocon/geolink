@@ -863,6 +863,108 @@ body.dark-mode .btn-clear-checks:hover {
     display: none !important;
 }
 
+/* ▼▼▼ ここから追加（設定モーダルのスクロール対応） ▼▼▼ */
+.modal-content {
+    /* モーダルの高さを画面の90%までに制限 */
+    max-height: 90vh; 
+    /* Flexboxレイアウトを適用して子要素を制御 */
+    display: flex;
+    flex-direction: column;
+}
+
+#settings-form {
+    /* フォームエリアが利用可能なスペースをすべて使うように設定 */
+    flex-grow: 1;
+    /* 内容がはみ出した場合にのみ、縦スクロールバーを表示 */
+    overflow-y: auto;
+    /* スクロールバーとコンテンツが重ならないように右側に余白を追加 */
+    padding-right: 15px;
+}
+
+.modal-content h3, .modal-buttons {
+    /* ヘッダーとフッターが縮まないように設定 */
+    flex-shrink: 0;
+}
+/* ▲▲▲ ここまで追加 ▲▲▲ */
+
+
+/* ▼▼▼ ここから追加（データ管理機能のUI） ▼▼▼ */
+.data-sync-section h4 {
+    margin-bottom: 5px;
+}
+.data-sync-section small {
+    display: block;
+    margin-bottom: 15px;
+}
+.data-sync-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--bg-light);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.data-sync-checklist label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+.data-sync-checklist input[type="checkbox"] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+/* ▼▼▼ こちらのCSSに置き換えてください ▼▼▼ */
+.data-sync-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+.data-sync-controls button {
+    flex: 1; /* ボタンが均等に幅を分け合う */
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.data-sync-controls button:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+/* 各ボタンに個別の色を設定 */
+#btn-check-all {
+    background-color: var(--btn-toggle-all);
+}
+#btn-uncheck-all {
+    background-color: #B0BEC5;
+    color: var(--text-dark);
+}
+body.dark-mode #btn-uncheck-all {
+    background-color: #455A64;
+    color: var(--text-dark);
+}
+#btn-export-data {
+    background-color: var(--primary-color);
+}
+#btn-import-data {
+    background-color: var(--success-color);
+}
+/* ▲▲▲ 置き換えここまで ▲▲▲ */
+/* ▲▲▲ ここまで追加 ▲▲▲ */
+
+
 @media (min-width: 1800px) {
     .left-panel {
         flex: 5;
@@ -1079,7 +1181,7 @@ body.dark-mode .btn-clear-checks:hover {
     <ul>
         <li><strong>共有・QRコード:</strong> 「🔗 リンク共有」「📱 QRコードで共有」ボタンで、現在の座標やチェックした地図の状態を含むURLを共有や生成ができます。他の人に同じ状態を共有する際に便利です。</li><li><strong>ブックマーク:</strong> 「⭐ ブックマークに保存」ボタンで、お気に入りの場所に名前をつけて保存できます。ヘッダーの「⭐」ボタンからいつでも呼び出せます。</li>
         <li><strong>履歴:</strong> クリックした地点の座標は自動で履歴に保存されます。ヘッダーの「⏱️」ボタンから確認できます。ブックマークと履歴は、CSVまたはKML形式で書き出すことができます。</li>
-        <li><strong>設定とカスタマイズ:</strong> 「⚙️設定」ボタンから、起動時のズームレベル、テーマカラー、パネルの表示など、起動時の状態をカスタマイズできます。</li>
+        <li><strong>設定とカスタマイズ:</strong> 「⚙️設定」ボタンから、起動時のズームレベル、テーマカラー、パネルの表示など、起動時の状態をカスタマイズできます。また、ブックマークやマイリンクなどの全データをファイルに書き出してバックアップしたり、別のPCに移行したりできます</li>
 <li><strong>ダーク・ライトモード:</strong> 「🌙モード切替」ボタンから、ダークモードとライトモードを切り替えることができます。</li>
 　　</ul>
     <h4>■ 地図パネルと外部地図連携</h4>
@@ -1104,10 +1206,34 @@ body.dark-mode .btn-clear-checks:hover {
 
     <h4>■ 高度な地図ツール</h4>
     <ul>
-        <li><strong>測量・解析ツール:</strong> 地図左下の「🛠️測量・解析ツール」から、「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。ダブルクリックで計測が完了します。</li>
-        <li><strong style="color: var(--primary-color);">NEW:</strong> 「🌐 KML保存」ボタンで、作成した図形をKMLファイルとして保存できます。</li>
-        <li><strong style="color: var(--primary-color);">NEW:</strong> 測定中に `BS` または `DEL` キーを押すと、最後に追加した点を取り消せます。</li>
+        <li>地図左下の「🛠️測量・解析ツール」から、「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。ダブルクリックで計測が完了します。</li>
+        <li> 「🌐 KML保存」ボタンで、作成した図形をKMLファイルとして保存できます。</li>
+        <li> 測定中に `BS` または `DEL` キーを押すと、最後に追加した点を取り消せます。</li>
     </ul>
+<!-- ▼▼▼ このブロックを「使い方ガイド」の一番最後に追加 ▼▼▼ -->
+<h4>■ データのバックアップと移行（書き出し／読み込み）</h4>
+<p>この機能を使うと、アプリ内に保存されているブックマーク、履歴、マイリンク、各種設定を一つのファイルとして書き出す（エクスポート）ことができます。このファイルを保管しておけば、PCの買い替え時や、別のブラウザで同じ環境を復元したい場合に便利です。また、他のユーザーと設定を共有することもできます。</p>
+<ul>
+    <li><strong>データの書き出し (エクスポート):</strong>
+        <ol style="list-style: decimal inside; padding-left: 20px; margin-top: 5px;">
+            <li>ヘッダーの「⚙️設定」ボタンを押します。</li>
+            <li>モーダル下部の「💾 データの書き出しと読み込み」セクションに進みます。</li>
+            <li>書き出したいデータの種類（ブックマーク、履歴など）にチェックを入れます。「✅ すべて選択」も利用できます。</li>
+            <li>「📤 書き出し」ボタンを押すと、<code>GeoLinkNavi_backup_日付.json</code> というファイルがダウンロードされます。</li>
+            <li>このファイルを安全な場所に保管してください。</li>
+        </ol>
+    </li>
+    <li style="margin-top: 10px;"><strong>データの読み込み (インポート):</strong>
+        <ol style="list-style: decimal inside; padding-left: 20px; margin-top: 5px;">
+            <li>同様に「⚙️設定」を開き、データ管理セクションに進みます。</li>
+            <li>ファイルから読み込みたいデータの種類にチェックを入れます。（ファイル内に含まれていないデータは無視されます）</li>
+            <li>「📥 読み込み」ボタンを押し、以前書き出した<code>.json</code>ファイルを選択します。</li>
+            <li style="font-weight: bold;">⚠️ <span style="color: var(--error-color);">注意:</span> 読み込みを行うと、チェックを入れた項目の既存データはファイルの内容で<strong>上書き</strong>されます。</li>
+            <li>確認メッセージが表示された後、データが復元され、ページが自動で再読み込みされます。</li>
+        </ol>
+    </li>
+</ul>
+<!-- ▲▲▲ 追加ここまで ▲▲▲ -->
 </div>
 </div>
 
@@ -1268,8 +1394,11 @@ body.dark-mode .btn-clear-checks:hover {
 
 <div class="legal-notice" style="font-size: 11px; text-align: center; padding: 10px; color: var(--text-medium); background: var(--bg-container);">
   <!-- ★★★ ここからが追加する部分 ★★★ -->
-  <p style="margin-bottom: 15px; font-weight: bold;">
-    Copyright &copy; 2025 Naoya.Onozato. All Rights Reserved.
+  <p style="margin-bottom: 5px; font-weight: bold;">
+    Copyright &copy; 2025 (株)地圏総合コンサルタント All Rights Reserved.
+  </p>
+  <p style="margin-bottom: 15px; font-size: 11px; color: var(--text-medium);">
+    Developed by: Naoya.Onozato
   </p>
   <!-- ★★★ ここまで ★★★ -->
 
@@ -1368,6 +1497,33 @@ body.dark-mode .btn-clear-checks:hover {
                 <input type="range" id="settings-zoom" min="1" max="20" step="1">
                 <small>起動時の地図のズームレベルを設定します。</small>
             </div>
+
+            <!-- ▼▼▼ ここからデータ管理機能のHTML ▼▼▼ -->
+            <hr style="margin: 25px 0; border: none; border-top: 1px solid var(--border-color);">
+
+            <div class="data-sync-section">
+                <h4>💾 データの書き出しと読み込み</h4>
+                <small>現在の設定やブックマークなどをファイルに保存したり、ファイルから復元したりします。</small>
+
+                <div class="modal-form-group">
+                    <label>対象データを選択</label>
+                    <div class="data-sync-checklist" id="data-sync-checklist">
+                        <label><input type="checkbox" value="coordinateBookmarks"> ブックマーク</label>
+                        <label><input type="checkbox" value="coordinateHistory"> 座標履歴</label>
+                        <label><input type="checkbox" value="favoriteSets"> お気に入りセット</label>
+                        <label><input type="checkbox" value="myCustomLinks"> ⭐マイリンク</label>
+                        <label><input type="checkbox" value="geoLinkNaviSettings"> ⚙️各種設定</label>
+                    </div>
+        <div class="data-sync-controls">
+            <button type="button" id="btn-check-all">✅ 全選択</button>
+            <button type="button" id="btn-uncheck-all">❌ 全解除</button>
+            <button type="button" id="btn-export-data">📤 書き出し</button>
+            <button type="button" id="btn-import-data">📥 読み込み</button>
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+        </div>
+    </div>
+            <!-- ▲▲▲ ここまでデータ管理機能のHTML ▲▲▲ -->
+
             <div class="modal-buttons">
                 <button type="button" class="btn-modal-cancel" id="btn-settings-modal-cancel">キャンセル</button>
                 <button type="submit" class="btn-modal-save">設定を保存</button>
@@ -2386,6 +2542,109 @@ function updatePanelWidth(newWidth) {
     }
 }
 
+// ▼▼▼ ここからデータ管理機能のJavaScript関数 ▼▼▼
+
+/**
+ * 選択されたデータをJSONファイルとしてエクスポートする
+ */
+function exportData() {
+    const checklist = document.getElementById('data-sync-checklist');
+    const checkedItems = checklist.querySelectorAll('input[type="checkbox"]:checked');
+    
+    if (checkedItems.length === 0) {
+        showNotification('書き出すデータを選択してください。', 'error');
+        return;
+    }
+
+    const dataToExport = {};
+    checkedItems.forEach(item => {
+        const key = item.value;
+        const data = localStorage.getItem(key);
+        if (data) {
+            dataToExport[key] = data;
+        }
+    });
+
+    if (Object.keys(dataToExport).length === 0) {
+        showNotification('選択されたデータが見つかりませんでした。', 'error');
+        return;
+    }
+
+    const jsonString = JSON.stringify(dataToExport, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    a.download = `GeoLinkNavi_backup_${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('データをファイルに書き出しました。');
+}
+
+/**
+ * ファイル選択ダイアログを開く
+ */
+function importDataTrigger() {
+    document.getElementById('import-file-input').click();
+}
+
+/**
+ * 選択されたファイルを読み込み、データをインポートする
+ * @param {Event} event ファイル選択イベント
+ */
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+
+    const checklist = document.getElementById('data-sync-checklist');
+    const checkedItems = checklist.querySelectorAll('input[type="checkbox"]:checked');
+
+    if (checkedItems.length === 0) {
+        showNotification('読み込むデータを選択してください。', 'error');
+        event.target.value = ''; // ファイル選択をリセット
+        return;
+    }
+    const keysToImport = Array.from(checkedItems).map(item => item.value);
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            
+            if (confirm('ファイルからデータを読み込みます。\n選択した項目の既存データは上書きされます。よろしいですか？')) {
+                let importedCount = 0;
+                for (const key in importedData) {
+                    if (keysToImport.includes(key) && Object.prototype.hasOwnProperty.call(importedData, key)) {
+                        localStorage.setItem(key, importedData[key]);
+                        importedCount++;
+                    }
+                }
+                if (importedCount > 0) {
+                   alert(`${importedCount}個のデータを読み込みました。\nページを再読み込みして変更を適用します。`);
+                   location.reload();
+                } else {
+                   showNotification('ファイル内に、選択された対象データが見つかりませんでした。', 'error');
+                }
+            }
+        } catch (error) {
+            showNotification('ファイルの形式が正しくありません。', 'error');
+            console.error('インポートエラー:', error);
+        } finally {
+            event.target.value = ''; // 成功・失敗に関わらずファイル選択をリセット
+        }
+    };
+    reader.readAsText(file);
+}
+
+// ▲▲▲ ここまでデータ管理機能のJavaScript関数 ▲▲▲
+
 
 document.addEventListener('DOMContentLoaded', () => {
 loadSettings();
@@ -2563,6 +2822,27 @@ function handleUndoLastPoint(e) {
     }
 }
 document.addEventListener('keydown', handleUndoLastPoint);
+
+// ▼▼▼ ここからデータ管理機能のイベントリスナー（修正版） ▼▼▼
+    
+// データ管理機能のイベントリスナー
+document.getElementById('btn-export-data').addEventListener('click', exportData);
+document.getElementById('btn-import-data').addEventListener('click', importDataTrigger);
+document.getElementById('import-file-input').addEventListener('change', handleFileSelect);
+
+// すべて選択ボタン
+document.getElementById('btn-check-all').addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('#data-sync-checklist input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = true);
+});
+
+// すべて解除ボタン
+document.getElementById('btn-uncheck-all').addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('#data-sync-checklist input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+});
+
+// ▲▲▲ ここまで ▲▲▲
 
 
 window.addEventListener('resize', () => {
