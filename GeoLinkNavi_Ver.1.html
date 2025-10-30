@@ -2879,14 +2879,16 @@ document.getElementById('btn-uncheck-all').addEventListener('click', () => {
 
 // ▲▲▲ ここまで ▲▲▲
 
-// ▼▼▼ ここから追加（ルート検索機能） ▼▼▼
-document.getElementById('btn-route-google').addEventListener('click', () => {
-    const { lat, lon } = currentLatLon;
-    if (isNaN(lat) || isNaN(lon)) return showNotification('有効な座標がありません', 'error');
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
-    window.open(url, '_blank');
+// ▼▼▼ ここから修正（ルート検索機能） ▼▼▼
+document.querySelectorAll('#btn-route-google').forEach(button => {
+    button.addEventListener('click', () => {
+        const { lat, lon } = currentLatLon;
+        if (isNaN(lat) || isNaN(lon)) return showNotification('有効な座標がありません', 'error');
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+        window.open(url, '_blank');
+    });
 });
-// ▲▲▲ 追加ここまで ▲▲▲
+// ▲▲▲ 修正ここまで ▲▲▲
 
 window.addEventListener('resize', () => {
 if (osmMap) {
