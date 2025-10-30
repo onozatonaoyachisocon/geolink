@@ -1262,36 +1262,42 @@ body.dark-mode #btn-uncheck-all {
     <div class="left-panel">
         <div class="input-section">
             <div class="input-row">
-                <div class="input-buttons-group">
-                    <div class="input-button-wrapper">
-                        <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得">📍</button>
-                        <span class="input-button-label">現在地</span>
-                    </div>
-                    <div class="input-button-wrapper mobile-hidden">
-                        <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す">🌍</button>
-                        <span class="input-button-label">Googleマップ</span>
-                    </div>
-                    <div class="input-button-wrapper mobile-hidden">
-                        <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け">📄</button>
-                        <span class="input-button-label">貼り付け</span>
-                    </div>
-                    <div class="input-button-wrapper">
-                        <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" title="ブックマークに保存">⭐</button>
-                        <span class="input-button-label">ブックマーク</span>
-                    </div>
-                    <div class="input-button-wrapper">
-                        <button class="btn-base btn-icon btn-format-toggle" id="coord-format-toggle" title="表示形式切替">⚙️</button>
-                        <span class="input-button-label">形式切替</span>
-                    </div>
-                    <div class="input-button-wrapper desktop-hidden">
-                        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
-                        <span class="input-button-label">検索</span>
-                    </div>
-                    <div class="input-button-wrapper desktop-hidden">
-                        <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
-                        <span class="input-button-label">パネル</span>
-                    </div>
-                </div>
+<div class="input-buttons-group">
+    <div class="input-button-wrapper">
+        <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得">📍</button>
+        <span class="input-button-label">現在地</span>
+    </div>
+    <div class="input-button-wrapper mobile-hidden">
+        <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す">🌍</button>
+        <span class="input-button-label">Googleマップ</span>
+    </div>
+    <div class="input-button-wrapper mobile-hidden">
+        <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け">📄</button>
+        <span class="input-button-label">貼り付け</span>
+    </div>
+    <div class="input-button-wrapper">
+        <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" title="ブックマークに保存">⭐</button>
+        <span class="input-button-label">ブックマーク</span>
+    </div>
+    <div class="input-button-wrapper">
+        <button class="btn-base btn-icon btn-format-toggle" id="coord-format-toggle" title="表示形式切替">⚙️</button>
+        <span class="input-button-label">形式切替</span>
+    </div>
+    <div class="input-button-wrapper desktop-hidden">
+        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
+        <span class="input-button-label">検索</span>
+    </div>
+    <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+    <div class="input-button-wrapper desktop-hidden">
+        <button class="btn-base btn-icon" id="btn-route-google" title="Googleマップでルート検索">🚗</button>
+        <span class="input-button-label">ルート検索</span>
+    </div>
+    <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
+    <div class="input-button-wrapper desktop-hidden">
+        <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+        <span class="input-button-label">パネル</span>
+    </div>
+</div>
                 <div class="input-group lat-group">
                     <label for="latitude">📍 緯度 (Latitude)</label>
                     <div class="input-wrapper">
