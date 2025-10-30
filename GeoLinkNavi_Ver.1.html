@@ -455,8 +455,9 @@ margin-top: 0;
     color: var(--text-medium) !important;
 }
 
-#toggleRightPanelBtn { background-color: var(--primary-color); }
-#toggleRightPanelBtn:hover:not(:disabled) {
+/* ★★★ 修正箇所1 (CSSセレクタをIDからクラスに変更) ★★★ */
+.btn-toggle-panel { background-color: var(--primary-color); }
+.btn-toggle-panel:hover:not(:disabled) {
     background-color: var(--secondary-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(118, 75, 162, 0.4);
@@ -476,10 +477,14 @@ margin-top: 0;
 .btn-format-toggle { background-color: var(--btn-format-toggle-bg); color: var(--text-dark); font-size: 20px; }
 .btn-format-toggle:hover { background-color: var(--btn-format-toggle-hover-bg); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(149, 117, 205, 0.4); }
 
-/* ▼▼▼ ここから追加 ▼▼▼ */
+/* ★★★ 修正箇所2 (ルート検索ボタンのスタイル) ★★★ */
 #btn-route-google { background-color: #4A89F3; }
-#btn-route-google:hover { background-color: #3C6ED9; }
-/* ▲▲▲ 追加ここまで ▲▲▲ */
+#btn-route-google:hover {
+    background-color: #3C6ED9;
+    transform: translateY(-2px); /* 浮き上がる動作を追加 */
+    box-shadow: 0 4px 12px rgba(74, 137, 243, 0.4); /* 影を追加 */
+}
+
 
 .zoom-slider-overlay { position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.8); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 1000; }
 body.dark-mode .zoom-slider-overlay { background: rgba(31, 41, 55, 0.8); box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
@@ -1287,14 +1292,13 @@ body.dark-mode #btn-uncheck-all {
         <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
         <span class="input-button-label">検索</span>
     </div>
-    <!-- ▼▼▼ ここから追加 ▼▼▼ -->
     <div class="input-button-wrapper desktop-hidden">
         <button class="btn-base btn-icon" id="btn-route-google" title="Googleマップでルート検索">🚗</button>
         <span class="input-button-label">ルート検索</span>
     </div>
-    <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
     <div class="input-button-wrapper desktop-hidden">
-        <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+        <!-- ★★★ 修正箇所3 (HTML) ★★★ -->
+        <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
         <span class="input-button-label">パネル</span>
     </div>
 </div>
@@ -1327,14 +1331,13 @@ body.dark-mode #btn-uncheck-all {
                         <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
                         <span class="input-button-label">検索</span>
                     </div>
-                    <!-- ▼▼▼ ここから追加 ▼▼▼ -->
                     <div class="input-button-wrapper">
                         <button class="btn-base btn-icon" id="btn-route-google" title="Googleマップでルート検索">🚗</button>
                         <span class="input-button-label">ルート検索</span>
                     </div>
-                    <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
                     <div class="input-button-wrapper">
-                        <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+                        <!-- ★★★ 修正箇所4 (HTML) ★★★ -->
+                        <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
                         <span class="input-button-label">パネル</span>
                     </div>
                 </div>
@@ -2465,19 +2468,25 @@ function deleteFavoriteSet() {
 
 function toggleRightPanel() {
     const rightPanel = document.querySelector('.right-panel');
-    const btn = document.getElementById('toggleRightPanelBtn');
+    const btns = document.querySelectorAll('.js-toggle-panel-btn');
     const overlay = document.getElementById('panelOverlay');
 
     rightPanel.classList.toggle('hidden');
     const isHidden = rightPanel.classList.contains('hidden');
 
+    btns.forEach(btn => {
+        if (isHidden) {
+            btn.innerHTML = '◀';
+            btn.title = 'パネルを開く';
+        } else {
+            btn.innerHTML = '▶';
+            btn.title = 'パネルを閉じる';
+        }
+    });
+
     if (isHidden) {
-        btn.innerHTML = '◀';
-        btn.title = 'パネルを開く';
         overlay.classList.remove('show');
     } else {
-        btn.innerHTML = '▶';
-        btn.title = 'パネルを閉じる';
         overlay.classList.add('show');
     }
 
@@ -2490,14 +2499,22 @@ function togglePinPanel() {
     const mainLayout = document.querySelector('.main-layout');
     const pinBtn = document.getElementById('pinPanelBtn');
     const rightPanel = document.querySelector('.right-panel');
-    const toggleBtn = document.getElementById('toggleRightPanelBtn');
+    const toggleBtns = document.querySelectorAll('.js-toggle-panel-btn');
 
     const isPinned = mainLayout.classList.toggle('pinned');
     pinBtn.classList.toggle('pinned', isPinned);
     
-    if (toggleBtn) {
-        toggleBtn.disabled = isPinned;
-    }
+    toggleBtns.forEach(btn => {
+        btn.disabled = isPinned;
+
+        if (isPinned) {
+            btn.innerHTML = '▶';
+            btn.title = 'パネルは固定されています';
+        } else {
+            btn.innerHTML = '◀';
+            btn.title = 'パネルを開く';
+        }
+    });
 
     if (isPinned) {
         pinBtn.innerHTML = '📍 固定中';
@@ -2510,16 +2527,8 @@ function togglePinPanel() {
     if (isPinned) {
         rightPanel.classList.remove('hidden');
         document.getElementById('panelOverlay').classList.remove('show');
-        if (toggleBtn) {
-            toggleBtn.innerHTML = '▶';
-            toggleBtn.title = 'パネルは固定されています';
-        }
     } else {
         rightPanel.classList.add('hidden');
-        if (toggleBtn) {
-            toggleBtn.innerHTML = '◀';
-            toggleBtn.title = 'パネルを開く';
-        }
     }
 
     setTimeout(() => {
