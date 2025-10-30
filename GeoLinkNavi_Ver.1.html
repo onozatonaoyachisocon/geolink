@@ -798,6 +798,15 @@ color: var(--text-dark);
     flex-wrap: wrap;
     gap: 5px;
 }
+.favorite-set-row {
+    display: flex;
+    flex-basis: 100%;
+    align-items: center;
+    gap: 5px;
+}
+.favorite-set-row.button-row button {
+    flex: 1;
+}
 .favorite-sets-container label {
     margin-right: 5px;
     flex-shrink: 0;
@@ -1392,12 +1401,16 @@ body.dark-mode #btn-uncheck-all {
                 <button id="pinPanelBtn" onclick="togglePinPanel()">📌 ピン留め</button>
             </div>
             <div class="favorite-sets-container">
-                <label for="favorite-sets">お気に入りセット:</label>
-                <select id="favorite-sets"></select>
-                <button id="open-set" class="btn-open-set">▶️ 開く</button>
-                <button id="clear-all-checks" class="btn-clear-checks">❌ 解除</button>
-                <button id="save-set" class="btn-save-set">💾保存</button>
-                <button id="delete-set" class="btn-delete-set">🗑️削除</button>
+                <div class="favorite-set-row">
+                    <label for="favorite-sets">お気に入りセット:</label>
+                    <select id="favorite-sets"></select>
+                </div>
+                <div class="favorite-set-row button-row">
+                    <button id="open-set" class="btn-open-set">▶️ 開く</button>
+                    <button id="clear-all-checks" class="btn-clear-checks">❌ 解除</button>
+                    <button id="save-set" class="btn-save-set">💾保存</button>
+                    <button id="delete-set" class="btn-delete-set">🗑️削除</button>
+                </div>
             </div>
         </div>
         <div class="content" id="map-categories-container"></div>
@@ -1832,9 +1845,9 @@ async function getCoordsFromAddress(address) {
     const response = await fetch(`https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(address)}`);
     const data = await response.json();
     if (Array.isArray(data) && data.length > 0) {
-      const coordinates = data[0].geometry.coordinates;
-      const lon = coordinates[0];
-      const lat = coordinates[1];
+      const coordinates = data.geometry.coordinates;
+      const lon = coordinates;
+      const lat = coordinates;
       return { lat: lat, lon: lon };
     }
     return null;
@@ -1852,8 +1865,8 @@ async function getAddressSuggestions(query) {
     if (Array.isArray(data)) {
       return data.slice(0, 5).map(item => ({
         display_name: item.properties.title,
-        lat: item.geometry.coordinates[1],
-        lon: item.geometry.coordinates[0]
+        lat: item.geometry.coordinates,
+        lon: item.geometry.coordinates
       }));
     }
     return [];
@@ -1863,7 +1876,7 @@ async function getAddressSuggestions(query) {
   }
 }
 
-async function saveCoordinateToHistory(lat, lon, zoom) { let history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]'); const address = await getAddressFromCoords(lat, lon); const newEntry = { lat: lat.toFixed(8), lon: lon.toFixed(8), zoom, timestamp: new Date().toISOString(), address }; if (history[0]?.lat !== newEntry.lat || history[0]?.lon !== newEntry.lon) { history.unshift(newEntry); localStorage.setItem('coordinateHistory', JSON.stringify(history.slice(0, MAX_HISTORY))); renderHistoryList(history); } }
+async function saveCoordinateToHistory(lat, lon, zoom) { let history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]'); const address = await getAddressFromCoords(lat, lon); const newEntry = { lat: lat.toFixed(8), lon: lon.toFixed(8), zoom, timestamp: new Date().toISOString(), address }; if (history?.lat !== newEntry.lat || history?.lon !== newEntry.lon) { history.unshift(newEntry); localStorage.setItem('coordinateHistory', JSON.stringify(history.slice(0, MAX_HISTORY))); renderHistoryList(history); } }
 function renderHistoryList(history) { $historyList.innerHTML = history.length === 0 ? '<p>履歴はありません。</p>' : history.map((item, index) => `<div class="history-item" data-index="${index}"><strong>${index + 1}. ${item.address}</strong><span>座標: ${item.lat}°N, ${item.lon}°E | ${new Date(item.timestamp).toLocaleString()}</span></div>`).join(''); }
 function loadCoordinateFromHistory(item) { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(true); toggleHistoryPopup(false); showNotification(`履歴「${item.address}」を適用`); }
 function toggleHistoryPopup(open = true) { if (open && $historyPopup.style.display !== 'block') { renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]')); $historyPopup.style.display = 'block'; $bookmarkPopup.style.display = 'none'; } else { $historyPopup.style.display = 'none'; } }
@@ -1904,7 +1917,7 @@ function clearBookmarks() { if (confirm('ブックマークを全削除します
 function exportBookmarksToCSV() { const d = JSON.parse(localStorage.getItem(BOOKMARK_KEY)||'[]'); if(d.length>0) exportToCSV(d, 'bookmarks_export'); else showNotification('ブックマークがありません', 'error'); }
 
 function exportToCSV(data, filename) { 
-    const headers = Object.keys(data[0]).join(','), 
+    const headers = Object.keys(data).join(','), 
           rows = data.map(row => Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')), 
           csv = `${headers}\n${rows.join('\n')}`, 
           bom = new Uint8Array([0xef, 0xbb, 0xbf]), 
@@ -1959,7 +1972,7 @@ chks.forEach(cb => cb.checked = !allChecked);
 btn.classList.toggle('checked', !allChecked);
 }
 function openGoogleMap() { const {lat,lon}=currentLatLon; if (isNaN(lat)||isNaN(lon))return; window.open(`https://maps.google.co.jp/maps?q=${lat},${lon}&z=${$zoom.value}`,'_blank'); }
-async function pasteCoordinates() { try { const text = await navigator.clipboard.readText(), match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/); if (match) { updateLatLonInputs(parseFloat(match[1]), parseFloat(match[2])); await updateCurrentCoords(); showNotification('座標を貼り付けました'); } else showNotification('形式が不正です','error'); } catch (err) { showNotification('クリップボード読取失敗','error'); } }
+async function pasteCoordinates() { try { const text = await navigator.clipboard.readText(), match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/); if (match) { updateLatLonInputs(parseFloat(match), parseFloat(match)); await updateCurrentCoords(); showNotification('座標を貼り付けました'); } else showNotification('形式が不正です','error'); } catch (err) { showNotification('クリップボード読取失敗','error'); } }
 function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); }
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
 function getCombinedMapDefinitions() {
@@ -2260,7 +2273,7 @@ return 0;
 function latLngsToKmlCoordinates(latlngs, closeRing = false) {
     let coords = latlngs.map(p => `${p.lng},${p.lat},0`).join(' ');
     if (closeRing && latlngs.length > 0) {
-        coords += ` ${latlngs[0].lng},${latlngs[0].lat},0`;
+        coords += ` ${latlngs.lng},${latlngs.lat},0`;
     }
     return coords;
 }
