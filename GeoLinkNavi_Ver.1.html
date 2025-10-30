@@ -476,6 +476,11 @@ margin-top: 0;
 .btn-format-toggle { background-color: var(--btn-format-toggle-bg); color: var(--text-dark); font-size: 20px; }
 .btn-format-toggle:hover { background-color: var(--btn-format-toggle-hover-bg); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(149, 117, 205, 0.4); }
 
+/* ▼▼▼ ここから追加 ▼▼▼ */
+#btn-route-google { background-color: #4A89F3; }
+#btn-route-google:hover { background-color: #3C6ED9; }
+/* ▲▲▲ 追加ここまで ▲▲▲ */
+
 .zoom-slider-overlay { position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.8); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 1000; }
 body.dark-mode .zoom-slider-overlay { background: rgba(31, 41, 55, 0.8); box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
 .zoom-slider-overlay label { font-size: 13px; font-weight: 600; white-space: nowrap; }
@@ -863,29 +868,42 @@ body.dark-mode .btn-clear-checks:hover {
     display: none !important;
 }
 
-/* ▼▼▼ ここから追加（設定モーダルのスクロール対応） ▼▼▼ */
+/* ▼▼▼ ここから修正・追加 ▼▼▼ */
 .modal-content {
-    /* モーダルの高さを画面の90%までに制限 */
     max-height: 90vh; 
-    /* Flexboxレイアウトを適用して子要素を制御 */
     display: flex;
     flex-direction: column;
+    position: relative; /* 閉じるボタンの配置基準 */
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--text-medium);
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    transition: color 0.2s;
+    z-index: 10;
+}
+.modal-close-btn:hover {
+    color: var(--text-dark);
 }
 
 #settings-form {
-    /* フォームエリアが利用可能なスペースをすべて使うように設定 */
     flex-grow: 1;
-    /* 内容がはみ出した場合にのみ、縦スクロールバーを表示 */
     overflow-y: auto;
-    /* スクロールバーとコンテンツが重ならないように右側に余白を追加 */
     padding-right: 15px;
 }
-
 .modal-content h3, .modal-buttons {
-    /* ヘッダーとフッターが縮まないように設定 */
     flex-shrink: 0;
 }
-/* ▲▲▲ ここまで追加 ▲▲▲ */
+/* ▲▲▲ 修正・追加ここまで ▲▲▲ */
 
 
 /* ▼▼▼ ここから追加（データ管理機能のUI） ▼▼▼ */
@@ -1175,6 +1193,7 @@ body.dark-mode #btn-uncheck-all {
         <li><strong>座標の貼り付け:</strong> 「📄 貼り付け」ボタンで、クリップボードにコピーした座標（例: <code>35.681, 139.767</code>）を貼り付けられます。</li>
         <li><strong>形式の切り替え:</strong>「⚙️形式切替」ボタンで、緯度経度の表示を「十進数形式」と「度分秒形式」で切り替えられます。</li>
         <li><strong>住所や名称で検索:</strong> 住所やランドマークなどを入力し「🔎検索」ボタンを押すと、その場所の座標が設定されます。入力中に候補も表示されます。</li>
+        <li><strong>ルート検索:</strong> 「🚗 ルート検索」セクションの各ボタンを押すと、現在の座標を目的地としたルート案内ページ（Googleマップなど）を直接開くことができます。</li>
     </ul>
 
     <h4>■ 保存・共有・設定機能</h4>
@@ -1297,18 +1316,24 @@ body.dark-mode #btn-uncheck-all {
                     </div>
                     <span class="input-field-label">🏠 住所や名称など</span>
                 </div>
-                <div class="input-row-bottom-buttons mobile-hidden">
+<div class="input-row-bottom-buttons mobile-hidden">
                     <div class="input-button-wrapper">
                         <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
                         <span class="input-button-label">検索</span>
                     </div>
+                    <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+                    <div class="input-button-wrapper">
+                        <button class="btn-base btn-icon" id="btn-route-google" title="Googleマップでルート検索">🚗</button>
+                        <span class="input-button-label">ルート検索</span>
+                    </div>
+                    <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
                     <div class="input-button-wrapper">
                         <button class="btn-base btn-icon" id="toggleRightPanelBtn" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
                         <span class="input-button-label">パネル</span>
                     </div>
                 </div>
             </div>
-        </div>
+         </div>
 
         <div class="osm-map-container" id="mainMapContainer">
             <div class="osm-map-header" onclick="toggleMainMap()">
@@ -1447,6 +1472,9 @@ body.dark-mode #btn-uncheck-all {
 
 <div class="modal-overlay" id="settings-modal">
     <div class="modal-content">
+        <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+        <button type="button" class="modal-close-btn" onclick="closeSettingsModal()" title="閉じる">&times;</button>
+        <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
         <h3>⚙️ アプリケーション設定</h3>
         <form id="settings-form">
             <div class="modal-form-group">
@@ -2845,6 +2873,14 @@ document.getElementById('btn-uncheck-all').addEventListener('click', () => {
 
 // ▲▲▲ ここまで ▲▲▲
 
+// ▼▼▼ ここから追加（ルート検索機能） ▼▼▼
+document.getElementById('btn-route-google').addEventListener('click', () => {
+    const { lat, lon } = currentLatLon;
+    if (isNaN(lat) || isNaN(lon)) return showNotification('有効な座標がありません', 'error');
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+    window.open(url, '_blank');
+});
+// ▲▲▲ 追加ここまで ▲▲▲
 
 window.addEventListener('resize', () => {
 if (osmMap) {
