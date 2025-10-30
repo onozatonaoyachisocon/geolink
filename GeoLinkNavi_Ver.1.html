@@ -241,7 +241,7 @@ right: 0;
 .history-item, .bookmark-item { padding: 8px 10px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: background-color: 0.2s; border: 1px solid transparent; }
 .history-item:hover, .bookmark-item:hover { background-color: var(--bg-light); border-color: var(--primary-color); }
 .bookmark-actions { margin-top: 5px; display: flex; gap: 5px; }
-.bookmark-actions button { flex: 1; padding: 6px 8px; font-size: 11px; font-weight: 700; border-radius: 6px; border: none; transition: opacity 0.2s; color: white; }
+.bookmark-actions button { flex: 1; padding: 6px 8px; font-size: 11px; font-weight: 700; border-radius: 6px; border: none; transition: opacity: 0.2s; color: white; }
 .btn-bookmark-load { background-color: var(--primary-color); }
 .btn-bookmark-open { background-color: var(--success-color); }
 .btn-bookmark-delete { background-color: var(--error-color); }
@@ -1181,7 +1181,7 @@ body.dark-mode #btn-uncheck-all {
     <ul>
         <li><strong>共有・QRコード:</strong> 「🔗 リンク共有」「📱 QRコードで共有」ボタンで、現在の座標やチェックした地図の状態を含むURLを共有や生成ができます。他の人に同じ状態を共有する際に便利です。</li><li><strong>ブックマーク:</strong> 「⭐ ブックマークに保存」ボタンで、お気に入りの場所に名前をつけて保存できます。ヘッダーの「⭐」ボタンからいつでも呼び出せます。</li>
         <li><strong>履歴:</strong> クリックした地点の座標は自動で履歴に保存されます。ヘッダーの「⏱️」ボタンから確認できます。ブックマークと履歴は、CSVまたはKML形式で書き出すことができます。</li>
-        <li><strong>設定とカスタマイズ:</strong> 「⚙️設定」ボタンから、起動時のズームレベル、テーマカラー、パネルの表示など、起動時の状態をカスタマイズできます。また、ブックマークやマイリンクなどの全データをファイルに書き出してバックアップしたり、別のPCに移行したりできます</li>
+        <li><strong>設定とカスタマイズ:</strong> 「⚙️設定」ボタンから、起動時のズームレベル、テーマカラー、パネルの表示など、起動時の状態をカスタマイズできます。</li>
 <li><strong>ダーク・ライトモード:</strong> 「🌙モード切替」ボタンから、ダークモードとライトモードを切り替えることができます。</li>
 　　</ul>
     <h4>■ 地図パネルと外部地図連携</h4>
@@ -1207,7 +1207,7 @@ body.dark-mode #btn-uncheck-all {
     <h4>■ 高度な地図ツール</h4>
     <ul>
         <li>地図左下の「🛠️測量・解析ツール」から、「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。ダブルクリックで計測が完了します。</li>
-        <li> 「🌐 KML保存」ボタンで、作成した図形をKMLファイルとして保存できます。</li>
+        <li>「🌐 KML保存」ボタンで、作成した図形をKMLファイルとして保存できます。</li>
         <li> 測定中に `BS` または `DEL` キーを押すと、最後に追加した点を取り消せます。</li>
     </ul>
 <!-- ▼▼▼ このブロックを「使い方ガイド」の一番最後に追加 ▼▼▼ -->
@@ -1394,11 +1394,8 @@ body.dark-mode #btn-uncheck-all {
 
 <div class="legal-notice" style="font-size: 11px; text-align: center; padding: 10px; color: var(--text-medium); background: var(--bg-container);">
   <!-- ★★★ ここからが追加する部分 ★★★ -->
-  <p style="margin-bottom: 5px; font-weight: bold;">
-    Copyright &copy; 2025 (株)地圏総合コンサルタント All Rights Reserved.
-  </p>
-  <p style="margin-bottom: 15px; font-size: 11px; color: var(--text-medium);">
-    Developed by: Naoya.Onozato
+  <p style="margin-bottom: 15px; font-weight: bold;">
+    Copyright &copy; 2025 Naoya.Onozato. All Rights Reserved.
   </p>
   <!-- ★★★ ここまで ★★★ -->
 
@@ -1510,18 +1507,19 @@ body.dark-mode #btn-uncheck-all {
                     <div class="data-sync-checklist" id="data-sync-checklist">
                         <label><input type="checkbox" value="coordinateBookmarks"> ブックマーク</label>
                         <label><input type="checkbox" value="coordinateHistory"> 座標履歴</label>
-                        <label><input type="checkbox" value="favoriteSets"> お気に入りセット</label>
                         <label><input type="checkbox" value="myCustomLinks"> ⭐マイリンク</label>
+                        <label><input type="checkbox" value="favoriteSets"> お気に入りセット</label>
                         <label><input type="checkbox" value="geoLinkNaviSettings"> ⚙️各種設定</label>
                     </div>
-        <div class="data-sync-controls">
-            <button type="button" id="btn-check-all">✅ 全選択</button>
-            <button type="button" id="btn-uncheck-all">❌ 全解除</button>
-            <button type="button" id="btn-export-data">📤 書き出し</button>
-            <button type="button" id="btn-import-data">📥 読み込み</button>
-            <input type="file" id="import-file-input" accept=".json" style="display: none;">
-        </div>
-    </div>
+                <div class="data-sync-controls">
+                    <button type="button" id="btn-check-all">✅ 全選択</button>
+                    <button type="button" id="btn-uncheck-all">❌ 全解除</button>
+                    <button type="button" id="btn-export-data">📤 書き出し</button>
+                    <button type="button" id="btn-import-data">📥 読み込み</button>
+                    <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                </div>
+                </div>
+            </div>
             <!-- ▲▲▲ ここまでデータ管理機能のHTML ▲▲▲ -->
 
             <div class="modal-buttons">
@@ -1889,7 +1887,7 @@ function toggleUsage() { document.getElementById('usageGuide').classList.toggle(
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
 function getCombinedMapDefinitions() {
     const customLinks = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l);
-    const customMaps = customLinks.map(link => ({ ...link, category: 'mylink' }));
+    const customMaps = customLinks.map(link => ({ ...link, category: 'mylink', isCustom: true }));
     return [...MAP_DEFINITIONS, ...customMaps];
 }
 function renderMapCards() {
