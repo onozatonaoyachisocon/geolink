@@ -316,22 +316,20 @@ right: 0;
     position: absolute;
     top: 0;
     right: var(--panel-width, 500px);
-    width: 12px; /* ★ 幅を少し広げて掴みやすく */
+    width: 12px;
     height: 100%;
-    cursor: ew-resize; /* ★ 分かりやすいカーソルに変更 */
+    cursor: ew-resize;
     z-index: 1003;
     transform: translateX(50%);
     -webkit-user-drag: none;
     user-select: none;
-    transition: background-color 0.2s; /* ★ ホバー時の背景色変化を滑らかに */
+    transition: background-color 0.2s;
 }
 
-/* ★ マウスを乗せたときに背景色を付けて、領域を分かりやすくする */
 #resizer:hover {
     background-color: rgba(102, 126, 234, 0.2);
 }
 
-/* ★ 掴むための「取っ手」アイコン（縦の三点リーダー）を追加 */
 #resizer::before {
     content: '⋮';
     color: var(--primary-color);
@@ -341,11 +339,10 @@ right: 0;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    opacity: 0; /* ★ 普段は隠しておく */
+    opacity: 0;
     transition: opacity 0.2s;
 }
 
-/* ★ マウスを乗せたときに「取っ手」アイコンを表示 */
 #resizer:hover::before {
     opacity: 1;
 }
@@ -455,7 +452,6 @@ margin-top: 0;
     color: var(--text-medium) !important;
 }
 
-/* ★★★ 修正箇所1 (CSSセレクタをIDからクラスに変更) ★★★ */
 .btn-toggle-panel { background-color: var(--primary-color); }
 .btn-toggle-panel:hover:not(:disabled) {
     background-color: var(--secondary-color);
@@ -477,12 +473,11 @@ margin-top: 0;
 .btn-format-toggle { background-color: var(--btn-format-toggle-bg); color: var(--text-dark); font-size: 20px; }
 .btn-format-toggle:hover { background-color: var(--btn-format-toggle-hover-bg); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(149, 117, 205, 0.4); }
 
-/* ★★★ 修正箇所2 (ルート検索ボタンのスタイル) ★★★ */
 #btn-route-google { background-color: #4A89F3; }
 #btn-route-google:hover {
     background-color: #3C6ED9;
-    transform: translateY(-2px); /* 浮き上がる動作を追加 */
-    box-shadow: 0 4px 12px rgba(74, 137, 243, 0.4); /* 影を追加 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 137, 243, 0.4);
 }
 
 
@@ -669,6 +664,7 @@ font-size: 16px;
 .status-bar strong { color: var(--text-dark); }
 .notification { position: fixed; top: 20px; right: 20px; background: var(--success-color); color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: none; animation: slideIn 0.3s ease; z-index: 2000; font-weight: 600; }
 .notification.error { background: var(--error-color); }
+.notification.warning { background: #FFA000; color: white; }
 @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 #autocompleteList { position: absolute; top: 100%; left: 0; right: 0; background-color: var(--autocomplete-bg); border: 1px solid var(--autocomplete-border); border-radius: var(--radius-base); box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; z-index: 1001; list-style: none; padding: 5px 0; margin-top: 5px; display: none; }
@@ -873,12 +869,11 @@ body.dark-mode .btn-clear-checks:hover {
     display: none !important;
 }
 
-/* ▼▼▼ ここから修正・追加 ▼▼▼ */
 .modal-content {
     max-height: 90vh; 
     display: flex;
     flex-direction: column;
-    position: relative; /* 閉じるボタンの配置基準 */
+    position: relative;
 }
 
 .modal-close-btn {
@@ -908,10 +903,7 @@ body.dark-mode .btn-clear-checks:hover {
 .modal-content h3, .modal-buttons {
     flex-shrink: 0;
 }
-/* ▲▲▲ 修正・追加ここまで ▲▲▲ */
 
-
-/* ▼▼▼ ここから追加（データ管理機能のUI） ▼▼▼ */
 .data-sync-section h4 {
     margin-bottom: 5px;
 }
@@ -940,14 +932,13 @@ body.dark-mode .btn-clear-checks:hover {
     width: 16px;
     height: 16px;
 }
-/* ▼▼▼ こちらのCSSに置き換えてください ▼▼▼ */
 .data-sync-controls {
     display: flex;
     gap: 8px;
     margin-top: 10px;
 }
 .data-sync-controls button {
-    flex: 1; /* ボタンが均等に幅を分け合う */
+    flex: 1;
     padding: 8px 10px;
     font-size: 13px;
     font-weight: 600;
@@ -966,7 +957,6 @@ body.dark-mode .btn-clear-checks:hover {
     transform: translateY(-2px);
 }
 
-/* 各ボタンに個別の色を設定 */
 #btn-check-all {
     background-color: var(--btn-toggle-all);
 }
@@ -984,9 +974,6 @@ body.dark-mode #btn-uncheck-all {
 #btn-import-data {
     background-color: var(--success-color);
 }
-/* ▲▲▲ 置き換えここまで ▲▲▲ */
-/* ▲▲▲ ここまで追加 ▲▲▲ */
-
 
 @media (min-width: 1800px) {
     .left-panel {
@@ -1047,7 +1034,7 @@ body.dark-mode #btn-uncheck-all {
         top: 60px;     
     }
     .header h1 {
-        visibility: hidden; /* スマホではタイトルを見えなくする（スペースは残す） */
+        visibility: hidden;
     }
     .analysis-tools-overlay { bottom: 10px; }
     
@@ -1234,7 +1221,6 @@ body.dark-mode #btn-uncheck-all {
         <li>「🌐 KML保存」ボタンで、作成した図形をKMLファイルとして保存できます。</li>
         <li> 測定中に `BS` または `DEL` キーを押すと、最後に追加した点を取り消せます。</li>
     </ul>
-<!-- ▼▼▼ このブロックを「使い方ガイド」の一番最後に追加 ▼▼▼ -->
 <h4>■ データのバックアップと移行（書き出し／読み込み）</h4>
 <p>この機能を使うと、アプリ内に保存されているブックマーク、履歴、マイリンク、各種設定を一つのファイルとして書き出す（エクスポート）ことができます。このファイルを保管しておけば、PCの買い替え時や、別のブラウザで同じ環境を復元したい場合に便利です。また、他のユーザーと設定を共有することもできます。</p>
 <ul>
@@ -1257,7 +1243,6 @@ body.dark-mode #btn-uncheck-all {
         </ol>
     </li>
 </ul>
-<!-- ▲▲▲ 追加ここまで ▲▲▲ -->
 </div>
 </div>
 
@@ -1297,7 +1282,6 @@ body.dark-mode #btn-uncheck-all {
         <span class="input-button-label">ルート検索</span>
     </div>
     <div class="input-button-wrapper desktop-hidden">
-        <!-- ★★★ 修正箇所3 (HTML) ★★★ -->
         <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
         <span class="input-button-label">パネル</span>
     </div>
@@ -1336,7 +1320,6 @@ body.dark-mode #btn-uncheck-all {
                         <span class="input-button-label">ルート検索</span>
                     </div>
                     <div class="input-button-wrapper">
-                        <!-- ★★★ 修正箇所4 (HTML) ★★★ -->
                         <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
                         <span class="input-button-label">パネル</span>
                     </div>
@@ -1427,14 +1410,12 @@ body.dark-mode #btn-uncheck-all {
 </div>
 
 <div class="legal-notice" style="font-size: 11px; text-align: center; padding: 10px; color: var(--text-medium); background: var(--bg-container);">
-  <!-- ★★★ ここからが追加する部分 ★★★ -->
   <p style="margin-bottom: 5px; font-weight: bold;">
     Copyright &copy; 2025 (株)地圏総合コンサルタント All Rights Reserved.
   </p>
   <p style="margin-bottom: 15px; font-size: 11px; color: var(--text-medium);">
     Developed by: Naoya.Onozato
   </p>
-  <!-- ★★★ ここまで ★★★ -->
 
   本サービスの利用によって生じたいかなる損害についても、作成者は一切の責任を負いません。
   <br><br>
@@ -1481,9 +1462,7 @@ body.dark-mode #btn-uncheck-all {
 
 <div class="modal-overlay" id="settings-modal">
     <div class="modal-content">
-        <!-- ▼▼▼ ここから追加 ▼▼▼ -->
         <button type="button" class="modal-close-btn" onclick="closeSettingsModal()" title="閉じる">&times;</button>
-        <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
         <h3>⚙️ アプリケーション設定</h3>
         <form id="settings-form">
             <div class="modal-form-group">
@@ -1535,7 +1514,6 @@ body.dark-mode #btn-uncheck-all {
                 <small>起動時の地図のズームレベルを設定します。</small>
             </div>
 
-            <!-- ▼▼▼ ここからデータ管理機能のHTML ▼▼▼ -->
             <hr style="margin: 25px 0; border: none; border-top: 1px solid var(--border-color);">
 
             <div class="data-sync-section">
@@ -1560,7 +1538,6 @@ body.dark-mode #btn-uncheck-all {
                 </div>
                 </div>
             </div>
-            <!-- ▲▲▲ ここまでデータ管理機能のHTML ▲▲▲ -->
 
             <div class="modal-buttons">
                 <button type="button" class="btn-modal-cancel" id="btn-settings-modal-cancel">キャンセル</button>
@@ -1593,6 +1570,7 @@ function convertWgs84ToTokyo(lat, lon) {
     return { lat: newLat, lon: newLon };
   } catch (e) {
     console.error("座標変換に失敗しました:", e);
+    showNotification('日本測地系への座標変換に失敗しました。', 'warning');
     return { lat: lat, lon: lon };
   }
 }
@@ -1890,18 +1868,77 @@ function renderHistoryList(history) { $historyList.innerHTML = history.length ==
 function loadCoordinateFromHistory(item) { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(true); toggleHistoryPopup(false); showNotification(`履歴「${item.address}」を適用`); }
 function toggleHistoryPopup(open = true) { if (open && $historyPopup.style.display !== 'block') { renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]')); $historyPopup.style.display = 'block'; $bookmarkPopup.style.display = 'none'; } else { $historyPopup.style.display = 'none'; } }
 function clearHistory() { if (confirm('履歴を全削除しますか？')) { localStorage.removeItem('coordinateHistory'); renderHistoryList([]); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
-function exportHistoryToCSV() { const d = JSON.parse(localStorage.getItem('coordinateHistory')||'[]'); if(d.length>0) exportToCSV(d, 'coordinate_history'); else showNotification('履歴がありません', 'error'); }
-function saveCurrentAsBookmark() { const name = prompt('ブックマーク名を入力:', ''); if (name) { addBookmark(name, currentLatLon.lat, currentLatLon.lon, $zoom.value); showNotification(`「${name}」をブックマークしました`); renderBookmarkList(); } }
-function addBookmark(name, lat, lon, zoom) { let b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'); b.unshift({ name, lat: lat.toFixed(8), lon: lon.toFixed(8), zoom: parseInt(zoom, 10), timestamp: new Date().toISOString() }); localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b)); }
-function renderBookmarkList() { const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'); $bookmarkList.innerHTML = b.length === 0 ? '<p>ブックマークはありません。</p>' : b.map((item, index) => `<div class="bookmark-item" data-index="${index}"><strong>${item.name}</strong><span>${item.lat}°N, ${item.lon}°E | ${new Date(item.timestamp).toLocaleString()}</span><div class="bookmark-actions"><button class="btn-bookmark-load">適用</button><button class="btn-bookmark-open">地図</button><button class="btn-bookmark-delete">削除</button></div></div>`).join(''); }
+function exportHistoryToCSV() { const d = JSON.parse(localStorage.getItem('coordinateHistory')||'[]'); if(d.length>0) exportToCSV(d, '座標履歴'); else showNotification('履歴がありません', 'error'); }
+
+function saveCurrentAsBookmark() {
+    const name = prompt('ブックマーク名を入力:', '');
+    if (name) {
+        addBookmark(name, currentLatLon.lat, currentLatLon.lon, $zoom.value);
+        showNotification(`「${name}」をブックマークしました`);
+        renderBookmarkList();
+    }
+}
+function addBookmark(name, lat, lon, zoom) {
+    let b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
+    b.unshift({ name, lat: lat.toFixed(8), lon: lon.toFixed(8), zoom: parseInt(zoom, 10), timestamp: new Date().toISOString() });
+    localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b));
+}
+function renderBookmarkList() {
+    const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
+    $bookmarkList.innerHTML = b.length === 0 ? '<p>ブックマークはありません。</p>' : b.map((item, index) =>
+        `<div class="bookmark-item" data-index="${index}">
+            <strong>${escapeXml(item.name)}</strong>
+            <span>${item.lat}°N, ${item.lon}°E | ${new Date(item.timestamp).toLocaleString()}</span>
+            <div class="bookmark-actions">
+                <button class="btn-bookmark-load">適用</button>
+                <button class="btn-bookmark-open">地図</button>
+                <button class="btn-bookmark-delete">削除</button>
+            </div>
+        </div>`
+    ).join('');
+}
+
 function handleBookmarkAction(index, action) { const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), item = b[index]; if (!item) return; if (action === 'load') { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(true); toggleBookmarkPopup(false); showNotification(`「${item.name}」を適用`); } else if (action === 'open') { window.open(`https://maps.google.co.jp/maps?q=${item.lat},${item.lon}&z=${item.zoom}`, '_blank'); } else if (action === 'delete') { if (confirm(`「${item.name}」を削除しますか？`)) { b.splice(index, 1); localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b)); renderBookmarkList(); showNotification('削除しました'); } } }
 function toggleBookmarkPopup(open = true) { if (open && $bookmarkPopup.style.display !== 'block') { renderBookmarkList(); $bookmarkPopup.style.display = 'block'; $historyPopup.style.display = 'none'; } else { $bookmarkPopup.style.display = 'none'; } }
 function clearBookmarks() { if (confirm('ブックマークを全削除しますか？')) { localStorage.removeItem(BOOKMARK_KEY); renderBookmarkList([]); showNotification('ブックマークをクリアしました'); toggleBookmarkPopup(false); } }
 function exportBookmarksToCSV() { const d = JSON.parse(localStorage.getItem(BOOKMARK_KEY)||'[]'); if(d.length>0) exportToCSV(d, 'bookmarks_export'); else showNotification('ブックマークがありません', 'error'); }
-function exportToCSV(data, filename) { const headers = Object.keys(data[0]).join(','), rows = data.map(row => Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')), csv = `${headers}\n${rows.join('\n')}`, bom = new Uint8Array([0xef, 0xbb, 0xbf]), blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `${filename}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.csv`; a.click(); URL.revokeObjectURL(url); showNotification('CSVで書き出しました'); }
+
+function exportToCSV(data, filename) { 
+    const headers = Object.keys(data[0]).join(','), 
+          rows = data.map(row => Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')), 
+          csv = `${headers}\n${rows.join('\n')}`, 
+          bom = new Uint8Array([0xef, 0xbb, 0xbf]), 
+          blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' }), 
+          url = URL.createObjectURL(blob), a = document.createElement('a');
+    
+    const sanitizedFilename = filename.replace(/[^\w\s-]/gi, '_');
+    a.href = url; 
+    a.download = `${sanitizedFilename}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.csv`; 
+    a.click(); 
+    URL.revokeObjectURL(url); 
+    showNotification('CSVで書き出しました'); 
+}
+
+async function exportToKML(data, docName, filename) { 
+    if (data.length === 0) return showNotification('データがありません', 'error'); 
+    let placemarks = ''; 
+    for (const item of data) {
+        placemarks += `<Placemark><name>${escapeXml(item.name||item.address||'無題')}</name><Point><coordinates>${item.lon},${item.lat},0</coordinates></Point></Placemark>\n`; 
+    }
+    const kml = `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${docName}</name>${placemarks}</Document></kml>`, 
+          blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' }), 
+          url = URL.createObjectURL(blob), a = document.createElement('a'); 
+    
+    const sanitizedFilename = filename.replace(/[^\w\s-]/gi, '_');
+    a.href = url; 
+    a.download = `${sanitizedFilename}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.kml`; 
+    a.click(); 
+    URL.revokeObjectURL(url); 
+    showNotification('KMLで書き出しました'); 
+}
+
 async function exportHistoryToKML() { exportToKML(JSON.parse(localStorage.getItem('coordinateHistory') || '[]'), '座標履歴', 'coordinate_history'); }
 async function exportBookmarksToKML() { exportToKML(JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), '地点ブックマーク', 'bookmarks_export'); }
-async function exportToKML(data, docName, filename) { if (data.length === 0) return showNotification('データがありません', 'error'); let placemarks = ''; for (const item of data) placemarks += `<Placemark><name>${escapeXml(item.name||item.address||'無題')}</name><Point><coordinates>${item.lon},${item.lat},0</coordinates></Point></Placemark>\n`; const kml = `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${docName}</name>${placemarks}</Document></kml>`, blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `${filename}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.kml`; a.click(); URL.revokeObjectURL(url); showNotification('KMLで書き出しました'); }
 function escapeXml(unsafe) { return unsafe.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','\'':'&apos;','"':'&quot;'})[c]); }
 
 function toggleDarkMode() {
@@ -1988,7 +2025,7 @@ function createMapCard(map, catKey, categoryHeader) {
     card.dataset.category = catKey;
     card.dataset.mapId = map.id;
     card.onclick = e => !e.target.closest('.map-checkbox, .map-card-actions') && openMap(map);
-    card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${map.name}</div><input type="checkbox" class="map-checkbox" data-map-id="${map.id}"></div><div class="map-description">${map.desc || 'カスタムリンク'}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
+    card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${escapeXml(map.name)}</div><input type="checkbox" class="map-checkbox" data-map-id="${map.id}"></div><div class="map-description">${escapeXml(map.desc || 'カスタムリンク')}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
 
     const checkbox = card.querySelector('.map-checkbox');
 
@@ -2289,7 +2326,9 @@ function exportAnalysisToKML() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `analysis_export_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.kml`;
+    const filename = 'analysis_export';
+    const sanitizedFilename = filename.replace(/[^\w\s-]/gi, '_');
+    a.download = `${sanitizedFilename}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.kml`;
     a.click();
     URL.revokeObjectURL(url);
     showNotification('解析結果をKMLで書き出しました');
@@ -2313,8 +2352,75 @@ document.getElementById('mylink-desc').value = linkToEdit.desc;
 $mylinkModal.style.display = 'flex';
 }
 function closeMyLinkModal() { $mylinkModal.style.display = 'none'; }
-function saveMyLink(e) { e.preventDefault(); let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]'); const linkId = document.getElementById('mylink-id').value, newLink = { id: linkId || `mylink-${Date.now()}`, name: document.getElementById('mylink-name').value, url: document.getElementById('mylink-url').value, desc: document.getElementById('mylink-desc').value }; if (linkId) links = links.map(l => l.id === linkId ? newLink : l); else links.push(newLink); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); closeMyLinkModal(); showNotification('マイリンクを保存しました'); }
-function deleteMyLink(linkId) { if (confirm('このマイリンクを削除しますか？')) { let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l.id !== linkId); localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); renderMapCards(); showNotification('マイリンクを削除しました'); } }
+
+function validateCustomUrl(url) {
+    try {
+        const parsed = new URL(url.replace('{lat}', '0').replace('{lon}', '0').replace('{z}', '0'));
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+            throw new Error('無効なプロトコル');
+        }
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function saveMyLink(e) { 
+    e.preventDefault(); 
+    
+    const urlToSave = document.getElementById('mylink-url').value;
+    if (!validateCustomUrl(urlToSave)) {
+        showNotification('無効なURL形式です。http:またはhttps:で始まるURLを入力してください。', 'error');
+        return;
+    }
+
+    let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]'); 
+    const linkId = document.getElementById('mylink-id').value;
+    const newLink = { 
+        id: linkId || `mylink-${Date.now()}`, 
+        name: document.getElementById('mylink-name').value, 
+        url: urlToSave, 
+        desc: document.getElementById('mylink-desc').value 
+    }; 
+    
+    if (linkId) {
+        links = links.map(l => l.id === linkId ? newLink : l); 
+    } else {
+        links.push(newLink); 
+    }
+    
+    localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); 
+    renderMyLinkCategory();
+    closeMyLinkModal(); 
+    showNotification('マイリンクを保存しました'); 
+}
+
+function deleteMyLink(linkId) { 
+    if (confirm('このマイリンクを削除しますか？')) { 
+        let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l.id !== linkId); 
+        localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); 
+        renderMyLinkCategory();
+        showNotification('マイリンクを削除しました'); 
+    } 
+}
+
+function renderMyLinkCategory() {
+    const mylinkGrid = document.querySelector('.category[data-category-key="mylink"] .map-grid');
+    if (!mylinkGrid) return;
+
+    while (mylinkGrid.firstChild && !mylinkGrid.firstChild.classList.contains('btn-add-mylink')) {
+        mylinkGrid.removeChild(mylinkGrid.firstChild);
+    }
+
+    const customLinks = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l);
+    const mylinkCategoryHeader = mylinkGrid.previousElementSibling;
+
+    customLinks.forEach((link, index) => {
+        link.id = link.id || `mylink-${Date.now() + index}`;
+        const card = createMapCard(link, 'mylink', mylinkCategoryHeader);
+        mylinkGrid.insertBefore(card, mylinkGrid.querySelector('.btn-add-mylink'));
+    });
+}
 
 function getShareUrl() {
     const p = new URLSearchParams({ lat: currentLatLon.lat.toFixed(8), lon: currentLatLon.lon.toFixed(8), zoom: $zoom.value });
@@ -2389,7 +2495,7 @@ function loadFavoriteSets() {
     for (const setName in sets) {
         const option = document.createElement('option');
         option.value = setName;
-        option.textContent = setName;
+        option.textContent = escapeXml(setName);
         select.appendChild(option);
     }
 }
@@ -2586,11 +2692,6 @@ function updatePanelWidth(newWidth) {
     }
 }
 
-// ▼▼▼ ここからデータ管理機能のJavaScript関数 ▼▼▼
-
-/**
- * 選択されたデータをJSONファイルとしてエクスポートする
- */
 function exportData() {
     const checklist = document.getElementById('data-sync-checklist');
     const checkedItems = checklist.querySelectorAll('input[type="checkbox"]:checked');
@@ -2621,7 +2722,11 @@ function exportData() {
     const a = document.createElement('a');
     a.href = url;
     const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    a.download = `GeoLinkNavi_backup_${date}.json`;
+    
+    const filename = 'GeoLinkNavi_backup';
+    const sanitizedFilename = filename.replace(/[^\w\s-]/gi, '_');
+    a.download = `${sanitizedFilename}_${date}.json`;
+
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -2630,17 +2735,10 @@ function exportData() {
     showNotification('データをファイルに書き出しました。');
 }
 
-/**
- * ファイル選択ダイアログを開く
- */
 function importDataTrigger() {
     document.getElementById('import-file-input').click();
 }
 
-/**
- * 選択されたファイルを読み込み、データをインポートする
- * @param {Event} event ファイル選択イベント
- */
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) {
@@ -2652,7 +2750,7 @@ function handleFileSelect(event) {
 
     if (checkedItems.length === 0) {
         showNotification('読み込むデータを選択してください。', 'error');
-        event.target.value = ''; // ファイル選択をリセット
+        event.target.value = '';
         return;
     }
     const keysToImport = Array.from(checkedItems).map(item => item.value);
@@ -2681,14 +2779,11 @@ function handleFileSelect(event) {
             showNotification('ファイルの形式が正しくありません。', 'error');
             console.error('インポートエラー:', error);
         } finally {
-            event.target.value = ''; // 成功・失敗に関わらずファイル選択をリセット
+            event.target.value = '';
         }
     };
     reader.readAsText(file);
 }
-
-// ▲▲▲ ここまでデータ管理機能のJavaScript関数 ▲▲▲
-
 
 document.addEventListener('DOMContentLoaded', () => {
 loadSettings();
@@ -2867,28 +2962,20 @@ function handleUndoLastPoint(e) {
 }
 document.addEventListener('keydown', handleUndoLastPoint);
 
-// ▼▼▼ ここからデータ管理機能のイベントリスナー（修正版） ▼▼▼
-    
-// データ管理機能のイベントリスナー
 document.getElementById('btn-export-data').addEventListener('click', exportData);
 document.getElementById('btn-import-data').addEventListener('click', importDataTrigger);
 document.getElementById('import-file-input').addEventListener('change', handleFileSelect);
 
-// すべて選択ボタン
 document.getElementById('btn-check-all').addEventListener('click', () => {
     const checkboxes = document.querySelectorAll('#data-sync-checklist input[type="checkbox"]');
     checkboxes.forEach(cb => cb.checked = true);
 });
 
-// すべて解除ボタン
 document.getElementById('btn-uncheck-all').addEventListener('click', () => {
     const checkboxes = document.querySelectorAll('#data-sync-checklist input[type="checkbox"]');
     checkboxes.forEach(cb => cb.checked = false);
 });
 
-// ▲▲▲ ここまで ▲▲▲
-
-// ▼▼▼ ここから修正（ルート検索機能） ▼▼▼
 document.querySelectorAll('#btn-route-google').forEach(button => {
     button.addEventListener('click', () => {
         const { lat, lon } = currentLatLon;
@@ -2897,7 +2984,6 @@ document.querySelectorAll('#btn-route-google').forEach(button => {
         window.open(url, '_blank');
     });
 });
-// ▲▲▲ 修正ここまで ▲▲▲
 
 window.addEventListener('resize', () => {
 if (osmMap) {
