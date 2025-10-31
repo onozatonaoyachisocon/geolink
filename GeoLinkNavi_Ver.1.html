@@ -775,13 +775,13 @@ color: var(--text-dark);
 .bulk-toggle-container button:hover:not(:disabled) {
     background-color: var(--border-color);
 }
-#pinPanelBtn {
+#pinPanelBtn, #closePanelBtnMobile {
     background-color: var(--btn-pin-bg);
     color: white;
     border-color: transparent;
     flex-grow: 0.5;
 }
-#pinPanelBtn:hover:not(:disabled) {
+#pinPanelBtn:hover:not(:disabled), #closePanelBtnMobile:hover:not(:disabled) {
     background-color: var(--btn-pin-hover-bg);
 }
 #pinPanelBtn.pinned {
@@ -1398,7 +1398,8 @@ body.dark-mode #btn-uncheck-all {
         <div class="right-panel-header">
             <div class="bulk-toggle-container">
                 <button id="toggleAllCategoriesBtn">➖ すべて折りたたみ</button>
-                <button id="pinPanelBtn" onclick="togglePinPanel()">📌 ピン留め</button>
+                <button id="pinPanelBtn" onclick="togglePinPanel()" class="mobile-hidden">📌 ピン留め</button>
+                <button id="closePanelBtnMobile" onclick="toggleRightPanel()" class="desktop-hidden">▶ 閉じる</button>
             </div>
             <div class="favorite-sets-container">
                 <div class="favorite-set-row">
