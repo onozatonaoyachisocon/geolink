@@ -1842,26 +1842,30 @@ function saveSettings(e) {
 
 function showNotification(message, type = 'success') { $notification.textContent = message; $notification.className = `notification ${type}`; $notification.style.display = 'block'; setTimeout(() => $notification.style.display = 'none', 3000); }
 
+// ★★★ START: MODIFIED FUNCTION ★★★
 async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fromNav = false) {
     let latNum, lonNum;
     try {
-        // newCoordsが引数として渡された場合は、その値を優先して使用する
         if (newCoords && typeof newCoords.lat === 'number' && typeof newCoords.lon === 'number') {
             latNum = newCoords.lat;
             lonNum = newCoords.lon;
-        } else { 
-            // 引数がなければ、従来通りテキストボックスから値を読み取る
-            if (isDMSFormat) { latNum = dmsToDecimal($lat.value); lonNum = dmsToDecimal($lon.value); }
-            else { latNum = parseFloat($lat.value); lonNum = parseFloat($lon.value); }
+        } else {
+            if (isDMSFormat) {
+                latNum = dmsToDecimal($lat.value);
+                lonNum = dmsToDecimal($lon.value);
+            } else {
+                latNum = parseFloat($lat.value);
+                lonNum = parseFloat($lon.value);
+            }
         }
         if (isNaN(latNum) || isNaN(lonNum)) throw new Error("Invalid number");
-    } catch (e) { 
+    } catch (e) {
         console.error("座標の解析に失敗しました:", e);
-        return; 
+        return;
     }
 
     const zoomNum = parseInt($zoom.value, 10);
-    if (latNum>=-90&&latNum<=90&&lonNum>=-180&&lonNum<=180) {
+    if (latNum >= -90 && latNum <= 90 && lonNum >= -180 && lonNum <= 180) {
         currentLatLon = { lat: latNum, lon: lonNum };
         $coordsDisplay.textContent = `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
         $currentZoom.textContent = zoomNum;
@@ -1878,16 +1882,38 @@ async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fr
             }
             historyIndex = navigationHistory.length - 1;
         }
+        
+        showNotification('住所と標高を取得中...', 'warning');
+        const [addressInfo, elevation] = await Promise.all([
+            getAddressFromCoords(latNum, lonNum),
+            getElevationFromCoords(latNum, lonNum)
+        ]);
+
+        const popupContent = `
+            <div style="font-size: 13px; line-height: 1.6;">
+                <strong>郵便番号:</strong> ${escapeXml(addressInfo.postcode || '---')}<br>
+                <strong>住所:</strong> ${escapeXml(addressInfo.structured || '---')}<br>
+                <strong>緯度:</strong> ${latNum.toFixed(6)}<br>
+                <strong>経度:</strong> ${lonNum.toFixed(6)}<br>
+                <strong>標高:</strong> ${elevation !== '---' ? `${elevation} m` : '---'}
+            </div>
+        `;
+        if (osmMarker) {
+            osmMarker.setPopupContent(popupContent).openPopup();
+        }
 
         if (!skipHistorySave) {
-            showNotification('住所と標高を取得中...', 'warning');
-            await saveCoordinateToHistory(latNum, lonNum, zoomNum);
+            await addCoordinateToHistory(latNum, lonNum, zoomNum, addressInfo, elevation);
+        } else {
+            showNotification('座標を更新しました');
         }
+        
         updateNavButtons();
     }
 }
+// ★★★ END: MODIFIED FUNCTION ★★★
 
-async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(true); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
+async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
 
 function updateMapPreview(lat, lon, zoom) {
     const currentZoom = zoom || parseInt($zoom.value, 10);
@@ -1912,94 +1938,97 @@ function toggleMainMap() {
     }
 }
 
+// ★★★ START: MODIFIED FUNCTION ★★★
 function initOSMClickMap(lat, lon, zoom) {
-const latlng = [lat, lon];
-if (osmMap === null) {
-osmMap = L.map('osmClickMap', { fullscreenControl: { title: { 'false': '全画面', 'true': '通常表示' } } }).setView(latlng, zoom);
+    const latlng = [lat, lon];
+    if (osmMap === null) {
+        osmMap = L.map('osmClickMap', { fullscreenControl: { title: { 'false': '全画面', 'true': '通常表示' } } }).setView(latlng, zoom);
 
-if (L.control.currentLocation) {
-    L.control.currentLocation({ position: 'topleft' }).addTo(osmMap); 
-}
-L.control.scale({ imperial: false }).addTo(osmMap);
+        if (L.control.currentLocation) {
+            L.control.currentLocation({ position: 'topleft' }).addTo(osmMap);
+        }
+        L.control.scale({ imperial: false }).addTo(osmMap);
 
-setupAnalysisTools();
-const baseMaps = {};
-for(const key in BASE_LAYERS) {
-    const config = BASE_LAYERS[key];
-    config.layer = L.tileLayer(config.url, { maxZoom: config.maxZoom || 19, attribution: config.attribution });
-    baseMaps[config.name] = config.layer;
-}
-L.control.layers(baseMaps).addTo(osmMap);
+        setupAnalysisTools();
+        const baseMaps = {};
+        for(const key in BASE_LAYERS) {
+            const config = BASE_LAYERS[key];
+            config.layer = L.tileLayer(config.url, { maxZoom: config.maxZoom || 19, attribution: config.attribution });
+            baseMaps[config.name] = config.layer;
+        }
+        L.control.layers(baseMaps).addTo(osmMap);
 
-const defaultLayerKey = currentSettings.defaultLayer || 'gsi_std';
-BASE_LAYERS[defaultLayerKey].layer.addTo(osmMap);
-osmMap.setMaxZoom(BASE_LAYERS[defaultLayerKey].maxZoom);
+        const defaultLayerKey = currentSettings.defaultLayer || 'gsi_std';
+        BASE_LAYERS[defaultLayerKey].layer.addTo(osmMap);
+        osmMap.setMaxZoom(BASE_LAYERS[defaultLayerKey].maxZoom);
 
-osmMap.on('baselayerchange', e => {
-    for (const key in BASE_LAYERS) {
-        if (BASE_LAYERS[key].name === e.name) {
-            const newMaxZoom = BASE_LAYERS[key].maxZoom;
-            osmMap.setMaxZoom(newMaxZoom);
-            if (osmMap.getZoom() > newMaxZoom) {
-                osmMap.setZoom(newMaxZoom);
+        osmMap.on('baselayerchange', e => {
+            for (const key in BASE_LAYERS) {
+                if (BASE_LAYERS[key].name === e.name) {
+                    const newMaxZoom = BASE_LAYERS[key].maxZoom;
+                    osmMap.setMaxZoom(newMaxZoom);
+                    if (osmMap.getZoom() > newMaxZoom) {
+                        osmMap.setZoom(newMaxZoom);
+                    }
+                    break;
+                }
             }
-            break;
+        });
+
+        osmMap.on('zoomend', () => {
+            const newZoom = osmMap.getZoom();
+            if (newZoom !== parseInt($zoom.value, 10)) {
+                $zoom.value = newZoom;
+                $zoomDisplay.textContent = newZoom;
+                updateMapPreview(currentLatLon.lat, currentLatLon.lon, newZoom);
+                $currentZoom.textContent = newZoom;
+            }
+        });
+        osmMap.on('click', async e => {
+            if (isMeasuring) return handleMeasureClick(e);
+            if (isMeasuringArea) return handleAreaMeasureClick(e);
+            updateLatLonInputs(e.latlng.lat, e.latlng.lng);
+            await updateCurrentCoords();
+        });
+        osmMap.on('dblclick', e => {
+            if (isMeasuring) return handleMeasureDoubleClick(e);
+            if (isMeasuringArea) return handleAreaMeasureDoubleClick(e);
+        });
+        osmMap.on('mousemove', e => { if (isMeasuring) handleMeasureMouseMove(e); });
+
+        // Bind a popup to the marker
+        osmMarker = L.marker(latlng).addTo(osmMap)
+                       .bindPopup("情報を読み込み中...");
+
+        const zoomSliderOverlay = document.querySelector('.zoom-slider-overlay');
+        if (zoomSliderOverlay) {
+            L.DomEvent.disableClickPropagation(zoomSliderOverlay);
+            L.DomEvent.disableScrollPropagation(zoomSliderOverlay);
+        }
+        if (typeof L.Control.Gpx === 'function') {
+            new L.Control.Gpx(null, {
+                async: true,
+                marker_options: {
+                    startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-icon-start.png',
+                    endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-icon-end.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-shadow.png'
+                }
+            }).on('loaded', function(e) {
+                osmMap.fitBounds(e.target.getBounds());
+                analysisLayer.addLayer(e.target);
+            }).addTo(osmMap);
         }
     }
-});
+    osmMap.setView(latlng, zoom);
+    osmMarker.setLatLng(latlng);
+    osmMap.invalidateSize();
 
-osmMap.on('zoomend', () => {
-    const newZoom = osmMap.getZoom();
-    if (newZoom !== parseInt($zoom.value, 10)) {
-        $zoom.value = newZoom;
-        $zoomDisplay.textContent = newZoom;
-        updateMapPreview(currentLatLon.lat, currentLatLon.lon, newZoom);
-        $currentZoom.textContent = newZoom;
+    if (isFirstMapLoad) {
+        isFirstMapLoad = false;
+        applyInitialPanelState();
     }
-});
-osmMap.on('click', async e => {
-if (isMeasuring) return handleMeasureClick(e);
-if (isMeasuringArea) return handleAreaMeasureClick(e);
-updateLatLonInputs(e.latlng.lat, e.latlng.lng);
-await updateCurrentCoords();
-showNotification('クリック地点の座標を設定しました');
-});
-osmMap.on('dblclick', e => {
-if (isMeasuring) return handleMeasureDoubleClick(e);
-if (isMeasuringArea) return handleAreaMeasureDoubleClick(e);
-});
-osmMap.on('mousemove', e => { if (isMeasuring) handleMeasureMouseMove(e); });
-osmMarker = L.marker(latlng).addTo(osmMap);
-
-const zoomSliderOverlay = document.querySelector('.zoom-slider-overlay');
-if (zoomSliderOverlay) {
-    L.DomEvent.disableClickPropagation(zoomSliderOverlay);
-    L.DomEvent.disableScrollPropagation(zoomSliderOverlay);
 }
-
-if (typeof L.Control.Gpx === 'function') {
-    new L.Control.Gpx(null, {
-        async: true,
-        marker_options: {
-            startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-icon-start.png',
-            endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-icon-end.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-shadow.png'
-        }
-    }).on('loaded', function(e) {
-        osmMap.fitBounds(e.target.getBounds());
-        analysisLayer.addLayer(e.target);
-    }).addTo(osmMap);
-}
-}
-osmMap.setView(latlng, zoom);
-osmMarker.setLatLng(latlng);
-osmMap.invalidateSize();
-
-if (isFirstMapLoad) {
-    isFirstMapLoad = false;
-    applyInitialPanelState();
-}
-}
+// ★★★ END: MODIFIED FUNCTION ★★★
 
 function applyInitialPanelState() {
     if (window.innerWidth <= 1024) return;
@@ -2069,12 +2098,10 @@ async function getElevationFromCoords(lat, lon) {
   }
 }
 
-async function saveCoordinateToHistory(lat, lon, zoom) {
+// ★★★ START: MODIFIED FUNCTION ★★★
+// Renamed from saveCoordinateToHistory and changed arguments
+async function addCoordinateToHistory(lat, lon, zoom, addressInfo, elevation) {
     let history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
-    const [addressInfo, elevation] = await Promise.all([
-        getAddressFromCoords(lat, lon),
-        getElevationFromCoords(lat, lon)
-    ]);
     
     const newEntry = {
         lat: lat.toFixed(8),
@@ -2089,13 +2116,12 @@ async function saveCoordinateToHistory(lat, lon, zoom) {
     if (history.length === 0 || (history[0].lat !== newEntry.lat || history[0].lon !== newEntry.lon)) {
         history.unshift(newEntry);
         localStorage.setItem('coordinateHistory', JSON.stringify(history.slice(0, MAX_HISTORY)));
-        renderHistoryList(history); // 従来のポップアップ用
-        renderHistoryTable(); // 新しいテーブル用
+        renderHistoryList(history);
+        renderHistoryTable();
     }
     showNotification('座標履歴を追加しました');
 }
-// ▲▲▲ ここまで新規・変更 ▲▲▲
-
+// ★★★ END: MODIFIED FUNCTION ★★★
 
 async function getCoordsFromAddress(address) {
   try {
@@ -2163,7 +2189,7 @@ async function getCoordsFromPostalCode(postalCode) {
   }
 }
 function renderHistoryList(history) { $historyList.innerHTML = history.length === 0 ? '<p>履歴はありません。</p>' : history.map((item, index) => `<div class="history-item" data-index="${index}"><strong>${index + 1}. ${item.address}</strong><span>座標: ${item.lat}°N, ${item.lon}°E | ${new Date(item.timestamp).toLocaleString()}</span></div>`).join(''); }
-function loadCoordinateFromHistory(item) { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(true); toggleHistoryPopup(false); showNotification(`履歴「${item.address}」を適用`); }
+function loadCoordinateFromHistory(item) { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(item, true); toggleHistoryPopup(false); showNotification(`履歴「${item.address}」を適用`); }
 function toggleHistoryPopup(open = true) { if (open && $historyPopup.style.display !== 'block') { renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]')); $historyPopup.style.display = 'block'; $bookmarkPopup.style.display = 'none'; } else { $historyPopup.style.display = 'none'; } }
 function clearHistory() { if (confirm('履歴を全削除しますか？')) { localStorage.removeItem('coordinateHistory'); renderHistoryList([]); renderHistoryTable(); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
 function exportHistoryToCSV() { const d = JSON.parse(localStorage.getItem('coordinateHistory')||'[]'); if(d.length>0) exportToCSV(d, '座標履歴'); else showNotification('履歴がありません', 'error'); }
@@ -2196,7 +2222,7 @@ function renderBookmarkList() {
     ).join('');
 }
 
-function handleBookmarkAction(index, action) { const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), item = b[index]; if (!item) return; if (action === 'load') { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(true); toggleBookmarkPopup(false); showNotification(`「${item.name}」を適用`); } else if (action === 'open') { window.open(`https://maps.google.co.jp/maps?q=${item.lat},${item.lon}&z=${item.zoom}`, '_blank'); } else if (action === 'delete') { if (confirm(`「${item.name}」を削除しますか？`)) { b.splice(index, 1); localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b)); renderBookmarkList(); showNotification('削除しました'); } } }
+function handleBookmarkAction(index, action) { const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), item = b[index]; if (!item) return; if (action === 'load') { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords({lat: parseFloat(item.lat), lon: parseFloat(item.lon)}, true); toggleBookmarkPopup(false); showNotification(`「${item.name}」を適用`); } else if (action === 'open') { window.open(`https://maps.google.co.jp/maps?q=${item.lat},${item.lon}&z=${item.zoom}`, '_blank'); } else if (action === 'delete') { if (confirm(`「${item.name}」を削除しますか？`)) { b.splice(index, 1); localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b)); renderBookmarkList(); showNotification('削除しました'); } } }
 function toggleBookmarkPopup(open = true) { if (open && $bookmarkPopup.style.display !== 'block') { renderBookmarkList(); $bookmarkPopup.style.display = 'block'; $historyPopup.style.display = 'none'; } else { $bookmarkPopup.style.display = 'none'; } }
 function clearBookmarks() { if (confirm('ブックマークを全削除しますか？')) { localStorage.removeItem(BOOKMARK_KEY); renderBookmarkList([]); showNotification('ブックマークをクリアしました'); toggleBookmarkPopup(false); } }
 function exportBookmarksToCSV() { const d = JSON.parse(localStorage.getItem(BOOKMARK_KEY)||'[]'); if(d.length>0) exportToCSV(d, 'bookmarks_export'); else showNotification('ブックマークがありません', 'error'); }
@@ -3242,7 +3268,7 @@ function handleHistoryTableClick(e) {
         // 行クリックで地図移動
         updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon));
         $zoom.value = item.zoom;
-        updateCurrentCoords(true, true);
+        updateCurrentCoords({lat: parseFloat(item.lat), lon: parseFloat(item.lon)}, true);
         showNotification(`履歴No.${historyIndex + 1}の座標に移動しました。`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -3334,9 +3360,9 @@ const today = new Date();
 document.getElementById('lastUpdated').textContent = `最終更新日: ${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
 
 if (applyStateFromUrl()) {
-    updateCurrentCoords(true, true);
+    updateCurrentCoords(null, true, true);
 } else {
-    updateCurrentCoords(true, true);
+    updateCurrentCoords(null, true, true);
     initGeolocation();
 }
 $lat.addEventListener('change', () => updateCurrentCoords());
@@ -3387,7 +3413,7 @@ document.getElementById('navBack').addEventListener('click', () => {
         const state = navigationHistory[historyIndex];
         updateLatLonInputs(state.lat, state.lon);
         $zoom.value = state.zoom;
-        updateCurrentCoords(true, true);
+        updateCurrentCoords(state, true, true);
     }
 });
 
@@ -3397,7 +3423,7 @@ document.getElementById('navForward').addEventListener('click', () => {
         const state = navigationHistory[historyIndex];
         updateLatLonInputs(state.lat, state.lon);
         $zoom.value = state.zoom;
-        updateCurrentCoords(true, true);
+        updateCurrentCoords(state, true, true);
     }
 });
 
