@@ -289,6 +289,7 @@ right: 0;
     gap: 10px;
     padding: 10px;
     transition: width 0.4s ease-in-out;
+    overflow-y: auto;
 }
 
 .right-panel {
@@ -375,6 +376,7 @@ border-radius: var(--radius-base);
 box-shadow: var(--shadow-hover);
 border: 1px solid var(--border-color);
 margin-top: 0;
+flex-shrink: 0;
 }
 
 .input-row {
@@ -984,6 +986,125 @@ body.dark-mode #btn-uncheck-all {
     background-color: var(--success-color);
 }
 
+
+/* --- ここから履歴テーブル用のスタイル --- */
+.history-table-container {
+    background: var(--bg-container);
+    padding: 15px;
+    border-radius: var(--radius-base);
+    box-shadow: var(--shadow-hover);
+    border: 1px solid var(--border-color);
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+.history-table-container h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: var(--text-dark);
+}
+.history-table-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.history-table-controls input[type="search"] {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+    min-width: 150px;
+}
+.history-table-controls button {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    border-color: var(--border-color);
+}
+.history-table-controls button:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+.history-table-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.history-table-wrapper {
+    overflow: auto;
+    flex-grow: 1;
+    max-height: 400px; /* ★★★ この数値を変更すると、一覧表の高さを調整できます ★★★ */
+}
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.history-table th, .history-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+.history-table th {
+    font-weight: 700;
+    background-color: var(--bg-light);
+    position: sticky;
+    top: 0;
+}
+.history-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+.history-table th.sortable:hover {
+    background-color: var(--border-color);
+}
+.history-table th .sort-icon {
+    margin-left: 5px;
+    opacity: 0.5;
+}
+.history-table th.sorted .sort-icon {
+    opacity: 1;
+}
+.history-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.history-table tbody tr:hover {
+    background-color: var(--bg-light);
+}
+.history-table td.actions-cell {
+    text-align: center;
+}
+.history-table .btn-action {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    margin: 0 2px;
+    color: var(--text-medium);
+}
+.history-table .btn-action:hover {
+    color: var(--primary-color);
+}
+.history-table .btn-action.delete:hover {
+    color: var(--error-color);
+}
+/* --- ここまで履歴テーブル用のスタイル --- */
+
 @media (min-width: 1800px) {
     .left-panel {
         flex: 5;
@@ -1183,11 +1304,11 @@ body.dark-mode #btn-uncheck-all {
     <ul> 
        <li><strong>地図クリック:</strong> 左側の「🗺️クリックで座標取得」地図上で場所をクリックすると、その地点の緯度・経度が自動で入力されます。</li>
         <li><strong>プレビュー地図の操作:</strong>
-            <ul>
-                <li>地図の全画面表示と解除は、地図右上のボタンまたは `ESC` キーで行います。</li>
-                <li>地図右上の「🎯」ボタンで、現在地を表示できます。</li>
-                <li>地図の右下にあるスライダーで、ズームレベルを直感的に変更できます。</li>
+            <ul>          
+<li>地図の全画面表示と解除は、地図左上のボタンまたは `ESC` キーで行います。</li>
+                <li>地図左上の「🎯」ボタンで、現在地を表示できます。</li>
                 <li>地図右上のレイヤー切り替えボタンで、OpenStreetMapと地理院地図を切り替えられます。</li>
+                <li>地図の右下にあるスライダーで、ズームレベルを直感的に変更できます。</li> 
             </ul>
         </li>
        <li><strong>現在地取得:</strong> 「📍現在地」ボタンで、お使いのデバイスの位置情報を利用して座標を取得します。（ブラウザの許可が必要な場合があります）</li>
@@ -1313,12 +1434,12 @@ body.dark-mode #btn-uncheck-all {
                     <span class="input-field-label">📍 経度 (Longitude)</span>
                 </div>
                 <div class="input-group address-group">
-                    <label for="addressInput">🏠 住所や名称などから検索</label>
+                    <label for="addressInput">🏠 住所,名称,郵便番号などから検索</label>
                     <div class="input-wrapper">
                         <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1">
                         <div id="autocompleteList" class="autocomplete-list"></div>
                     </div>
-                    <span class="input-field-label">🏠 住所や名称など</span>
+                    <span class="input-field-label">🏠 住所,名称,郵便番号など</span>
                 </div>
 <div class="input-row-bottom-buttons mobile-hidden">
                     <div class="input-button-wrapper">
@@ -1388,9 +1509,42 @@ body.dark-mode #btn-uncheck-all {
                 <span class="preview-header-icon">▼</span>
             </div>
             <div class="map-preview-wrapper">
-                <iframe id="mapPreview" width="100%" height="600" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
+                <iframe id="mapPreview" width="100%" height="400" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
             </div>
         </div>
+
+        <!-- ▼▼▼ ここから新規追加 ▼▼▼ -->
+        <div class="history-table-container" id="historyTableContainer">
+            <h3>⏱️ 座標履歴一覧</h3>
+            <div class="history-table-controls">
+                <input type="search" id="historySearchInput" placeholder="住所などで履歴を検索...">
+                <button id="btn-copy-table" title="表示中のテーブル全体をExcel等に貼り付けられる形式でコピーします">📋 テーブルコピー</button>
+                <button id="btn-copy-selected" disabled>📋 選択をコピー</button>
+                <button id="btn-delete-selected" disabled>🗑️ 選択を削除</button>
+            </div>
+            <div class="history-table-wrapper">
+                <table class="history-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="history-select-all"></th>
+                            <th class="sortable" data-sort="no">No. <span class="sort-icon"></span></th>
+                            <th class="sortable" data-sort="postcode">郵便番号 <span class="sort-icon"></span></th>
+                            <th class="sortable" data-sort="address">住所 <span class="sort-icon"></span></th>
+                            <th class="sortable" data-sort="lat">緯度 <span class="sort-icon"></span></th>
+                            <th class="sortable" data-sort="lon">経度 <span class="sort-icon"></span></th>
+                            <th class="sortable" data-sort="elevation">標高(m) <span class="sort-icon"></span></th>
+                            <th class="sortable sorted" data-sort="timestamp">取得日時 <span class="sort-icon">▼</span></th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- 履歴データがここに動的に挿入されます -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- ▲▲▲ ここまで新規追加 ▲▲▲ -->
+
     </div>
     
     <div id="resizer"></div>
@@ -1599,7 +1753,7 @@ const BASE_LAYERS = {
     'gsi_relief': { name: '地理院地図（色別標高図）', url: 'https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png', attribution: '© 国土地理院', layer: null, maxZoom: 15 }
 };
 
-const MAP_DEFINITIONS = [ { id: 'gsi_std', name: '地理院地図', desc: '国土地理院の基本地図。標高、地形、土地利用など', category: 'terrain', icon: '🗺️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c0g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'gsi_time', name: '地理院時系列', desc: '過去から現在までの地図を時系列で比較', category: 'terrain', icon: '⏳', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&ls=gsi-compare-photo&lcd=gsi-compare-photo&vs=c0j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'gsi_flood', name: '治水地形分類図', desc: '河川周辺の地形特性と洪水リスクを把握', category: 'terrain', icon: '🖼️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=lcmfc2%2C0.8%7Chillshademap&blend=01&disp=111&lcd=hillshademap&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'google_maps', name: 'Googleマップ', desc: 'ストリートビューや経路検索も可能', category: 'terrain', icon: '📍', noCoords: false, url: (lat, lon) => `https://maps.google.co.jp/maps?q=${lat},${lon}` }, { id: 'google_earth', name: 'Google Earth', desc: '3D地形と衛星画像で地表を詳細に確認', category: 'terrain', icon: '🌍', noCoords: false, url: (lat, lon, zoom) => `https://earth.google.com/web/@${lat},${lon},0a,${Math.round(300000*Math.pow(0.5,(parseInt(zoom,10)-1)/3))}d,0y,0h` }, { id: 'konjaku', name: '今昔マップ', desc: '明治から現代までの地形図を並べて表示', category: 'terrain', icon: '📜', noCoords: false, url: (lat, lon, zoom) => `https://ktgis.net/kjmapw/kjmapw.html?lat=${lat}&lng=${lon}&zoom=${zoom}&dataset=&age=3&screen=2&scr1tile=k_cj4&scr2tile=k_cj4&scr3tile=k_cj4&mapOpacity=10&overGSItile=no&altitudeOpacity=2` }, { id: 'gsi_photos', name: '地図・空中写真閲覧', desc: '過去の空中写真を閲覧', category: 'terrain', icon: '📷', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/map-photos/app/map?search=photo#${zoom}/${lat}/${lon}` }, { id: 'geonavi', name: '地質図Navi', desc: '日本全国の地質情報を詳細に表示', category: 'geology', icon: '⛏️', noCoords: false, url: (lat, lon, zoom) => `https://gbank.gsj.jp/geonavi/geonavi.php#${zoom},${lat},${lon}` }, { id: 'gsi_landslide', name: '地すべり地形分布図', desc: '国土地理院が提供する地すべり地形の分布図', category: 'geology', icon: '⛰️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std%7Clandslide%2C0.75&blend=0&disp=11&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'kunijiban', name: '国土地盤情報 KuniJiban', desc: 'ボーリングデータなど地盤情報を検索', category: 'geology', icon: '📊', noCoords: true, url: () => `https://www.kunijiban.pwri.go.jp/viewer/` }, { id: 'ngic', name: '国土地盤情報センター', desc: '全国の地盤情報データベース', category: 'geology', icon: '📈', noCoords: true, url: () => `https://publicweb.ngic.or.jp/viewer/` }, { id: 'geo_station', name: 'ジオ・ステーション', desc: '地質・地盤情報の統合プラットフォーム。開いた後に位置を検索してください', category: 'geology', icon: '🧭', noCoords: true, url: () => `https://www.geo-stn.bosai.go.jp/mapping_page.html` }, { id: 'gsj_activefault', name: '活断層データベース', desc: '産業技術総合研究所が提供する活断層の情報。開いた後に位置を検索してください', category: 'geology', icon: '〰️', noCoords: true, url: () => `https://gbank.gsj.jp/activefault/cgi/tyousati` }, { id: 'tokyo_jiban', name: '東京の地盤（GIS）', desc: '東京都内の詳細な地盤データ。開いた後に位置を検索してください', category: 'geology', icon: '🏢', noCoords: true, url: () => `https://doboku.metro.tokyo.lg.jp/start/03-jyouhou/geo-web/geo-webmap.aspx` }, { id: 'hazard_map', name: '重ねるハザードマップ', desc: '洪水、土砂災害、津波などの危険区域を表示', category: 'disaster', icon: '🚨', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=tameike_raster%2C0.75%7Cflood_list_l2%2C0.75%7Cdisaster1&disp=110&vs=c1j0l0u0` }, { id: 'hazard_flood_topo', name: 'ハザードマップ（治水地形分類図）', desc: '治水地形分類図とハザード情報の重ね合わせ', category: 'disaster', icon: '🚫', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=hillshademap%7CLCMFC02&disp=11&vs=c1j0l0u0t0h0z0` }, { id: 'river_bousai', name: '川の防災情報', desc: 'リアルタイムの河川水位と雨量情報', category: 'disaster', icon: '💧', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `https://www.river.go.jp/kawabou/pc/ov?zm=${zoom}&fld=0&clat=${lat}&clon=${lon}&mapType=0&viewGrpStg=0&viewRd=1&viewRW=1&viewRiver=1&viewPoint=1`;} }, { id: 'jma_warnings', name: '気象警報・注意報', desc: '気象庁が発表する警報・注意報を地図で確認', category: 'disaster', icon: '📢', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/map.html#${zoom}/${lat}/${lon}/&elem=all&contents=warning` }, { id: 'kikikuru', name: 'キキクル（危険度分布）', desc: '土砂災害・浸水・洪水の危険度をリアルタイム表示', category: 'disaster', icon: '⛈️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/risk/#zoom:${zoom}/lat:${lat}/lon:${lon}/colordepth:deep/elements:land` }, { id: 'jma_nowcast', name: '高解像度降水ナウキャスト', desc: '気象庁が提供するリアルタイムの降水予報', category: 'disaster', icon: '🌧️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/nowc/#lat:${lat}/lon:${lon}/zoom:${zoom}/colordepth:normal/elements:hrpns&slmcs&slmcs_fcst` }, { id: 'kijunten', name: '基準点閲覧サービス', desc: '三角点・水準点などの基準点情報', category: 'survey', icon: '📏', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/kijunten/app/map/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c1z0f0` }, { id: 'suimon_suisitsu', name: '水文水質データベース', desc: '河川の水位・流量・水質データ', category: 'survey', icon: '🔬', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `http://www1.river.go.jp/cgi-bin/SelectMap.do?cntX=${lon}&cntY=${lat}&scaleCd=${s}`;} }, { id: 'topo_profile', name: 'Web地形断面メーカー', desc: '2点間の地形断面図を自動作成。開いた後に位置を設定してください', category: 'survey', icon: '〽️', noCoords: true, url: () => `https://ktgis.net/service/topoprofile/` }, { id: 'web_contour', name: 'Web等高線メーカー', desc: '指定範囲の等高線図を作成。開いた後に位置を設定してください', category: 'survey', icon: '🏔️', noCoords: true, url: () => `https://ktgis.net/service/webcontour/index.html` }, { id: 'yahoo_map', name: 'Yahoo地図', desc: '雨雲レーダーや混雑情報も表示可能', category: 'other', icon: '☁️', noCoords: false, url: (lat, lon, zoom) => `https://map.yahoo.co.jp/?lat=${lat}&lon=${lon}&zoom=${zoom}&maptype=satellite` }, { id: 'mapion', name: 'Mapion（マップコード）', desc: 'カーナビ用のマップコードを取得。右クリック→地図URLでマップコードを表示', category: 'other', icon: '📍', noCoords: false, url: (lat, lon, zoom) => `https://www.mapion.co.jp/m2/${lat},${lon},${zoom}` }, { id: 'itsmo_navi', name: 'いつもNAVI', desc: 'ゼンリンデータコムが提供する詳細な地図', category: 'other', icon: '🚗', noCoords: false, url: (lat, lon, zoom) => { const tokyoCoords = convertWgs84ToTokyo(lat, lon);return `https://www.its-mo.com/maps/?lat=${tokyoCoords.lat}&lon=${tokyoCoords.lon}&z=${zoom}`; } }, { id: 'chika_map', name: '地価マップ', desc: '公示地価・基準地価を地図上に表示', category: 'other', icon: '💵', noCoords: false, url: (lat, lon) => `https://www.chikamap.jp/chikamap/Map?mid=220&mps=2500&mpx=${parseFloat(lon)+0.002365}&mpy=${parseFloat(lat)-0.00328}&mtl=47,37,77,27,67,57&mcl=3,30,30,30;2,20,312,312;7,70,310,310;1,10,312,312;1,10,310,310;5,50,50,50;4,40,40,40&gprj=1&flgInit=1&vpc=0` }];
+const MAP_DEFINITIONS = [ { id: 'gsi_std', name: '地理院地図', desc: '国土地理院の基本地図。標高、地形、土地利用など', category: 'terrain', icon: '🗺️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c0g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'gsi_time', name: '地理院時系列', desc: '過去から現在までの地図を時系列で比較', category: 'terrain', icon: '⏳', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&ls=gsi-compare-photo&lcd=gsi-compare-photo&vs=c0j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'gsi_flood', name: '治水地形分類図', desc: '河川周辺の地形特性と洪水リスクを把握', category: 'terrain', icon: '🖼️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=lcmfc2%2C0.8%7Chillshademap&blend=01&disp=111&lcd=hillshademap&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'google_maps', name: 'Googleマップ', desc: 'ストリートビューや経路検索も可能', category: 'terrain', icon: '📍', noCoords: false, url: (lat, lon) => `https://maps.google.co.jp/maps?q=${lat},${lon}` }, { id: 'google_earth', name: 'Google Earth', desc: '3D地形と衛星画像で地表を詳細に確認', category: 'terrain', icon: '🌍', noCoords: false, url: (lat, lon, zoom) => `https://earth.google.com/web/@${lat},${lon},0a,${Math.round(300000*Math.pow(0.5,(parseInt(zoom,10)-1)/3))}d,0y,0h` }, { id: 'konjaku', name: '今昔マップ', desc: '明治から現代までの地形図を並べて表示', category: 'terrain', icon: '📜', noCoords: false, url: (lat, lon, zoom) => `https://ktgis.net/kjmapw/kjmapw.html?lat=${lat}&lng=${lon}&zoom=${zoom}&dataset=&age=3&screen=2&scr1tile=k_cj4&scr2tile=k_cj4&scr3tile=k_cj4&mapOpacity=10&overGSItile=no&altitudeOpacity=2` }, { id: 'gsi_photos', name: '地図・空中写真閲覧', desc: '過去の空中写真を閲覧', category: 'terrain', icon: '📷', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/map-photos/app/map?search=photo#${zoom}/${lat}/${lon}` }, { id: 'geonavi', name: '地質図Navi', desc: '日本全国の地質情報を詳細に表示', category: 'geology', icon: '⛏️', noCoords: false, url: (lat, lon, zoom) => `https://gbank.gsj.jp/geonavi/geonavi.php#${zoom},${lat},${lon}` }, { id: 'gsi_landslide', name: '地すべり地形分布図', desc: '国土地理院が提供する地すべり地形の分布図', category: 'geology', icon: '⛰️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std%7Clandslide%2C0.75&blend=0&disp=11&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'qchizu_pond', name: '農業用ため池マップ', desc: '全国の農業用ため池の位置を表示（Q地図）', category: 'geology', icon: '💧', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=pale&ls=pale%7Cmaff-pond20200925-6%7Cmaff-pond20200925-5%7Cmaff-pond20200925-4%7Cmaff-pond20200925-1&disp=11111&lcd=maff-pond20200925-1&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'kunijiban', name: '国土地盤情報 KuniJiban', desc: 'ボーリングデータなど地盤情報を検索', category: 'geology', icon: '📊', noCoords: true, url: () => `https://www.kunijiban.pwri.go.jp/viewer/` }, { id: 'ngic', name: '国土地盤情報センター', desc: '全国の地盤情報データベース', category: 'geology', icon: '📈', noCoords: true, url: () => `https://publicweb.ngic.or.jp/viewer/` }, { id: 'geo_station', name: 'ジオ・ステーション', desc: '地質・地盤情報の統合プラットフォーム。開いた後に位置を検索してください', category: 'geology', icon: '🧭', noCoords: true, url: () => `https://www.geo-stn.bosai.go.jp/mapping_page.html` }, { id: 'gsj_activefault', name: '活断層データベース', desc: '産業技術総合研究所が提供する活断層の情報。開いた後に位置を検索してください', category: 'geology', icon: '〰️', noCoords: true, url: () => `https://gbank.gsj.jp/activefault/cgi/tyousati` }, { id: 'tokyo_jiban', name: '東京の地盤（GIS）', desc: '東京都内の詳細な地盤データ。開いた後に位置を検索してください', category: 'geology', icon: '🏢', noCoords: true, url: () => `https://doboku.metro.tokyo.lg.jp/start/03-jyouhou/geo-web/geo-webmap.aspx` }, { id: 'hazard_map', name: '重ねるハザードマップ', desc: '洪水、土砂災害、津波などの危険区域を表示', category: 'disaster', icon: '🚨', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=tameike_raster%2C0.75%7Cflood_list_l2%2C0.75%7Cdisaster1&disp=110&vs=c1j0l0u0` }, { id: 'hazard_flood_topo', name: 'ハザードマップ（治水地形分類図）', desc: '治水地形分類図とハザード情報の重ね合わせ', category: 'disaster', icon: '🚫', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=hillshademap%7CLCMFC02&disp=11&vs=c1j0l0u0t0h0z0` }, { id: 'river_bousai', name: '川の防災情報', desc: 'リアルタイムの河川水位と雨量情報', category: 'disaster', icon: '💧', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `https://www.river.go.jp/kawabou/pc/ov?zm=${zoom}&fld=0&clat=${lat}&clon=${lon}&mapType=0&viewGrpStg=0&viewRd=1&viewRW=1&viewRiver=1&viewPoint=1`;} }, { id: 'jma_warnings', name: '気象警報・注意報', desc: '気象庁が発表する警報・注意報を地図で確認', category: 'disaster', icon: '📢', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/map.html#${zoom}/${lat}/${lon}/&elem=all&contents=warning` }, { id: 'kikikuru', name: 'キキクル（危険度分布）', desc: '土砂災害・浸水・洪水の危険度をリアルタイム表示', category: 'disaster', icon: '⛈️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/risk/#zoom:${zoom}/lat:${lat}/lon:${lon}/colordepth:deep/elements:land` }, { id: 'jma_nowcast', name: '高解像度降水ナウキャスト', desc: '気象庁が提供するリアルタイムの降水予報', category: 'disaster', icon: '🌧️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/nowc/#lat:${lat}/lon:${lon}/zoom:${zoom}/colordepth:normal/elements:hrpns&slmcs&slmcs_fcst` }, { id: 'kijunten', name: '基準点閲覧サービス', desc: '三角点・水準点などの基準点情報', category: 'survey', icon: '📏', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/kijunten/app/map/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c1z0f0` }, { id: 'suimon_suisitsu', name: '水文水質データベース', desc: '河川の水位・流量・水質データ', category: 'survey', icon: '🔬', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `http://www1.river.go.jp/cgi-bin/SelectMap.do?cntX=${lon}&cntY=${lat}&scaleCd=${s}`;} }, { id: 'qchizu_moj', name: '法務局地図', desc: '法務局の地図データを表示（Q地図）', category: 'survey', icon: '⚖️', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=pale&base_grayscale=1&ls=pale%7C60_moj_chiban_2022_01&disp=11&vs=c1g1j0h0k0l0u0t0z0r0s0m0f0&d=m` }, { id: 'topo_profile', name: 'Web地形断面メーカー', desc: '2点間の地形断面図を自動作成。開いた後に位置を設定してください', category: 'survey', icon: '〽️', noCoords: true, url: () => `https://ktgis.net/service/topoprofile/` }, { id: 'web_contour', name: 'Web等高線メーカー', desc: '指定範囲の等高線図を作成。開いた後に位置を設定してください', category: 'survey', icon: '🏔️', noCoords: true, url: () => `https://ktgis.net/service/webcontour/index.html` }, { id: 'yahoo_map', name: 'Yahoo地図', desc: '雨雲レーダーや混雑情報も表示可能', category: 'other', icon: '☁️', noCoords: false, url: (lat, lon, zoom) => `https://map.yahoo.co.jp/?lat=${lat}&lon=${lon}&zoom=${zoom}&maptype=satellite` }, { id: 'mapion', name: 'Mapion（マップコード）', desc: 'カーナビ用のマップコードを取得。右クリック→地図URLでマップコードを表示', category: 'other', icon: '📍', noCoords: false, url: (lat, lon, zoom) => `https://www.mapion.co.jp/m2/${lat},${lon},${zoom}` }, { id: 'itsmo_navi', name: 'いつもNAVI', desc: 'ゼンリンデータコムが提供する詳細な地図', category: 'other', icon: '🚗', noCoords: false, url: (lat, lon, zoom) => { const tokyoCoords = convertWgs84ToTokyo(lat, lon);return `https://www.its-mo.com/maps/?lat=${tokyoCoords.lat}&lon=${tokyoCoords.lon}&z=${zoom}`; } }, { id: 'qchizu_bridge', name: '橋梁マップ', desc: '全国の橋梁の位置と情報を表示（Q地図）', category: 'disaster', icon: '🌉', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=std&ls=std%7C04_thematic_55_mlit_road_structures_bridge_2024&disp=11&vs=c1g1j0h0k0l0u0t0z0r0s0m0f2&d=m` }, { id: 'qchizu_footbridge', name: '歩道橋マップ', desc: '全国の歩道橋の位置と情報を表示（Q地図）', category: 'disaster', icon: '🚶', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=std&ls=std%7C04_thematic_55_mlit_road_structures_footbridge_2024&disp=11&lcd=04_thematic_55_mlit_road_structures_footbridge_2024&vs=c1g1j0h0k0l0u0t0z0r0s0m0f2&d=m` }, { id: 'chika_map', name: '地価マップ', desc: '公示地価・基準地価を地図上に表示', category: 'other', icon: '💵', noCoords: false, url: (lat, lon) => `https://www.chikamap.jp/chikamap/Map?mid=220&mps=2500&mpx=${parseFloat(lon)+0.002365}&mpy=${parseFloat(lat)-0.00328}&mtl=47,37,77,27,67,57&mcl=3,30,30,30;2,20,312,312;7,70,310,310;1,10,312,312;1,10,310,310;5,50,50,50;4,40,40,40&gprj=1&flgInit=1&vpc=0` }];
 
 const $lat = document.getElementById('latitude'), $lon = document.getElementById('longitude'), $coordsDisplay = document.getElementById('currentCoords'), $zoom = document.getElementById('zoomLevel'), $zoomDisplay = document.getElementById('zoomLevelDisplay'), $container = document.getElementById('map-categories-container'), $notification = document.getElementById('notification'), $mapPreview = document.getElementById('mapPreview'), $previewContainer = document.getElementById('previewContainer'), $historyPopup = document.getElementById('historyPopup'), $historyList = document.getElementById('historyList'), $bookmarkPopup = document.getElementById('bookmarkPopup'), $bookmarkList = document.getElementById('bookmarkList'), $currentZoom = document.getElementById('currentZoom'), $addressInput = document.getElementById('addressInput'), $autocompleteList = document.getElementById('autocompleteList'), $coordFormatToggle = document.getElementById('coord-format-toggle'), $areaDisplay = document.getElementById('area-display'), $mainMapContainer = document.getElementById('mainMapContainer');
 let MAX_HISTORY = 100;
@@ -1611,6 +1765,11 @@ let googleMapType = 'k';
 
 const defaultSettings = { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std', panelState: 'closed', panelWidth: 500 };
 let currentSettings = {};
+
+// ▼▼▼ ここから新規・変更 ▼▼▼
+let historySortState = { column: 'timestamp', order: 'desc' }; // 履歴テーブルのソート状態
+const $historyTableBody = document.getElementById('historyTableBody');
+// ▲▲▲ ここまで新規・変更 ▲▲▲
 
 function loadSettings() {
     const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
@@ -1682,36 +1841,52 @@ function saveSettings(e) {
 }
 
 function showNotification(message, type = 'success') { $notification.textContent = message; $notification.className = `notification ${type}`; $notification.style.display = 'block'; setTimeout(() => $notification.style.display = 'none', 3000); }
-async function updateCurrentCoords(skipHistorySave = false, fromNav = false) {
-let latNum, lonNum;
-try {
-if (isDMSFormat) { latNum = dmsToDecimal($lat.value); lonNum = dmsToDecimal($lon.value); }
-else { latNum = parseFloat($lat.value); lonNum = parseFloat($lon.value); }
-if (isNaN(latNum) || isNaN(lonNum)) throw new Error("Invalid number");
-} catch (e) { return; }
-const zoomNum = parseInt($zoom.value, 10);
-if (latNum>=-90&&latNum<=90&&lonNum>=-180&&lonNum<=180) {
-currentLatLon = { lat: latNum, lon: lonNum };
-$coordsDisplay.textContent = `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
-$currentZoom.textContent = zoomNum;
-updateMapPreview(latNum, lonNum, zoomNum);
-initOSMClickMap(latNum, lonNum, zoomNum);
 
-if (!fromNav) {
-    if (historyIndex < navigationHistory.length - 1) {
-        navigationHistory = navigationHistory.slice(0, historyIndex + 1);
+async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fromNav = false) {
+    let latNum, lonNum;
+    try {
+        // newCoordsが引数として渡された場合は、その値を優先して使用する
+        if (newCoords && typeof newCoords.lat === 'number' && typeof newCoords.lon === 'number') {
+            latNum = newCoords.lat;
+            lonNum = newCoords.lon;
+        } else { 
+            // 引数がなければ、従来通りテキストボックスから値を読み取る
+            if (isDMSFormat) { latNum = dmsToDecimal($lat.value); lonNum = dmsToDecimal($lon.value); }
+            else { latNum = parseFloat($lat.value); lonNum = parseFloat($lon.value); }
+        }
+        if (isNaN(latNum) || isNaN(lonNum)) throw new Error("Invalid number");
+    } catch (e) { 
+        console.error("座標の解析に失敗しました:", e);
+        return; 
     }
-    navigationHistory.push({ lat: latNum, lon: lonNum, zoom: zoomNum });
-    if (navigationHistory.length > MAX_NAV_HISTORY) {
-        navigationHistory.shift();
+
+    const zoomNum = parseInt($zoom.value, 10);
+    if (latNum>=-90&&latNum<=90&&lonNum>=-180&&lonNum<=180) {
+        currentLatLon = { lat: latNum, lon: lonNum };
+        $coordsDisplay.textContent = `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
+        $currentZoom.textContent = zoomNum;
+        updateMapPreview(latNum, lonNum, zoomNum);
+        initOSMClickMap(latNum, lonNum, zoomNum);
+
+        if (!fromNav) {
+            if (historyIndex < navigationHistory.length - 1) {
+                navigationHistory = navigationHistory.slice(0, historyIndex + 1);
+            }
+            navigationHistory.push({ lat: latNum, lon: lonNum, zoom: zoomNum });
+            if (navigationHistory.length > MAX_NAV_HISTORY) {
+                navigationHistory.shift();
+            }
+            historyIndex = navigationHistory.length - 1;
+        }
+
+        if (!skipHistorySave) {
+            showNotification('住所と標高を取得中...', 'warning');
+            await saveCoordinateToHistory(latNum, lonNum, zoomNum);
+        }
+        updateNavButtons();
     }
-    historyIndex = navigationHistory.length - 1;
 }
 
-if (!skipHistorySave) await saveCoordinateToHistory(latNum, lonNum, zoomNum);
-updateNavButtons();
-}
-}
 async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(true); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
 
 function updateMapPreview(lat, lon, zoom) {
@@ -1721,9 +1896,8 @@ function updateMapPreview(lat, lon, zoom) {
     }
 }
 
-
 function togglePreview(event) {
-    if (event.target.classList.contains('btn-copy')) {
+    if (event.target.closest('.btn-copy, #toggleMapTypeBtn')) {
         event.stopPropagation();
         return;
     }
@@ -1783,11 +1957,11 @@ osmMap.on('zoomend', () => {
         $currentZoom.textContent = newZoom;
     }
 });
-osmMap.on('click', e => {
+osmMap.on('click', async e => {
 if (isMeasuring) return handleMeasureClick(e);
 if (isMeasuringArea) return handleAreaMeasureClick(e);
 updateLatLonInputs(e.latlng.lat, e.latlng.lng);
-updateCurrentCoords();
+await updateCurrentCoords();
 showNotification('クリック地点の座標を設定しました');
 });
 osmMap.on('dblclick', e => {
@@ -1843,7 +2017,85 @@ function applyInitialPanelState() {
     }
 }
 
-async function getAddressFromCoords(lat, lon) { try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&lang=ja`); const d = await r.json(); return d.display_name || `${lat}, ${lon}`; } catch (e) { return `${lat}, ${lon}`; } }
+// ▼▼▼ ここから新規・変更 ▼▼▼
+/**
+ * 緯度経度から住所情報を取得する (OpenStreetMap Nominatim API)
+ */
+async function getAddressFromCoords(lat, lon) {
+    try {
+        // HeartRails Geo APIを使用 (xが経度、yが緯度なので注意)
+        const response = await fetch(`https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=${lon}&y=${lat}`);
+        const data = await response.json();
+
+        // APIからエラーが返された、または地名情報が見つからなかった場合
+        if (!data.response || !data.response.location || data.response.location.length === 0) {
+            console.error("HeartRails APIからの住所取得に失敗:", data);
+            return { full: `(住所取得失敗)`, postcode: '---', structured: '---' };
+        }
+
+        const loc = data.response.location[0];
+        
+        // 郵便番号を取得 (ハイフン付き形式に整形)
+        const postcode = loc.postal ? `${loc.postal.slice(0, 3)}-${loc.postal.slice(3)}` : '---';
+        
+        // 住所を連結して作成
+        const structuredAddress = `${loc.prefecture || ''}${loc.city || ''}${loc.town || ''}`;
+
+        return {
+            full: structuredAddress, // fullとstructuredに同じ住所を設定
+            postcode: postcode,
+            structured: structuredAddress
+        };
+    } catch (e) {
+        console.error("住所の取得中にネットワークエラーが発生しました:", e);
+        return { full: `(住所取得失敗)`, postcode: '---', structured: '---' };
+    }
+}
+
+/**
+ * 緯度経度から標高を取得する (国土地理院 API)
+ */
+async function getElevationFromCoords(lat, lon) {
+  try {
+    const response = await fetch(`https://cyberjapandata2.gsi.go.jp/general/dem/scripts/getelevation.php?lon=${lon}&lat=${lat}&outtype=JSON`);
+    const data = await response.json();
+    if (data.elevation && data.elevation !== "none") {
+      return parseFloat(data.elevation).toFixed(2);
+    }
+    return '---';
+  } catch (e) {
+    console.error("標高の取得に失敗しました:", e);
+    return '---';
+  }
+}
+
+async function saveCoordinateToHistory(lat, lon, zoom) {
+    let history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    const [addressInfo, elevation] = await Promise.all([
+        getAddressFromCoords(lat, lon),
+        getElevationFromCoords(lat, lon)
+    ]);
+    
+    const newEntry = {
+        lat: lat.toFixed(8),
+        lon: lon.toFixed(8),
+        zoom,
+        timestamp: new Date().toISOString(),
+        address: addressInfo.structured,
+        postcode: addressInfo.postcode,
+        elevation: elevation
+    };
+
+    if (history.length === 0 || (history[0].lat !== newEntry.lat || history[0].lon !== newEntry.lon)) {
+        history.unshift(newEntry);
+        localStorage.setItem('coordinateHistory', JSON.stringify(history.slice(0, MAX_HISTORY)));
+        renderHistoryList(history); // 従来のポップアップ用
+        renderHistoryTable(); // 新しいテーブル用
+    }
+    showNotification('座標履歴を追加しました');
+}
+// ▲▲▲ ここまで新規・変更 ▲▲▲
+
 
 async function getCoordsFromAddress(address) {
   try {
@@ -1880,12 +2132,40 @@ async function getAddressSuggestions(query) {
     return [];
   }
 }
+/**
+ * 郵便番号から緯度経度を取得する (zipcloud API と 地理院地図APIを利用)
+ */
+async function getCoordsFromPostalCode(postalCode) {
+  try {
+    // 1. zipcloud APIを使用して郵便番号から住所を取得
+    // ハイフンはあってもなくても検索可能
+    const zipcloudResponse = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode.replace('-', '')}`);
+    const zipcloudData = await zipcloudResponse.json();
 
-async function saveCoordinateToHistory(lat, lon, zoom) { let history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]'); const address = await getAddressFromCoords(lat, lon); const newEntry = { lat: lat.toFixed(8), lon: lon.toFixed(8), zoom, timestamp: new Date().toISOString(), address }; if (history?.lat !== newEntry.lat || history?.lon !== newEntry.lon) { history.unshift(newEntry); localStorage.setItem('coordinateHistory', JSON.stringify(history.slice(0, MAX_HISTORY))); renderHistoryList(history); } }
+    // zipcloud APIから有効な結果が得られなかった場合
+    if (zipcloudData.status !== 200 || !zipcloudData.results) {
+      console.error("zipcloud APIで郵便番号が見つかりませんでした:", zipcloudData.message);
+      return null;
+    }
+
+    // 取得した住所情報を連結して、検索用の住所文字列を作成
+    const addressResult = zipcloudData.results[0];
+    const fullAddress = `${addressResult.address1}${addressResult.address2}${addressResult.address3}`;
+    
+    // 2. 取得した住所を、既存の住所検索関数に渡して座標を取得
+    // これにより、APIを効率的に再利用できる
+    console.log(`郵便番号から住所「${fullAddress}」を取得し、座標を検索します。`);
+    return await getCoordsFromAddress(fullAddress);
+    
+  } catch (e) {
+    console.error("郵便番号での座標取得処理中にエラーが発生しました:", e);
+    return null;
+  }
+}
 function renderHistoryList(history) { $historyList.innerHTML = history.length === 0 ? '<p>履歴はありません。</p>' : history.map((item, index) => `<div class="history-item" data-index="${index}"><strong>${index + 1}. ${item.address}</strong><span>座標: ${item.lat}°N, ${item.lon}°E | ${new Date(item.timestamp).toLocaleString()}</span></div>`).join(''); }
 function loadCoordinateFromHistory(item) { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(true); toggleHistoryPopup(false); showNotification(`履歴「${item.address}」を適用`); }
 function toggleHistoryPopup(open = true) { if (open && $historyPopup.style.display !== 'block') { renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]')); $historyPopup.style.display = 'block'; $bookmarkPopup.style.display = 'none'; } else { $historyPopup.style.display = 'none'; } }
-function clearHistory() { if (confirm('履歴を全削除しますか？')) { localStorage.removeItem('coordinateHistory'); renderHistoryList([]); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
+function clearHistory() { if (confirm('履歴を全削除しますか？')) { localStorage.removeItem('coordinateHistory'); renderHistoryList([]); renderHistoryTable(); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
 function exportHistoryToCSV() { const d = JSON.parse(localStorage.getItem('coordinateHistory')||'[]'); if(d.length>0) exportToCSV(d, '座標履歴'); else showNotification('履歴がありません', 'error'); }
 
 function saveCurrentAsBookmark() {
@@ -1966,9 +2246,53 @@ function toggleDarkMode() {
     applySettings();
 }
 
-async function searchAddress() { const address = $addressInput.value.trim(); if (!address) return showNotification('住所を入力してください', 'error'); showNotification('検索中...'); const coords = await getCoordsFromAddress(address); if (coords) { updateLatLonInputs(coords.lat, coords.lon); await updateCurrentCoords(); showNotification(`「${address}」の座標を設定`); } else { showNotification('住所が見つかりません', 'error'); } $autocompleteList.classList.remove('show'); }
+// updateCurrentCoordsの呼び出し方を明確化
+async function searchAddress() {
+    const query = $addressInput.value.trim();
+    if (!query) return showNotification('住所または郵便番号を入力してください', 'error');
+
+    const postalCodeRegex = /^\d{3}-?\d{4}$/;
+
+    let coords = null;
+    showNotification('検索中...');
+
+    if (postalCodeRegex.test(query)) {
+        // 郵便番号検索
+        coords = await getCoordsFromPostalCode(query);
+        if (coords) {
+            showNotification(`郵便番号「${query}」の座標を設定`);
+            updateLatLonInputs(coords.lat, coords.lon);
+            await updateCurrentCoords(coords, false); 
+        } else {
+            showNotification('該当する郵便番号が見つかりません', 'error');
+        }
+    } else {
+        // 住所検索
+        coords = await getCoordsFromAddress(query);
+        if (coords) {
+            showNotification(`「${query}」の座標を設定`);
+            updateLatLonInputs(coords.lat, coords.lon);
+            await updateCurrentCoords(coords, false);
+        } else {
+            showNotification('住所が見つかりません', 'error');
+        }
+    }
+    
+    $autocompleteList.classList.remove('show');
+}
+
 function renderAutocompleteList(suggestions) { $autocompleteList.innerHTML = ''; selectedAutocompleteIndex = -1; if (suggestions.length === 0) return $autocompleteList.classList.remove('show'); currentAutocompleteResults = suggestions; suggestions.forEach((item, index) => { const li = document.createElement('div'); li.className = 'autocomplete-item'; li.innerHTML = `<strong>${item.display_name}</strong><span>${parseFloat(item.lat).toFixed(6)}, ${parseFloat(item.lon).toFixed(6)}</span>`; li.onclick = () => selectAutocompleteItem(index); $autocompleteList.appendChild(li); }); $autocompleteList.classList.add('show'); }
-async function selectAutocompleteItem(index) { const selected = currentAutocompleteResults[index]; if(selected) { $addressInput.value = selected.display_name; updateLatLonInputs(parseFloat(selected.lat), parseFloat(selected.lon)); await updateCurrentCoords(); $autocompleteList.classList.remove('show'); } }
+async function selectAutocompleteItem(index) {
+    const selected = currentAutocompleteResults[index];
+    if (selected) {
+        $addressInput.value = selected.display_name;
+        const coords = { lat: parseFloat(selected.lat), lon: parseFloat(selected.lon) };
+        updateLatLonInputs(coords.lat, coords.lon);
+        // 取得した座標を直接引数として渡すように修正
+        await updateCurrentCoords(coords);
+        $autocompleteList.classList.remove('show');
+    }
+}
 function openMap(mapData, showPopup=true) { const {lat,lon}=currentLatLon, zoom=Math.min(parseInt($zoom.value,10),18); if((isNaN(lat)||isNaN(lon))&&!mapData.noCoords) return showNotification('有効な座標を入力してください','error'); const url = mapData.isCustom ? mapData.url.replace('{lat}',lat).replace('{lon}',lon).replace('{z}',zoom) : mapData.url(lat,lon,zoom); if(showPopup)showNotification(`${mapData.name}を開いています...`); window.open(url,'_blank'); }
 function openCheckedMaps(catKey) { const chks = document.querySelectorAll(`.map-card[data-category="${catKey}"] .map-checkbox:checked`); if (chks.length === 0) return showNotification('開きたい地図にチェックを入れてください。', 'error'); showNotification(`${chks.length}件のリンクを開きます。`); const allMaps = getCombinedMapDefinitions(); chks.forEach(cb => { const mapToOpen = allMaps.find(m => m.id === cb.dataset.mapId); if (mapToOpen) openMap(mapToOpen, false); }); }
 function toggleAllCheckboxes(catKey, btn) {
@@ -1978,7 +2302,23 @@ chks.forEach(cb => cb.checked = !allChecked);
 btn.classList.toggle('checked', !allChecked);
 }
 function openGoogleMap() { const {lat,lon}=currentLatLon; if (isNaN(lat)||isNaN(lon))return; window.open(`https://maps.google.co.jp/maps?q=${lat},${lon}&z=${$zoom.value}`,'_blank'); }
-async function pasteCoordinates() { try { const text = await navigator.clipboard.readText(), match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/); if (match) { updateLatLonInputs(parseFloat(match[1]), parseFloat(match[2])); await updateCurrentCoords(); showNotification('座標を貼り付けました'); } else showNotification('形式が不正です','error'); } catch (err) { showNotification('クリップボード読取失敗','error'); } }
+async function pasteCoordinates() {
+    try {
+        const text = await navigator.clipboard.readText();
+        const match = text.match(/^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/);
+        if (match) {
+            const coords = { lat: parseFloat(match[1]), lon: parseFloat(match[2]) };
+            updateLatLonInputs(coords.lat, coords.lon);
+            // 取得した座標を直接引数として渡すように修正
+            await updateCurrentCoords(coords);
+            showNotification('座標を貼り付けました');
+        } else {
+            showNotification('形式が不正です', 'error');
+        }
+    } catch (err) {
+        showNotification('クリップボード読取失敗', 'error');
+    }
+}
 function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); }
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
 function getCombinedMapDefinitions() {
@@ -2804,6 +3144,123 @@ function handleFileSelect(event) {
     reader.readAsText(file);
 }
 
+// ▼▼▼ ここから新規追加（履歴テーブル関連）▼▼▼
+function renderHistoryTable() {
+    const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    const filterText = document.getElementById('historySearchInput').value.toLowerCase();
+
+    // フィルター処理
+    let filteredData = historyData.filter(item => {
+        return (item.address && item.address.toLowerCase().includes(filterText)) ||
+               (item.postcode && item.postcode.toLowerCase().includes(filterText)) ||
+               (item.lat && item.lat.toLowerCase().includes(filterText)) ||
+               (item.lon && item.lon.toLowerCase().includes(filterText));
+    });
+
+    // ソート処理
+    filteredData.sort((a, b) => {
+        const col = historySortState.column;
+        const order = historySortState.order === 'asc' ? 1 : -1;
+        
+        let valA = a[col], valB = b[col];
+        if (col === 'no') {
+            valA = historyData.indexOf(a);
+            valB = historyData.indexOf(b);
+        } else if (col === 'lat' || col === 'lon' || col === 'elevation') {
+            valA = parseFloat(valA) || -Infinity;
+            valB = parseFloat(valB) || -Infinity;
+        }
+
+        if (valA < valB) return -1 * order;
+        if (valA > valB) return 1 * order;
+        return 0;
+    });
+
+    // HTML生成
+    $historyTableBody.innerHTML = filteredData.map((item, index) => {
+        const originalIndex = historyData.findIndex(h => h.timestamp === item.timestamp);
+        return `
+            <tr data-history-index="${originalIndex}">
+                <td><input type="checkbox" class="history-item-checkbox" data-history-index="${originalIndex}"></td>
+                <td>${originalIndex + 1}</td>
+                <td>${escapeXml(item.postcode || '---')}</td>
+                <td>${escapeXml(item.address || '---')}</td>
+                <td>${item.lat}</td>
+                <td>${item.lon}</td>
+                <td>${item.elevation}</td>
+                <td>${new Date(item.timestamp).toLocaleString()}</td>
+                <td class="actions-cell">
+                    <button class="btn-action copy" title="この行をコピー">📋</button>
+                    <button class="btn-action delete" title="この行を削除">🗑️</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    if(filteredData.length === 0) {
+        $historyTableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">履歴はありません。</td></tr>`;
+    }
+
+    updateHistoryTableControls();
+}
+
+function handleHistoryTableClick(e) {
+    const row = e.target.closest('tr');
+    if (!row || !row.dataset.historyIndex) return;
+
+    const historyIndex = parseInt(row.dataset.historyIndex, 10);
+    const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    const item = historyData[historyIndex];
+
+    if (e.target.classList.contains('history-item-checkbox')) {
+        updateHistoryTableControls();
+        return;
+    }
+    
+    if (e.target.classList.contains('btn-action')) {
+        if (e.target.classList.contains('copy')) {
+            const rowData = [
+                historyIndex + 1,
+                item.postcode,
+                item.address,
+                item.lat,
+                item.lon,
+                item.elevation,
+                new Date(item.timestamp).toLocaleString()
+            ].join('\t'); // TSV形式
+            navigator.clipboard.writeText(rowData).then(() => showNotification('行データをコピーしました。'));
+        } else if (e.target.classList.contains('delete')) {
+            if (confirm(`履歴No.${historyIndex + 1}を削除しますか？`)) {
+                historyData.splice(historyIndex, 1);
+                localStorage.setItem('coordinateHistory', JSON.stringify(historyData));
+                renderHistoryTable();
+                renderHistoryList(historyData);
+                showNotification('履歴を削除しました。');
+            }
+        }
+    } else {
+        // 行クリックで地図移動
+        updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon));
+        $zoom.value = item.zoom;
+        updateCurrentCoords(true, true);
+        showNotification(`履歴No.${historyIndex + 1}の座標に移動しました。`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function updateHistoryTableControls() {
+    const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
+    const hasSelection = selectedCheckboxes.length > 0;
+    document.getElementById('btn-copy-selected').disabled = !hasSelection;
+    document.getElementById('btn-delete-selected').disabled = !hasSelection;
+
+    const allCheckboxes = document.querySelectorAll('.history-item-checkbox');
+    const selectAllCheckbox = document.getElementById('history-select-all');
+    selectAllCheckbox.checked = allCheckboxes.length > 0 && selectedCheckboxes.length === allCheckboxes.length;
+}
+// ▲▲▲ ここまで新規追加（履歴テーブル関連）▲▲▲
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // 現在地ボタン用のLeafletコントロールを定義
     if (window.L) {
@@ -2827,27 +3284,24 @@ document.addEventListener('DOMContentLoaded', () => {
                           .on(container, 'click', L.DomEvent.preventDefault)
                           .on(container, 'click', this._locate, this);
                 
-                // Leafletのデフォルトのダークモードスタイルを考慮
                 container.style.backgroundColor = 'white';
                 link.style.color = '#333';
-
 
                 return container;
             },
 
-            _locate: function() {
+            _locate: async function() {
                 showNotification('現在地を取得中です...');
                 navigator.geolocation.getCurrentPosition(
-                    (position) => {
+                    async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
                         const latlng = [lat, lon];
                         
                         this._map.flyTo(latlng, this._map.getZoom());
                         
-                        // メインの入力欄も更新
                         updateLatLonInputs(lat, lon);
-                        updateCurrentCoords();
+                        await updateCurrentCoords();
                         
                         showNotification('現在地を表示しました');
                     },
@@ -2857,9 +3311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { enableHighAccuracy: true }
                 );
             },
-            onRemove: function(map) {
-                // コントロールが削除される際のクリーンアップ
-            }
+            onRemove: function(map) {}
         });
 
         L.control.currentLocation = function(opts) {
@@ -2867,12 +3319,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
 loadSettings();
 populateLayerSettings();
 renderMapCards();
 loadFavoriteSets();
 initResizer();
+
+// ▼▼▼ ここから変更 ▼▼▼
+renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]'));
+renderHistoryTable(); // 初期表示
+// ▲▲▲ ここまで変更 ▲▲▲
 
 const today = new Date();
 document.getElementById('lastUpdated').textContent = `最終更新日: ${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
@@ -2893,7 +3349,7 @@ $zoom.addEventListener('change', e => {
     $currentZoom.textContent = newZoom;
 });
 $coordFormatToggle.addEventListener('click', toggleCoordFormat);
-$addressInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? selectAutocompleteItem(selectedAutocompleteIndex) : searchAddress(); } });
+$addressInput.addEventListener('keypress', async e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? await selectAutocompleteItem(selectedAutocompleteIndex) : await searchAddress(); } });
 $addressInput.addEventListener('input', () => { clearTimeout(autocompleteTimer); if ($addressInput.value.trim().length<2) return renderAutocompleteList([]); autocompleteTimer = setTimeout(async () => renderAutocompleteList(await getAddressSuggestions($addressInput.value.trim())), 300); });
 $addressInput.addEventListener('keydown', e => { const items = $autocompleteList.querySelectorAll('.autocomplete-item'); if(items.length===0)return; if (e.key==='ArrowDown') selectedAutocompleteIndex=(selectedAutocompleteIndex+1)%items.length; else if (e.key==='ArrowUp') selectedAutocompleteIndex=(selectedAutocompleteIndex-1+items.length)%items.length; else return; e.preventDefault(); items.forEach((item,i)=>item.classList.toggle('selected',i===selectedAutocompleteIndex)); if(items[selectedAutocompleteIndex]) items[selectedAutocompleteIndex].scrollIntoView({block:'nearest'}); });
 document.addEventListener('click', e => { if (!e.target.closest('.input-wrapper')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper, .usage-button')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } if(!e.target.closest('.usage-button, .usage-guide')) { document.getElementById('usageGuide').classList.remove('show'); } });
@@ -3066,6 +3522,88 @@ document.querySelectorAll('#btn-route-google').forEach(button => {
         window.open(url, '_blank');
     });
 });
+
+// ▼▼▼ ここから新規追加（履歴テーブルのイベントリスナー）▼▼▼
+document.getElementById('historySearchInput').addEventListener('input', renderHistoryTable);
+document.getElementById('historyTable').querySelector('thead').addEventListener('click', (e) => {
+    const header = e.target.closest('th.sortable');
+    if (!header) return;
+    
+    const newColumn = header.dataset.sort;
+    if (historySortState.column === newColumn) {
+        historySortState.order = historySortState.order === 'asc' ? 'desc' : 'asc';
+    } else {
+        historySortState.column = newColumn;
+        historySortState.order = 'asc';
+    }
+    
+    document.querySelectorAll('#historyTable th.sortable').forEach(th => {
+        th.classList.remove('sorted');
+        th.querySelector('.sort-icon').textContent = '';
+    });
+    header.classList.add('sorted');
+    header.querySelector('.sort-icon').textContent = historySortState.order === 'asc' ? '▲' : '▼';
+
+    renderHistoryTable();
+});
+
+$historyTableBody.addEventListener('click', handleHistoryTableClick);
+
+document.getElementById('history-select-all').addEventListener('change', (e) => {
+    document.querySelectorAll('.history-item-checkbox').forEach(cb => {
+        cb.checked = e.target.checked;
+    });
+    updateHistoryTableControls();
+});
+
+document.getElementById('btn-copy-table').addEventListener('click', () => {
+    const rows = $historyTableBody.querySelectorAll('tr');
+    if(rows.length === 0 || rows[0].querySelectorAll('td').length < 2) return showNotification('コピーするデータがありません', 'error');
+
+    const headers = Array.from(document.getElementById('historyTable').querySelectorAll('th'))
+        .slice(1, -1) // チェックボックスと操作列を除外
+        .map(th => th.textContent.trim().replace(/\s*▲|▼/, ''))
+        .join('\t');
+    
+    const data = Array.from(rows).map(row => {
+        return Array.from(row.querySelectorAll('td'))
+            .slice(1, -1) // チェックボックスと操作列を除外
+            .map(td => td.textContent.trim())
+            .join('\t');
+    }).join('\n');
+    
+    navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification('テーブル全体をコピーしました。'));
+});
+
+document.getElementById('btn-copy-selected').addEventListener('click', () => {
+    const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
+    const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    const headers = "No.\t郵便番号\t住所\t緯度\t経度\t標高(m)\t取得日時";
+    const data = Array.from(selectedCheckboxes).map(cb => {
+        const index = parseInt(cb.dataset.historyIndex, 10);
+        const item = historyData[index];
+        return [index + 1, item.postcode, item.address, item.lat, item.lon, item.elevation, new Date(item.timestamp).toLocaleString()].join('\t');
+    }).join('\n');
+
+    navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification(`${selectedCheckboxes.length}件の選択行をコピーしました。`));
+});
+
+document.getElementById('btn-delete-selected').addEventListener('click', () => {
+    const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
+    if (confirm(`${selectedCheckboxes.length}件の履歴を削除しますか？`)) {
+        let historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+        const indicesToDelete = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.historyIndex, 10)).sort((a,b) => b-a);
+        
+        indicesToDelete.forEach(index => historyData.splice(index, 1));
+        
+        localStorage.setItem('coordinateHistory', JSON.stringify(historyData));
+        renderHistoryTable();
+        renderHistoryList(historyData);
+        showNotification(`${selectedCheckboxes.length}件の履歴を削除しました。`);
+    }
+});
+// ▲▲▲ ここまで新規追加（履歴テーブルのイベントリスナー）▲▲▲
+
 
 window.addEventListener('resize', () => {
 if (osmMap) {
