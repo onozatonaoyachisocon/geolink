@@ -15,6 +15,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js" defer></script>
     <!-- [追加] QRコード生成ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
+    <!-- ▼▼▼ この行を追加 ▼▼▼ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <!-- ▲▲▲ ここまで ▲▲▲ -->
 
 <style>
 :root {
@@ -302,8 +305,7 @@ right: 0;
     max-width: 80vw;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    padding: 0 8px 8px 8px;
+    overflow: hidden; /* 子要素でスクロールを制御 */
     background: var(--bg-container);
     border-radius: var(--radius-base);
     box-shadow: var(--shadow-base);
@@ -538,9 +540,70 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     top: 0;
     z-index: 11;
     background: var(--bg-container);
-    padding: 8px 0;
+    padding: 8px 8px 0 8px;
+    margin: 0 -8px;
+    flex-shrink: 0;
 }
-.content { padding: 8px 0; }
+
+/* ★★★ START: タブ関連のスタイル ★★★ */
+.panel-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin: 8px -8px 0 -8px;
+    padding: 0 8px;
+}
+.panel-tab {
+    flex: 1;
+    padding: 12px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-bottom: none;
+    background-color: var(--bg-light);
+    color: var(--text-medium);
+    transition: all 0.2s;
+    text-align: center;
+    border-top-left-radius: var(--radius-base);
+    border-top-right-radius: var(--radius-base);
+    margin-bottom: -2px;
+    position: relative;
+}
+.panel-tab:hover {
+    color: var(--text-dark);
+}
+.panel-tab.active {
+    background-color: var(--bg-container);
+    color: var(--primary-color);
+    border-color: var(--border-color);
+    border-bottom-color: var(--bg-container);
+    z-index: 1;
+}
+.panel-content-wrapper {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+}
+.panel-content {
+    display: none;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    flex-direction: column;
+}
+#map-links-content {
+    overflow-y: auto;
+    padding: 8px;
+}
+#history-content {
+    padding: 8px 8px 0 8px;
+}
+.panel-content.active {
+    display: flex;
+}
+/* ★★★ END: タブ関連のスタイル ★★★ */
+
 
 .category { margin-bottom: 8px; }
 
@@ -990,14 +1053,9 @@ body.dark-mode #btn-uncheck-all {
 /* --- ここから履歴テーブル用のスタイル --- */
 .history-table-container {
     background: var(--bg-container);
-    padding: 15px;
-    border-radius: var(--radius-base);
-    box-shadow: var(--shadow-hover);
-    border: 1px solid var(--border-color);
-    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    min-height: 200px;
+    height: 100%; /* 親要素の高さに追従 */
 }
 .history-table-container h3 {
     font-size: 16px;
@@ -1010,6 +1068,7 @@ body.dark-mode #btn-uncheck-all {
     margin-bottom: 15px;
     flex-wrap: wrap;
     align-items: center;
+    flex-shrink: 0; /* コントロールは縮まない */
 }
 .history-table-controls input[type="search"] {
     flex-grow: 1;
@@ -1037,6 +1096,14 @@ body.dark-mode #btn-uncheck-all {
     color: white;
     border-color: var(--primary-color);
 }
+#btn-delete-selected {
+    background-color: var(--error-color);
+    color: white;
+    border-color: transparent;
+}
+#btn-delete-selected:hover:not(:disabled) {
+    background-color: #C62828;
+}
 .history-table-controls button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -1044,8 +1111,7 @@ body.dark-mode #btn-uncheck-all {
 
 .history-table-wrapper {
     overflow: auto;
-    flex-grow: 1;
-    max-height: 400px; /* ★★★ この数値を変更すると、一覧表の高さを調整できます ★★★ */
+    flex-grow: 1; /* 残りの高さを埋める */
 }
 .history-table {
     width: 100%;
@@ -1063,6 +1129,7 @@ body.dark-mode #btn-uncheck-all {
     background-color: var(--bg-light);
     position: sticky;
     top: 0;
+    z-index: 1;
 }
 .history-table th.sortable {
     cursor: pointer;
@@ -1104,6 +1171,7 @@ body.dark-mode #btn-uncheck-all {
     color: var(--error-color);
 }
 /* --- ここまで履歴テーブル用のスタイル --- */
+
 
 @media (min-width: 1800px) {
     .left-panel {
@@ -1326,7 +1394,7 @@ body.dark-mode #btn-uncheck-all {
         <li><strong>設定とカスタマイズ:</strong> 「⚙️設定」ボタンから、起動時のズームレベル、テーマカラー、パネルの表示など、起動時の状態をカスタマイズできます。</li>
 <li><strong>ダーク・ライトモード:</strong> 「🌙モード切替」ボタンから、ダークモードとライトモードを切り替えることができます。</li>
 　　</ul>
-    <h4>■ 地図パネルと外部地図連携</h4>
+    <h4>■ パネル展開・地図リンクと外部地図連携／履歴一覧管理</h4>
     <ul>
         <li><strong>パネルの開閉と固定:</strong>
             <ul>
@@ -1337,18 +1405,21 @@ body.dark-mode #btn-uncheck-all {
         </li>
         <li><strong>地図の選択と表示:</strong>
             <ul>
-                <li>右パネルのカテゴリから、利用したい地図サービスをクリックすると、入力座標を中心とした地図が新しいタブで開きます。</li>
+                <li>「🗺️地図リンク」タブ：利用したい地図サービスをクリックすると、入力座標を中心とした地図が新しいタブで開きます。</li>
                 <li>各カテゴリヘッダーの「✅ 全選択/解除」ボタンで、そのカテゴリ内の地図を一括でチェックできます。</li>
                 <li>「▶️ チェックした項目を一括で開く」ボタンで、チェックを付けた複数の地図を一度に開くことができます。</li>
                 <li>任意の地図サービスにチェックをつけて「お気に入りセット」として登録できます。</li>
                 <li>「⭐ マイリンク」カテゴリでは、自分専用のWeb地図へのリンクを自由に追加・管理できます。</li>
+ <li>「⏱️履歴一覧」タブ：履歴一覧を表示します。📋 テーブルコピーや選択をコピーすることで、Excelなどに貼り付けることができます。</li>
+ <li>「地図に履歴を表示」をチェックすることで、履歴が地図上にプロットされます。なお、各履歴のチェックボックスで選択して表示することもできます。</li>
+ <li>「📋 テーブルコピー、選択をコピー」：クリップボードにコピーしてExcelに貼り付けることができます。</li>
             </ul>
         </li>
     </ul>     
 
     <h4>■ 高度な地図ツール</h4>
     <ul>
-        <li>地図左下の「🛠️測量・解析ツール」から、「📏 距離計測」「📐 面積計測」「⭕ 円作成」が利用可能です。ダブルクリックで計測が完了します。</li>
+        <li>地図左下の「🛠️測量・解析ツール」から、「📏 距離計測・断面作成」「📐 面積計測」「⭕ 円作成」が利用可能です。ダブルクリックで計測が完了します。</li>
         <li>「🌐 KML保存」ボタンで、作成した図形をKMLファイルとして保存できます。</li>
         <li> 測定中に `BS` または `DEL` キーを押すと、最後に追加した点を取り消せます。</li>
     </ul>
@@ -1469,7 +1540,7 @@ body.dark-mode #btn-uncheck-all {
                         <h3 id="analysis-tools-header">🛠️ 測量・解析ツール <span class="toggle-icon">▶</span></h3>
                         <div class="analysis-tools-controls">
                             <div class="analysis-tool-row">
-                                <button class="btn-base btn-measure" id="measure-tool-btn">📏 距離計測</button>
+                                <button class="btn-base btn-measure" id="measure-tool-btn">📏 距離・断面</button>
                             </div>
                             <div class="analysis-tool-row">
                                 <button class="btn-base btn-area" id="area-tool-btn">📐 面積計測</button>
@@ -1512,39 +1583,6 @@ body.dark-mode #btn-uncheck-all {
                 <iframe id="mapPreview" width="100%" height="400" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
             </div>
         </div>
-
-        <!-- ▼▼▼ ここから新規追加 ▼▼▼ -->
-        <div class="history-table-container" id="historyTableContainer">
-            <h3>⏱️ 座標履歴一覧</h3>
-            <div class="history-table-controls">
-                <input type="search" id="historySearchInput" placeholder="住所などで履歴を検索...">
-                <button id="btn-copy-table" title="表示中のテーブル全体をExcel等に貼り付けられる形式でコピーします">📋 テーブルコピー</button>
-                <button id="btn-copy-selected" disabled>📋 選択をコピー</button>
-                <button id="btn-delete-selected" disabled>🗑️ 選択を削除</button>
-            </div>
-            <div class="history-table-wrapper">
-                <table class="history-table" id="historyTable">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="history-select-all"></th>
-                            <th class="sortable" data-sort="no">No. <span class="sort-icon"></span></th>
-                            <th class="sortable" data-sort="postcode">郵便番号 <span class="sort-icon"></span></th>
-                            <th class="sortable" data-sort="address">住所 <span class="sort-icon"></span></th>
-                            <th class="sortable" data-sort="lat">緯度 <span class="sort-icon"></span></th>
-                            <th class="sortable" data-sort="lon">経度 <span class="sort-icon"></span></th>
-                            <th class="sortable" data-sort="elevation">標高(m) <span class="sort-icon"></span></th>
-                            <th class="sortable sorted" data-sort="timestamp">取得日時 <span class="sort-icon">▼</span></th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <!-- 履歴データがここに動的に挿入されます -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <!-- ▲▲▲ ここまで新規追加 ▲▲▲ -->
-
     </div>
     
     <div id="resizer"></div>
@@ -1556,20 +1594,62 @@ body.dark-mode #btn-uncheck-all {
                 <button id="pinPanelBtn" onclick="togglePinPanel()" class="mobile-hidden">📌 ピン留め</button>
                 <button id="closePanelBtnMobile" onclick="toggleRightPanel()" class="desktop-hidden">▶ 閉じる</button>
             </div>
-            <div class="favorite-sets-container">
-                <div class="favorite-set-row">
-                    <label for="favorite-sets">お気に入りセット:</label>
-                    <select id="favorite-sets"></select>
+        </div>
+        
+        <div class="panel-tabs">
+            <button class="panel-tab active" data-tab="map-links">🗺️ 地図リンク</button>
+            <button class="panel-tab" data-tab="history">⏱️ 履歴一覧</button>
+        </div>
+        <div class="panel-content-wrapper">
+            <div id="map-links-content" class="panel-content active">
+                <div class="favorite-sets-container">
+                    <div class="favorite-set-row">
+                        <label for="favorite-sets">お気に入りセット:</label>
+                        <select id="favorite-sets"></select>
+                    </div>
+                    <div class="favorite-set-row button-row">
+                        <button id="open-set" class="btn-open-set">▶️ 開く</button>
+                        <button id="clear-all-checks" class="btn-clear-checks">❌ 解除</button>
+                        <button id="save-set" class="btn-save-set">💾保存</button>
+                        <button id="delete-set" class="btn-delete-set">🗑️削除</button>
+                    </div>
                 </div>
-                <div class="favorite-set-row button-row">
-                    <button id="open-set" class="btn-open-set">▶️ 開く</button>
-                    <button id="clear-all-checks" class="btn-clear-checks">❌ 解除</button>
-                    <button id="save-set" class="btn-save-set">💾保存</button>
-                    <button id="delete-set" class="btn-delete-set">🗑️削除</button>
+                <div id="map-categories-container"></div>
+            </div>
+
+            <div id="history-content" class="panel-content">
+                <div class="history-table-container">
+                    <div class="history-table-controls">
+                        <input type="search" id="historySearchInput" placeholder="住所などで履歴を検索...">
+                        <button id="btn-copy-table" title="表示中のテーブル全体をExcel等に貼り付けられる形式でコピーします">📋 テーブルコピー</button>
+                        <button id="btn-copy-selected" disabled>📋 選択をコピー</button>
+                        <button id="btn-delete-selected" disabled>🗑️ 選択を削除</button>
+                        <div class="history-map-toggle-wrapper" style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <label for="history-map-toggle" style="font-size: 13px; font-weight: 600; cursor: pointer;">地図に履歴を表示</label>
+                            <input type="checkbox" id="history-map-toggle" style="width: 18px; height: 18px; cursor: pointer;">
+                        </div>
+                    </div>
+                    <div class="history-table-wrapper">
+                        <table class="history-table" id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="history-select-all"></th>
+                                    <th class="sortable" data-sort="no">No. <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="postcode">郵便番号 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="address">住所 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="lat">緯度 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="lon">経度 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="elevation">標高(m) <span class="sort-icon"></span></th>
+                                    <th class="sortable sorted" data-sort="timestamp">取得日時 <span class="sort-icon">▼</span></th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="content" id="map-categories-container"></div>
     </div>
 </div>
 
@@ -1724,6 +1804,27 @@ body.dark-mode #btn-uncheck-all {
         </div>
     </div>
 </div>
+
+<!-- ▼▼▼ 標高断面図モーダル (修正版) ▼▼▼ -->
+<div class="modal-overlay" id="profile-modal">
+    <div class="modal-content" style="max-width: 90vw; width: 600px; height: auto;">
+        <button type="button" class="modal-close-btn" id="btn-profile-modal-close" title="閉じる">&times;</button>
+        <h3 id="profile-modal-header" style="cursor: move;">標高断面図</h3>
+        <div style="position: relative; width: 100%; height: 300px; margin-bottom: 10px; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color);">
+            <canvas id="profileChart"></canvas>
+        </div>
+        <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; padding: 0 10px;">
+            <input type="checkbox" id="y-axis-toggle" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
+            <label for="y-axis-toggle" style="font-size: 14px; cursor: pointer; user-select: none;">Y軸を0から始める</label>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="btn-base" id="btn-export-profile-csv" style="background-color: var(--success-color);">💾 データをCSVで書き出す</button>
+            <button type="button" class="btn-modal-cancel" id="btn-profile-modal-cancel">閉じる</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ ここまで ▲▲▲ -->
+
 <script>
 /**
  * 世界測地系(WGS84)から日本測地系(Tokyo Datum)へ座標を変換する関数
@@ -1760,16 +1861,23 @@ let MAX_HISTORY = 100;
 const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORITE_SETS_KEY = 'favoriteSets', SETTINGS_KEY = 'geoLinkNaviSettings';
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 let navigationHistory = [], historyIndex = -1, MAX_NAV_HISTORY = 100;
+let currentCoordsRequestId = 0;
+let profileChartInstance = null;
+let lastProfileData = null;
+let rolloverMarker = null;
 let isFirstMapLoad = true;
 let googleMapType = 'k';
+
+let historyLayer = null; 
+let isHistoryVisibleOnMap = false; 
+
+let startIcon, endIcon;
 
 const defaultSettings = { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std', panelState: 'closed', panelWidth: 500 };
 let currentSettings = {};
 
-// ▼▼▼ ここから新規・変更 ▼▼▼
-let historySortState = { column: 'timestamp', order: 'desc' }; // 履歴テーブルのソート状態
+let historySortState = { column: 'timestamp', order: 'desc' };
 const $historyTableBody = document.getElementById('historyTableBody');
-// ▲▲▲ ここまで新規・変更 ▲▲▲
 
 function loadSettings() {
     const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
@@ -1786,13 +1894,10 @@ function applySettings() {
     const historyHeader = $historyPopup.querySelector('h4');
     if(historyHeader) historyHeader.textContent = `座標履歴 (最新${MAX_HISTORY}件)`;
 
-    const panelWidthPx = `${currentSettings.panelWidth}px`;
-    document.documentElement.style.setProperty('--panel-width', panelWidthPx);
-    document.querySelector('.right-panel').style.width = panelWidthPx;
+    updatePanelWidth(currentSettings.panelWidth);
     
     if (!location.search) {
-        $zoom.value = currentSettings.defaultZoom;
-        $zoomDisplay.textContent = currentSettings.defaultZoom;
+        setZoomLevel(currentSettings.defaultZoom);
     }
 }
 
@@ -1842,8 +1947,9 @@ function saveSettings(e) {
 
 function showNotification(message, type = 'success') { $notification.textContent = message; $notification.className = `notification ${type}`; $notification.style.display = 'block'; setTimeout(() => $notification.style.display = 'none', 3000); }
 
-// ★★★ START: MODIFIED FUNCTION ★★★
 async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fromNav = false) {
+    const requestId = ++currentCoordsRequestId;
+
     let latNum, lonNum;
     try {
         if (newCoords && typeof newCoords.lat === 'number' && typeof newCoords.lon === 'number') {
@@ -1868,7 +1974,6 @@ async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fr
     if (latNum >= -90 && latNum <= 90 && lonNum >= -180 && lonNum <= 180) {
         currentLatLon = { lat: latNum, lon: lonNum };
         $coordsDisplay.textContent = `${latNum.toFixed(8)}°N, ${lonNum.toFixed(8)}°E`;
-        $currentZoom.textContent = zoomNum;
         updateMapPreview(latNum, lonNum, zoomNum);
         initOSMClickMap(latNum, lonNum, zoomNum);
 
@@ -1889,6 +1994,10 @@ async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fr
             getElevationFromCoords(latNum, lonNum)
         ]);
 
+        if (requestId !== currentCoordsRequestId) {
+            return; 
+        }
+
         const popupContent = `
             <div style="font-size: 13px; line-height: 1.6;">
                 <strong>郵便番号:</strong> ${escapeXml(addressInfo.postcode || '---')}<br>
@@ -1899,7 +2008,8 @@ async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fr
             </div>
         `;
         if (osmMarker) {
-            osmMarker.setPopupContent(popupContent).openPopup();
+            osmMarker.setPopupContent(popupContent);
+            osmMarker.openPopup();
         }
 
         if (!skipHistorySave) {
@@ -1908,11 +2018,10 @@ async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fr
             showNotification('座標を更新しました');
         }
         
+        renderHistoryOnMap();
         updateNavButtons();
     }
 }
-// ★★★ END: MODIFIED FUNCTION ★★★
-
 async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
 
 function updateMapPreview(lat, lon, zoom) {
@@ -1938,7 +2047,6 @@ function toggleMainMap() {
     }
 }
 
-// ★★★ START: MODIFIED FUNCTION ★★★
 function initOSMClickMap(lat, lon, zoom) {
     const latlng = [lat, lon];
     if (osmMap === null) {
@@ -1978,10 +2086,8 @@ function initOSMClickMap(lat, lon, zoom) {
         osmMap.on('zoomend', () => {
             const newZoom = osmMap.getZoom();
             if (newZoom !== parseInt($zoom.value, 10)) {
-                $zoom.value = newZoom;
-                $zoomDisplay.textContent = newZoom;
+                setZoomLevel(newZoom);
                 updateMapPreview(currentLatLon.lat, currentLatLon.lon, newZoom);
-                $currentZoom.textContent = newZoom;
             }
         });
         osmMap.on('click', async e => {
@@ -1996,9 +2102,14 @@ function initOSMClickMap(lat, lon, zoom) {
         });
         osmMap.on('mousemove', e => { if (isMeasuring) handleMeasureMouseMove(e); });
 
-        // Bind a popup to the marker
-        osmMarker = L.marker(latlng).addTo(osmMap)
-                       .bindPopup("情報を読み込み中...");
+        historyLayer = L.layerGroup().addTo(osmMap);
+
+osmMarker = L.marker(latlng).addTo(osmMap)
+               .bindPopup("情報を読み込み中...");
+
+        osmMarker.on('mousedown', (e) => {
+            L.DomEvent.stopPropagation(e);
+        });
 
         const zoomSliderOverlay = document.querySelector('.zoom-slider-overlay');
         if (zoomSliderOverlay) {
@@ -2028,7 +2139,6 @@ function initOSMClickMap(lat, lon, zoom) {
         applyInitialPanelState();
     }
 }
-// ★★★ END: MODIFIED FUNCTION ★★★
 
 function applyInitialPanelState() {
     if (window.innerWidth <= 1024) return;
@@ -2046,17 +2156,11 @@ function applyInitialPanelState() {
     }
 }
 
-// ▼▼▼ ここから新規・変更 ▼▼▼
-/**
- * 緯度経度から住所情報を取得する (OpenStreetMap Nominatim API)
- */
 async function getAddressFromCoords(lat, lon) {
     try {
-        // HeartRails Geo APIを使用 (xが経度、yが緯度なので注意)
         const response = await fetch(`https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=${lon}&y=${lat}`);
         const data = await response.json();
 
-        // APIからエラーが返された、または地名情報が見つからなかった場合
         if (!data.response || !data.response.location || data.response.location.length === 0) {
             console.error("HeartRails APIからの住所取得に失敗:", data);
             return { full: `(住所取得失敗)`, postcode: '---', structured: '---' };
@@ -2064,14 +2168,11 @@ async function getAddressFromCoords(lat, lon) {
 
         const loc = data.response.location[0];
         
-        // 郵便番号を取得 (ハイフン付き形式に整形)
         const postcode = loc.postal ? `${loc.postal.slice(0, 3)}-${loc.postal.slice(3)}` : '---';
-        
-        // 住所を連結して作成
         const structuredAddress = `${loc.prefecture || ''}${loc.city || ''}${loc.town || ''}`;
 
         return {
-            full: structuredAddress, // fullとstructuredに同じ住所を設定
+            full: structuredAddress,
             postcode: postcode,
             structured: structuredAddress
         };
@@ -2081,9 +2182,6 @@ async function getAddressFromCoords(lat, lon) {
     }
 }
 
-/**
- * 緯度経度から標高を取得する (国土地理院 API)
- */
 async function getElevationFromCoords(lat, lon) {
   try {
     const response = await fetch(`https://cyberjapandata2.gsi.go.jp/general/dem/scripts/getelevation.php?lon=${lon}&lat=${lat}&outtype=JSON`);
@@ -2098,8 +2196,6 @@ async function getElevationFromCoords(lat, lon) {
   }
 }
 
-// ★★★ START: MODIFIED FUNCTION ★★★
-// Renamed from saveCoordinateToHistory and changed arguments
 async function addCoordinateToHistory(lat, lon, zoom, addressInfo, elevation) {
     let history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
     
@@ -2118,10 +2214,10 @@ async function addCoordinateToHistory(lat, lon, zoom, addressInfo, elevation) {
         localStorage.setItem('coordinateHistory', JSON.stringify(history.slice(0, MAX_HISTORY)));
         renderHistoryList(history);
         renderHistoryTable();
+        renderHistoryOnMap();
     }
     showNotification('座標履歴を追加しました');
 }
-// ★★★ END: MODIFIED FUNCTION ★★★
 
 async function getCoordsFromAddress(address) {
   try {
@@ -2158,28 +2254,19 @@ async function getAddressSuggestions(query) {
     return [];
   }
 }
-/**
- * 郵便番号から緯度経度を取得する (zipcloud API と 地理院地図APIを利用)
- */
 async function getCoordsFromPostalCode(postalCode) {
   try {
-    // 1. zipcloud APIを使用して郵便番号から住所を取得
-    // ハイフンはあってもなくても検索可能
     const zipcloudResponse = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode.replace('-', '')}`);
     const zipcloudData = await zipcloudResponse.json();
 
-    // zipcloud APIから有効な結果が得られなかった場合
     if (zipcloudData.status !== 200 || !zipcloudData.results) {
       console.error("zipcloud APIで郵便番号が見つかりませんでした:", zipcloudData.message);
       return null;
     }
 
-    // 取得した住所情報を連結して、検索用の住所文字列を作成
     const addressResult = zipcloudData.results[0];
     const fullAddress = `${addressResult.address1}${addressResult.address2}${addressResult.address3}`;
     
-    // 2. 取得した住所を、既存の住所検索関数に渡して座標を取得
-    // これにより、APIを効率的に再利用できる
     console.log(`郵便番号から住所「${fullAddress}」を取得し、座標を検索します。`);
     return await getCoordsFromAddress(fullAddress);
     
@@ -2189,9 +2276,16 @@ async function getCoordsFromPostalCode(postalCode) {
   }
 }
 function renderHistoryList(history) { $historyList.innerHTML = history.length === 0 ? '<p>履歴はありません。</p>' : history.map((item, index) => `<div class="history-item" data-index="${index}"><strong>${index + 1}. ${item.address}</strong><span>座標: ${item.lat}°N, ${item.lon}°E | ${new Date(item.timestamp).toLocaleString()}</span></div>`).join(''); }
-function loadCoordinateFromHistory(item) { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords(item, true); toggleHistoryPopup(false); showNotification(`履歴「${item.address}」を適用`); }
+
+function loadCoordinateFromHistory(item) {
+    updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon));
+    setZoomLevel(item.zoom);
+    updateCurrentCoords(item, true);
+    toggleHistoryPopup(false);
+    showNotification(`履歴「${item.address}」を適用`);
+}
 function toggleHistoryPopup(open = true) { if (open && $historyPopup.style.display !== 'block') { renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]')); $historyPopup.style.display = 'block'; $bookmarkPopup.style.display = 'none'; } else { $historyPopup.style.display = 'none'; } }
-function clearHistory() { if (confirm('履歴を全削除しますか？')) { localStorage.removeItem('coordinateHistory'); renderHistoryList([]); renderHistoryTable(); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
+function clearHistory() { if (confirm('履歴を全削除しますか？')) { localStorage.removeItem('coordinateHistory'); renderHistoryList([]); renderHistoryTable(); renderHistoryOnMap(); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
 function exportHistoryToCSV() { const d = JSON.parse(localStorage.getItem('coordinateHistory')||'[]'); if(d.length>0) exportToCSV(d, '座標履歴'); else showNotification('履歴がありません', 'error'); }
 
 function saveCurrentAsBookmark() {
@@ -2222,7 +2316,26 @@ function renderBookmarkList() {
     ).join('');
 }
 
-function handleBookmarkAction(index, action) { const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), item = b[index]; if (!item) return; if (action === 'load') { updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon)); $zoom.value = item.zoom; updateCurrentCoords({lat: parseFloat(item.lat), lon: parseFloat(item.lon)}, true); toggleBookmarkPopup(false); showNotification(`「${item.name}」を適用`); } else if (action === 'open') { window.open(`https://maps.google.co.jp/maps?q=${item.lat},${item.lon}&z=${item.zoom}`, '_blank'); } else if (action === 'delete') { if (confirm(`「${item.name}」を削除しますか？`)) { b.splice(index, 1); localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b)); renderBookmarkList(); showNotification('削除しました'); } } }
+function handleBookmarkAction(index, action) {
+    const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), item = b[index];
+    if (!item) return;
+    if (action === 'load') {
+        updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon));
+        setZoomLevel(item.zoom);
+        updateCurrentCoords({lat: parseFloat(item.lat), lon: parseFloat(item.lon)}, true);
+        toggleBookmarkPopup(false);
+        showNotification(`「${item.name}」を適用`);
+    } else if (action === 'open') {
+        window.open(`https://maps.google.co.jp/maps?q=${item.lat},${item.lon}&z=${item.zoom}`, '_blank');
+    } else if (action === 'delete') {
+        if (confirm(`「${item.name}」を削除しますか？`)) {
+            b.splice(index, 1);
+            localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b));
+            renderBookmarkList();
+            showNotification('削除しました');
+        }
+    }
+}
 function toggleBookmarkPopup(open = true) { if (open && $bookmarkPopup.style.display !== 'block') { renderBookmarkList(); $bookmarkPopup.style.display = 'block'; $historyPopup.style.display = 'none'; } else { $bookmarkPopup.style.display = 'none'; } }
 function clearBookmarks() { if (confirm('ブックマークを全削除しますか？')) { localStorage.removeItem(BOOKMARK_KEY); renderBookmarkList([]); showNotification('ブックマークをクリアしました'); toggleBookmarkPopup(false); } }
 function exportBookmarksToCSV() { const d = JSON.parse(localStorage.getItem(BOOKMARK_KEY)||'[]'); if(d.length>0) exportToCSV(d, 'bookmarks_export'); else showNotification('ブックマークがありません', 'error'); }
@@ -2272,7 +2385,6 @@ function toggleDarkMode() {
     applySettings();
 }
 
-// updateCurrentCoordsの呼び出し方を明確化
 async function searchAddress() {
     const query = $addressInput.value.trim();
     if (!query) return showNotification('住所または郵便番号を入力してください', 'error');
@@ -2283,7 +2395,6 @@ async function searchAddress() {
     showNotification('検索中...');
 
     if (postalCodeRegex.test(query)) {
-        // 郵便番号検索
         coords = await getCoordsFromPostalCode(query);
         if (coords) {
             showNotification(`郵便番号「${query}」の座標を設定`);
@@ -2293,7 +2404,6 @@ async function searchAddress() {
             showNotification('該当する郵便番号が見つかりません', 'error');
         }
     } else {
-        // 住所検索
         coords = await getCoordsFromAddress(query);
         if (coords) {
             showNotification(`「${query}」の座標を設定`);
@@ -2314,7 +2424,6 @@ async function selectAutocompleteItem(index) {
         $addressInput.value = selected.display_name;
         const coords = { lat: parseFloat(selected.lat), lon: parseFloat(selected.lon) };
         updateLatLonInputs(coords.lat, coords.lon);
-        // 取得した座標を直接引数として渡すように修正
         await updateCurrentCoords(coords);
         $autocompleteList.classList.remove('show');
     }
@@ -2335,7 +2444,6 @@ async function pasteCoordinates() {
         if (match) {
             const coords = { lat: parseFloat(match[1]), lon: parseFloat(match[2]) };
             updateLatLonInputs(coords.lat, coords.lon);
-            // 取得した座標を直接引数として渡すように修正
             await updateCurrentCoords(coords);
             showNotification('座標を貼り付けました');
         } else {
@@ -2556,17 +2664,34 @@ tempMeasureLine = L.polyline(currentPoints, { color: 'blue', dashArray: '5, 5' }
 if(tempMeasureMarker) tempMeasureMarker.setLatLng(e.latlng);
 updateMeasureTooltip(e.latlng);
 }
+
 function handleMeasureDoubleClick(e) {
-if (measurePoints.length < 1) {
-toggleMeasureMode(true);
-return;
-}
-measurePoints.push(e.latlng);
-const finalLine = L.polyline(measurePoints, { color: 'blue' }).addTo(analysisLayer);
-const totalDistance = calculateTotalDistance(measurePoints);
-const distText = totalDistance > 1000 ? (totalDistance / 1000).toFixed(2) + ' km' : totalDistance.toFixed(1) + ' m';
-finalLine.bindPopup(`<b>総距離:</b> ${distText}`).openPopup();
-toggleMeasureMode(true);
+    if (measurePoints.length < 1) {
+        toggleMeasureMode(true);
+        return;
+    }
+    const finalPoints = [...measurePoints, e.latlng];
+    const finalLine = L.polyline(finalPoints, { color: 'blue' }).addTo(analysisLayer);
+    const totalDistance = calculateTotalDistance(finalPoints);
+    const distText = totalDistance > 1000 ? (totalDistance / 1000).toFixed(2) + ' km' : totalDistance.toFixed(1) + ' m';
+    
+    if (finalPoints.length > 0) {
+        L.marker(finalPoints[0], { icon: startIcon }).addTo(analysisLayer).bindPopup('<b>スタート地点</b>');
+        L.marker(finalPoints[finalPoints.length - 1], { icon: endIcon }).addTo(analysisLayer).bindPopup('<b>エンド地点</b>');
+    }
+
+    const popupContent = document.createElement('div');
+    popupContent.innerHTML = `<b>総距離:</b> ${distText}<br>`;
+    const profileButton = document.createElement('button');
+    profileButton.textContent = '📈 標高断面図を作成';
+    profileButton.style.marginTop = '10px';
+    profileButton.style.cursor = 'pointer';
+    profileButton.onclick = () => generateProfileChart(finalPoints);
+    popupContent.appendChild(profileButton);
+
+    finalLine.bindPopup(popupContent).openPopup();
+
+    toggleMeasureMode(true);
 }
 function updateMeasureTooltip(latlng) {
 if (!measureTooltip) return;
@@ -2697,7 +2822,10 @@ function exportAnalysisToKML() {
             const points = circleToPolygonPoints(layer);
             const coords = latLngsToKmlCoordinates(points, true);
             kmlGeom = `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
+        } else if (layer instanceof L.Marker) {
+            return;
         }
+
         if (kmlGeom) {
             placemarks += `<Placemark><name>${escapeXml(name)}</name><styleUrl>${styleUrl}</styleUrl>${kmlGeom}</Placemark>\n`;
         }
@@ -2836,7 +2964,19 @@ function closeQrModal() {
 }
 
 
-function applyStateFromUrl() { const p = new URLSearchParams(location.search); const lat=p.get('lat'),lon=p.get('lon'),zoom=p.get('zoom'),chk=p.get('checked'); if (lat&&lon) { updateLatLonInputs(parseFloat(lat),parseFloat(lon)); if(zoom)$zoom.value=zoom; if(chk) chk.split(',').forEach(i=>{const c=document.querySelector(`.map-checkbox[data-map-id="${i}"]`);if(c)c.checked=true;}); history.replaceState(null,'',location.pathname); return true; } return false; }function convertUrlToTemplate() {
+function applyStateFromUrl() {
+    const p = new URLSearchParams(location.search);
+    const lat = p.get('lat'), lon = p.get('lon'), zoom = p.get('zoom'), chk = p.get('checked');
+    if (lat && lon) {
+        updateLatLonInputs(parseFloat(lat), parseFloat(lon));
+        if (zoom) setZoomLevel(zoom);
+        if (chk) chk.split(',').forEach(i => { const c = document.querySelector(`.map-checkbox[data-map-id="${i}"]`); if (c) c.checked = true; });
+        history.replaceState(null, '', location.pathname);
+        return true;
+    }
+    return false;
+}
+function convertUrlToTemplate() {
     const exampleUrl = document.getElementById('mylink-example-url').value.trim();
     if (!exampleUrl) {
         showNotification('URLを貼り付けてください。', 'error');
@@ -2961,30 +3101,33 @@ function toggleRightPanel() {
     const rightPanel = document.querySelector('.right-panel');
     const btns = document.querySelectorAll('.js-toggle-panel-btn');
     const overlay = document.getElementById('panelOverlay');
+    const isPinned = document.querySelector('.main-layout').classList.contains('pinned');
+    const isOpening = rightPanel.classList.contains('hidden');
+
+    if (isOpening && !isPinned) {
+        rightPanel.style.width = '1000px';
+        rightPanel.style.maxWidth = '90vw';
+    }
 
     rightPanel.classList.toggle('hidden');
-    const isHidden = rightPanel.classList.contains('hidden');
+
+    if (!isOpening && !isPinned) {
+        rightPanel.style.width = ''; 
+        rightPanel.style.maxWidth = '';
+    }
 
     btns.forEach(btn => {
-        if (isHidden) {
-            btn.innerHTML = '◀';
-            btn.title = 'パネルを開く';
-        } else {
-            btn.innerHTML = '▶';
-            btn.title = 'パネルを閉じる';
-        }
+        btn.innerHTML = rightPanel.classList.contains('hidden') ? '◀' : '▶';
+        btn.title = rightPanel.classList.contains('hidden') ? 'パネルを開く' : 'パネルを閉じる';
     });
 
-    if (isHidden) {
-        overlay.classList.remove('show');
-    } else {
-        overlay.classList.add('show');
-    }
+    overlay.classList.toggle('show', !rightPanel.classList.contains('hidden'));
 
     setTimeout(() => {
         if (window.osmMap) window.osmMap.invalidateSize();
     }, 400);
 }
+
 
 function togglePinPanel() {
     const mainLayout = document.querySelector('.main-layout');
@@ -2995,16 +3138,14 @@ function togglePinPanel() {
     const isPinned = mainLayout.classList.toggle('pinned');
     pinBtn.classList.toggle('pinned', isPinned);
     
+    rightPanel.style.width = '';
+    rightPanel.style.maxWidth = '';
+    updatePanelWidth(currentSettings.panelWidth);
+
     toggleBtns.forEach(btn => {
         btn.disabled = isPinned;
-
-        if (isPinned) {
-            btn.innerHTML = '▶';
-            btn.title = 'パネルは固定されています';
-        } else {
-            btn.innerHTML = '◀';
-            btn.title = 'パネルを開く';
-        }
+        btn.title = isPinned ? 'パネルは固定されています' : 'パネルを開く';
+        if (!isPinned) btn.innerHTML = '◀';
     });
 
     if (isPinned) {
@@ -3055,7 +3196,7 @@ function initResizer() {
             window.removeEventListener('mousemove', mouseMoveHandler);
             window.removeEventListener('mouseup', mouseUpHandler);
             
-            currentSettings.panelWidth = parseInt(rightPanel.style.width, 10);
+            currentSettings.panelWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--panel-width'));
             localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
         };
 
@@ -3066,12 +3207,7 @@ function initResizer() {
 
 function updatePanelWidth(newWidth) {
     const newWidthPx = `${newWidth}px`;
-    const rightPanel = document.querySelector('.right-panel');
-    const resizer = document.getElementById('resizer');
-
-    rightPanel.style.width = newWidthPx;
     document.documentElement.style.setProperty('--panel-width', newWidthPx);
-    resizer.style.right = newWidthPx;
     if (window.osmMap) {
         window.osmMap.invalidateSize();
     }
@@ -3170,12 +3306,10 @@ function handleFileSelect(event) {
     reader.readAsText(file);
 }
 
-// ▼▼▼ ここから新規追加（履歴テーブル関連）▼▼▼
 function renderHistoryTable() {
     const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
     const filterText = document.getElementById('historySearchInput').value.toLowerCase();
 
-    // フィルター処理
     let filteredData = historyData.filter(item => {
         return (item.address && item.address.toLowerCase().includes(filterText)) ||
                (item.postcode && item.postcode.toLowerCase().includes(filterText)) ||
@@ -3183,7 +3317,6 @@ function renderHistoryTable() {
                (item.lon && item.lon.toLowerCase().includes(filterText));
     });
 
-    // ソート処理
     filteredData.sort((a, b) => {
         const col = historySortState.column;
         const order = historySortState.order === 'asc' ? 1 : -1;
@@ -3202,7 +3335,6 @@ function renderHistoryTable() {
         return 0;
     });
 
-    // HTML生成
     $historyTableBody.innerHTML = filteredData.map((item, index) => {
         const originalIndex = historyData.findIndex(h => h.timestamp === item.timestamp);
         return `
@@ -3240,6 +3372,7 @@ function handleHistoryTableClick(e) {
 
     if (e.target.classList.contains('history-item-checkbox')) {
         updateHistoryTableControls();
+        renderHistoryOnMap(); 
         return;
     }
     
@@ -3253,7 +3386,7 @@ function handleHistoryTableClick(e) {
                 item.lon,
                 item.elevation,
                 new Date(item.timestamp).toLocaleString()
-            ].join('\t'); // TSV形式
+            ].join('\t');
             navigator.clipboard.writeText(rowData).then(() => showNotification('行データをコピーしました。'));
         } else if (e.target.classList.contains('delete')) {
             if (confirm(`履歴No.${historyIndex + 1}を削除しますか？`)) {
@@ -3261,16 +3394,19 @@ function handleHistoryTableClick(e) {
                 localStorage.setItem('coordinateHistory', JSON.stringify(historyData));
                 renderHistoryTable();
                 renderHistoryList(historyData);
+                renderHistoryOnMap();
                 showNotification('履歴を削除しました。');
             }
         }
     } else {
-        // 行クリックで地図移動
+        highlightHistoryTableRow(historyIndex);
         updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon));
-        $zoom.value = item.zoom;
+        setZoomLevel(item.zoom);
         updateCurrentCoords({lat: parseFloat(item.lat), lon: parseFloat(item.lon)}, true);
         showNotification(`履歴No.${historyIndex + 1}の座標に移動しました。`);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (!document.querySelector('.main-layout').classList.contains('pinned')) {
+            toggleRightPanel();
+        }
     }
 }
 
@@ -3284,12 +3420,117 @@ function updateHistoryTableControls() {
     const selectAllCheckbox = document.getElementById('history-select-all');
     selectAllCheckbox.checked = allCheckboxes.length > 0 && selectedCheckboxes.length === allCheckboxes.length;
 }
-// ▲▲▲ ここまで新規追加（履歴テーブル関連）▲▲▲
 
+function setZoomLevel(zoom) {
+    const zoomVal = parseInt(zoom, 10);
+    if (isNaN(zoomVal)) return;
+
+    $zoom.value = zoomVal;
+    $zoomDisplay.textContent = zoomVal;
+    $currentZoom.textContent = zoomVal;
+}
+
+function highlightHistoryTableRow(historyIndex) {
+    document.querySelectorAll('#historyTableBody tr').forEach(row => {
+        row.style.backgroundColor = '';
+    });
+    const targetRow = document.querySelector(`#historyTableBody tr[data-history-index="${historyIndex}"]`);
+    if (targetRow) {
+        targetRow.style.backgroundColor = 'rgba(102, 126, 234, 0.3)';
+        const wrapper = document.querySelector('.history-table-wrapper');
+        const header = document.querySelector('.history-table thead');
+        const headerHeight = header ? header.offsetHeight : 0;
+        const scrollToPosition = targetRow.offsetTop - headerHeight;
+        wrapper.scrollTo({
+            top: scrollToPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+function renderHistoryOnMap() {
+    if (!osmMap || !historyLayer) return;
+
+    if (!isHistoryVisibleOnMap) {
+        historyLayer.clearLayers();
+        return;
+    }
+
+    const allHistoryData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
+    let dataToShow = [];
+
+    if (selectedCheckboxes.length > 0) {
+        const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.historyIndex, 10));
+        dataToShow = allHistoryData.filter((_, index) => selectedIndices.includes(index));
+    } else {
+        dataToShow = allHistoryData;
+    }
+    
+    const currentPosString = `${currentLatLon.lat.toFixed(8)},${currentLatLon.lon.toFixed(8)}`;
+    const idsToShow = new Set();
+
+    dataToShow.forEach(item => {
+        const itemPosString = `${parseFloat(item.lat).toFixed(8)},${parseFloat(item.lon).toFixed(8)}`;
+        if (itemPosString !== currentPosString) {
+            idsToShow.add(item.timestamp);
+        }
+    });
+
+    const existingMarkers = new Map();
+    historyLayer.eachLayer(layer => {
+        if (layer.options.historyId) {
+            existingMarkers.set(layer.options.historyId, layer);
+        }
+    });
+
+    existingMarkers.forEach((layer, id) => {
+        if (!idsToShow.has(id)) {
+            historyLayer.removeLayer(layer);
+        }
+    });
+
+    dataToShow.forEach(item => {
+        if (idsToShow.has(item.timestamp) && !existingMarkers.has(item.timestamp)) {
+            const originalIndex = allHistoryData.findIndex(h => h.timestamp === item.timestamp);
+            const itemLat = parseFloat(item.lat);
+            const itemLon = parseFloat(item.lon);
+            if (isNaN(itemLat) || isNaN(itemLon)) return;
+
+            const historyMarker = L.circleMarker([itemLat, itemLon], {
+                radius: 7,
+                fillColor: "#3498db",
+                color: "#fff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8,
+                historyId: item.timestamp 
+            }).addTo(historyLayer);
+
+            historyMarker.bindPopup(`<b>履歴 No.${originalIndex + 1}</b><br>${escapeXml(item.address || '---')}<br><small>${item.lat}, ${item.lon}</small>`);
+            
+            historyMarker.on('click', () => {
+                highlightHistoryTableRow(originalIndex);
+                updateLatLonInputs(itemLat, itemLon);
+                updateCurrentCoords({lat: itemLat, lon: itemLon}, true);
+            });
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 現在地ボタン用のLeafletコントロールを定義
     if (window.L) {
+        startIcon = L.icon({
+            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-icon-start.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-shadow.png',
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+        });
+        endIcon = L.icon({
+            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-icon-end.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-shadow.png',
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+        });
+
         L.Control.CurrentLocation = L.Control.extend({
             onAdd: function(map) {
                 const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
@@ -3298,81 +3539,73 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.title = '現在地を表示';
                 link.role = 'button';
                 link.setAttribute('aria-label', '現在地を表示');
-                link.innerHTML = '🎯'; // アイコン
-
-                link.style.width = '30px';
-                link.style.height = '30px';
-                link.style.lineHeight = '30px';
-                link.style.fontSize = '1.4em';
-                link.style.textAlign = 'center';
-
+                link.innerHTML = '🎯';
+                link.style.width = '30px'; link.style.height = '30px'; link.style.lineHeight = '30px';
+                link.style.fontSize = '1.4em'; link.style.textAlign = 'center';
                 L.DomEvent.on(container, 'click', L.DomEvent.stopPropagation)
                           .on(container, 'click', L.DomEvent.preventDefault)
                           .on(container, 'click', this._locate, this);
-                
-                container.style.backgroundColor = 'white';
-                link.style.color = '#333';
-
+                container.style.backgroundColor = 'white'; link.style.color = '#333';
                 return container;
             },
-
             _locate: async function() {
                 showNotification('現在地を取得中です...');
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        const latlng = [lat, lon];
-                        
-                        this._map.flyTo(latlng, this._map.getZoom());
-                        
+                        const lat = position.coords.latitude, lon = position.coords.longitude;
+                        this._map.flyTo([lat, lon], this._map.getZoom());
                         updateLatLonInputs(lat, lon);
                         await updateCurrentCoords();
-                        
                         showNotification('現在地を表示しました');
                     },
-                    () => {
-                        showNotification('現在地の取得に失敗しました。', 'error');
-                    },
+                    () => { showNotification('現在地の取得に失敗しました。', 'error'); },
                     { enableHighAccuracy: true }
                 );
             },
             onRemove: function(map) {}
         });
-
-        L.control.currentLocation = function(opts) {
-            return new L.Control.CurrentLocation(opts);
-        }
+        L.control.currentLocation = function(opts) { return new L.Control.CurrentLocation(opts); }
     }
+
+const tabs = document.querySelectorAll('.panel-tab');
+const contents = document.querySelectorAll('.panel-content');
+const toggleCatBtn = document.getElementById('toggleAllCategoriesBtn');
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const targetContentId = tab.dataset.tab + '-content';
+        document.getElementById(targetContentId).classList.add('active');
+        toggleCatBtn.disabled = (tab.dataset.tab === 'history');
+    });
+});
 
 loadSettings();
 populateLayerSettings();
 renderMapCards();
 loadFavoriteSets();
 initResizer();
-
-// ▼▼▼ ここから変更 ▼▼▼
 renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]'));
-renderHistoryTable(); // 初期表示
-// ▲▲▲ ここまで変更 ▲▲▲
+renderHistoryTable();
 
 const today = new Date();
 document.getElementById('lastUpdated').textContent = `最終更新日: ${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
 
-if (applyStateFromUrl()) {
-    updateCurrentCoords(null, true, true);
-} else {
-    updateCurrentCoords(null, true, true);
-    initGeolocation();
-}
+if (applyStateFromUrl()) { updateCurrentCoords(null, true, true); } 
+else { updateCurrentCoords(null, true, true); initGeolocation(); }
+
 $lat.addEventListener('change', () => updateCurrentCoords());
 $lon.addEventListener('change', () => updateCurrentCoords());
-$zoom.addEventListener('input', e => $zoomDisplay.textContent = e.target.value);
+$zoom.addEventListener('input', e => {
+    const zoomVal = e.target.value;
+    $zoomDisplay.textContent = zoomVal;
+    $currentZoom.textContent = zoomVal;
+});
 $zoom.addEventListener('change', e => {
     const newZoom = parseInt(e.target.value, 10);
     if(osmMap) osmMap.setZoom(newZoom);
     updateMapPreview(currentLatLon.lat, currentLatLon.lon, newZoom);
-    $currentZoom.textContent = newZoom;
 });
 $coordFormatToggle.addEventListener('click', toggleCoordFormat);
 $addressInput.addEventListener('keypress', async e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? await selectAutocompleteItem(selectedAutocompleteIndex) : await searchAddress(); } });
@@ -3384,259 +3617,112 @@ $bookmarkList.addEventListener('click', e => { const i = e.target.closest('.book
 $mylinkForm.addEventListener('submit', saveMyLink);
 document.getElementById('btn-mylink-modal-cancel').addEventListener('click', closeMyLinkModal);
 $mylinkModal.addEventListener('click', e => e.target === $mylinkModal && closeMyLinkModal());
-
 document.getElementById('btn-convert-url').addEventListener('click', convertUrlToTemplate);
 document.getElementById('modeToggle').addEventListener('click', toggleDarkMode);
-
 const $settingsModal = document.getElementById('settings-modal');
 document.getElementById('settingsButton').addEventListener('click', openSettingsModal);
 document.getElementById('settings-form').addEventListener('submit', saveSettings);
 document.getElementById('btn-settings-modal-cancel').addEventListener('click', closeSettingsModal);
 $settingsModal.addEventListener('click', e => e.target === $settingsModal && closeSettingsModal());
-document.getElementById('settings-zoom').addEventListener('input', e => {
-    document.getElementById('settings-zoom-value').textContent = e.target.value;
-});
-document.getElementById('settings-panel-width').addEventListener('input', e => {
-    document.getElementById('settings-panel-width-value').textContent = e.target.value;
-    updatePanelWidth(e.target.value);
-});
-document.getElementById('reset-panel-width').addEventListener('click', () => {
-    const defaultValue = defaultSettings.panelWidth;
-    document.getElementById('settings-panel-width').value = defaultValue;
-    document.getElementById('settings-panel-width-value').textContent = defaultValue;
-    updatePanelWidth(defaultValue);
-});
-
-document.getElementById('navBack').addEventListener('click', () => {
-    if (historyIndex > 0) {
-        historyIndex--;
-        const state = navigationHistory[historyIndex];
-        updateLatLonInputs(state.lat, state.lon);
-        $zoom.value = state.zoom;
-        updateCurrentCoords(state, true, true);
-    }
-});
-
-document.getElementById('navForward').addEventListener('click', () => {
-    if (historyIndex < navigationHistory.length - 1) {
-        historyIndex++;
-        const state = navigationHistory[historyIndex];
-        updateLatLonInputs(state.lat, state.lon);
-        $zoom.value = state.zoom;
-        updateCurrentCoords(state, true, true);
-    }
-});
-
-document.getElementById('toggleAllCategoriesBtn').addEventListener('click', (e) => {
-    const btn = e.currentTarget;
-    const isCurrentlyCollapsed = document.querySelector('.category-header')?.classList.contains('collapsed');
-    if (isCurrentlyCollapsed) {
-        document.querySelectorAll('.category-header').forEach(header => {
-            header.classList.remove('collapsed');
-            header.nextElementSibling.classList.remove('hidden');
-        });
-        btn.textContent = '➖ すべて折りたたみ';
-    } else {
-        document.querySelectorAll('.category-header').forEach(header => {
-            header.classList.add('collapsed');
-            header.nextElementSibling.classList.add('hidden');
-        });
-        btn.textContent = '➕ すべて展開';
-    }
-});
-
+document.getElementById('settings-zoom').addEventListener('input', e => { document.getElementById('settings-zoom-value').textContent = e.target.value; });
+document.getElementById('settings-panel-width').addEventListener('input', e => { document.getElementById('settings-panel-width-value').textContent = e.target.value; updatePanelWidth(e.target.value); });
+document.getElementById('reset-panel-width').addEventListener('click', () => { const val = defaultSettings.panelWidth; document.getElementById('settings-panel-width').value = val; document.getElementById('settings-panel-width-value').textContent = val; updatePanelWidth(val); });
+document.getElementById('navBack').addEventListener('click', () => { if (historyIndex > 0) { historyIndex--; const state = navigationHistory[historyIndex]; updateLatLonInputs(state.lat, state.lon); setZoomLevel(state.zoom); updateCurrentCoords(state, true, true); } });
+document.getElementById('navForward').addEventListener('click', () => { if (historyIndex < navigationHistory.length - 1) { historyIndex++; const state = navigationHistory[historyIndex]; updateLatLonInputs(state.lat, state.lon); setZoomLevel(state.zoom); updateCurrentCoords(state, true, true); } });
+document.getElementById('toggleAllCategoriesBtn').addEventListener('click', (e) => { const btn = e.currentTarget, isCollapsed = document.querySelector('.category-header')?.classList.contains('collapsed'); if(isCollapsed){ document.querySelectorAll('.category-header').forEach(h => { h.classList.remove('collapsed'); h.nextElementSibling.classList.remove('hidden'); }); btn.textContent = '➖ すべて折りたたみ'; } else { document.querySelectorAll('.category-header').forEach(h => { h.classList.add('collapsed'); h.nextElementSibling.classList.add('hidden'); }); btn.textContent = '➕ すべて展開'; } });
 document.getElementById('favorite-sets').addEventListener('change', applyFavoriteSet);
 document.getElementById('save-set').addEventListener('click', saveFavoriteSet);
 document.getElementById('delete-set').addEventListener('click', deleteFavoriteSet);
-document.getElementById('clear-all-checks').addEventListener('click', () => {
-    document.querySelectorAll('.map-checkbox').forEach(cb => cb.checked = false);
-    document.getElementById('favorite-sets').value = '';
-    showNotification('すべてのチェックを解除しました。');
-});
+document.getElementById('clear-all-checks').addEventListener('click', () => { document.querySelectorAll('.map-checkbox').forEach(cb => cb.checked = false); document.getElementById('favorite-sets').value = ''; showNotification('すべてのチェックを解除しました。'); });
 document.getElementById('open-set').addEventListener('click', openFavoriteSet);
-document.getElementById('toggleMapTypeBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const btn = e.currentTarget;
-    if (googleMapType === 'k') {
-        googleMapType = 'm';
-        btn.textContent = '航空写真';
-    } else {
-        googleMapType = 'k';
-        btn.textContent = '市街地地図';
-    }
-    updateMapPreview(currentLatLon.lat, currentLatLon.lon, $zoom.value);
-});
-
-function handleUndoLastPoint(e) {
-    if (e.key !== 'Backspace' && e.key !== 'Delete') {
-        return;
-    }
-
-    if (isMeasuring && measurePoints.length > 0) {
-        e.preventDefault(); 
-        
-        measurePoints.pop();
-        const lastMarker = measurePointMarkers.pop();
-        if (lastMarker) analysisLayer.removeLayer(lastMarker);
-
-        analysisLayer.eachLayer(layer => {
-            if (layer instanceof L.Polyline && layer !== tempMeasureLine) {
-                 analysisLayer.removeLayer(layer);
-            }
-        });
-        
-        if (measurePoints.length > 1) {
-            L.polyline(measurePoints, { color: 'blue' }).addTo(analysisLayer);
-        }
-
-        if (measurePoints.length > 0) {
-           updateMeasureTooltip(measurePoints[measurePoints.length-1]);
-        } else if(measureTooltip) {
-           osmMap.removeLayer(measureTooltip);
-           measureTooltip = null;
-           if(tempMeasureMarker) {
-             analysisLayer.removeLayer(tempMeasureMarker);
-             tempMeasureMarker = null;
-           }
-        }
-    }
-
-    if (isMeasuringArea && areaPoints.length > 0) {
-        e.preventDefault();
-
-        areaPoints.pop();
-        const lastMarker = areaPointMarkers.pop();
-        if (lastMarker) analysisLayer.removeLayer(lastMarker);
-
-        if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon);
-        tempAreaPolygon = null;
-
-        if (areaPoints.length > 1) {
-            tempAreaPolygon = L.polygon(areaPoints, { color: '#9C27B0', weight: 2, fillOpacity: 0.1 }).addTo(analysisLayer);
-        }
-
-        if (areaPoints.length >= 3) {
-            const area = calculatePolygonArea(areaPoints);
-            const areaText = area > 1000000 ? `${(area / 1000000).toFixed(3)} km²` : `${area.toFixed(2)} m²`;
-            $areaDisplay.textContent = `面積: ${areaText}`;
-        } else {
-            $areaDisplay.textContent = '--- m²';
-        }
-    }
-}
+document.getElementById('toggleMapTypeBtn').addEventListener('click', (e) => { e.stopPropagation(); const btn = e.currentTarget; if (googleMapType === 'k') { googleMapType = 'm'; btn.textContent = '航空写真'; } else { googleMapType = 'k'; btn.textContent = '市街地地図'; } updateMapPreview(currentLatLon.lat, currentLatLon.lon, $zoom.value); });
 document.addEventListener('keydown', handleUndoLastPoint);
-
 document.getElementById('btn-export-data').addEventListener('click', exportData);
 document.getElementById('btn-import-data').addEventListener('click', importDataTrigger);
 document.getElementById('import-file-input').addEventListener('change', handleFileSelect);
-
-document.getElementById('btn-check-all').addEventListener('click', () => {
-    const checkboxes = document.querySelectorAll('#data-sync-checklist input[type="checkbox"]');
-    checkboxes.forEach(cb => cb.checked = true);
-});
-
-document.getElementById('btn-uncheck-all').addEventListener('click', () => {
-    const checkboxes = document.querySelectorAll('#data-sync-checklist input[type="checkbox"]');
-    checkboxes.forEach(cb => cb.checked = false);
-});
-
-document.querySelectorAll('#btn-route-google').forEach(button => {
-    button.addEventListener('click', () => {
-        const { lat, lon } = currentLatLon;
-        if (isNaN(lat) || isNaN(lon)) return showNotification('有効な座標がありません', 'error');
-        const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
-        window.open(url, '_blank');
-    });
-});
-
-// ▼▼▼ ここから新規追加（履歴テーブルのイベントリスナー）▼▼▼
+document.getElementById('btn-check-all').addEventListener('click', () => { document.querySelectorAll('#data-sync-checklist input[type="checkbox"]').forEach(cb => cb.checked = true); });
+document.getElementById('btn-uncheck-all').addEventListener('click', () => { document.querySelectorAll('#data-sync-checklist input[type="checkbox"]').forEach(cb => cb.checked = false); });
+document.querySelectorAll('#btn-route-google').forEach(button => { button.addEventListener('click', () => { const { lat, lon } = currentLatLon; if (isNaN(lat) || isNaN(lon)) return showNotification('有効な座標がありません', 'error'); window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank'); }); });
+document.getElementById('history-map-toggle').addEventListener('change', (e) => { isHistoryVisibleOnMap = e.target.checked; renderHistoryOnMap(); });
 document.getElementById('historySearchInput').addEventListener('input', renderHistoryTable);
-document.getElementById('historyTable').querySelector('thead').addEventListener('click', (e) => {
-    const header = e.target.closest('th.sortable');
-    if (!header) return;
-    
-    const newColumn = header.dataset.sort;
-    if (historySortState.column === newColumn) {
-        historySortState.order = historySortState.order === 'asc' ? 'desc' : 'asc';
-    } else {
-        historySortState.column = newColumn;
-        historySortState.order = 'asc';
-    }
-    
-    document.querySelectorAll('#historyTable th.sortable').forEach(th => {
-        th.classList.remove('sorted');
-        th.querySelector('.sort-icon').textContent = '';
-    });
-    header.classList.add('sorted');
-    header.querySelector('.sort-icon').textContent = historySortState.order === 'asc' ? '▲' : '▼';
-
-    renderHistoryTable();
-});
-
+document.getElementById('historyTable').querySelector('thead').addEventListener('click', (e) => { const header = e.target.closest('th.sortable'); if (!header) return; const newCol = header.dataset.sort; if (historySortState.column === newCol) { historySortState.order = historySortState.order === 'asc' ? 'desc' : 'asc'; } else { historySortState.column = newCol; historySortState.order = 'asc'; } document.querySelectorAll('#historyTable th.sortable').forEach(th => { th.classList.remove('sorted'); th.querySelector('.sort-icon').textContent = ''; }); header.classList.add('sorted'); header.querySelector('.sort-icon').textContent = historySortState.order === 'asc' ? '▲' : '▼'; renderHistoryTable(); });
 $historyTableBody.addEventListener('click', handleHistoryTableClick);
+document.getElementById('history-select-all').addEventListener('change', (e) => { document.querySelectorAll('.history-item-checkbox').forEach(cb => cb.checked = e.target.checked); updateHistoryTableControls(); renderHistoryOnMap(); });
+document.getElementById('btn-copy-table').addEventListener('click', () => { const rows = $historyTableBody.querySelectorAll('tr'); if(rows.length === 0 || rows[0].querySelectorAll('td').length < 2) return showNotification('コピーするデータがありません', 'error'); const headers = Array.from(document.getElementById('historyTable').querySelectorAll('th')).slice(1, -1).map(th => th.textContent.trim().replace(/\s*▲|▼/, '')).join('\t'); const data = Array.from(rows).map(row => Array.from(row.querySelectorAll('td')).slice(1, -1).map(td => td.textContent.trim()).join('\t')).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification('テーブル全体をコピーしました。')); });
+document.getElementById('btn-copy-selected').addEventListener('click', () => { const selected = document.querySelectorAll('.history-item-checkbox:checked'); const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]'); const headers = "No.\t郵便番号\t住所\t緯度\t経度\t標高(m)\t取得日時"; const data = Array.from(selected).map(cb => { const i = parseInt(cb.dataset.historyIndex, 10), item = historyData[i]; return [i + 1, item.postcode, item.address, item.lat, item.lon, item.elevation, new Date(item.timestamp).toLocaleString()].join('\t'); }).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification(`${selected.length}件の選択行をコピーしました。`)); });
+document.getElementById('btn-delete-selected').addEventListener('click', () => { const selected = document.querySelectorAll('.history-item-checkbox:checked'); if (confirm(`${selected.length}件の履歴を削除しますか？`)) { let historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]'); const indices = Array.from(selected).map(cb => parseInt(cb.dataset.historyIndex, 10)).sort((a,b) => b-a); indices.forEach(index => historyData.splice(index, 1)); localStorage.setItem('coordinateHistory', JSON.stringify(historyData)); renderHistoryTable(); renderHistoryList(historyData); renderHistoryOnMap(); showNotification(`${selected.length}件の履歴を削除しました。`); } });
+window.addEventListener('resize', () => { if (osmMap) { osmMap.invalidateSize(); } });
 
-document.getElementById('history-select-all').addEventListener('change', (e) => {
-    document.querySelectorAll('.history-item-checkbox').forEach(cb => {
-        cb.checked = e.target.checked;
-    });
-    updateHistoryTableControls();
+function handleUndoLastPoint(e) { if (e.key !== 'Backspace' && e.key !== 'Delete') return; if (isMeasuring && measurePoints.length > 0) { e.preventDefault(); measurePoints.pop(); const lastMarker = measurePointMarkers.pop(); if (lastMarker) analysisLayer.removeLayer(lastMarker); analysisLayer.eachLayer(layer => { if (layer instanceof L.Polyline && layer !== tempMeasureLine) analysisLayer.removeLayer(layer); }); if (measurePoints.length > 1) L.polyline(measurePoints, { color: 'blue' }).addTo(analysisLayer); if (measurePoints.length > 0) updateMeasureTooltip(measurePoints[measurePoints.length-1]); else if(measureTooltip) { osmMap.removeLayer(measureTooltip); measureTooltip = null; if(tempMeasureMarker) { analysisLayer.removeLayer(tempMeasureMarker); tempMeasureMarker = null; } } } if (isMeasuringArea && areaPoints.length > 0) { e.preventDefault(); areaPoints.pop(); const lastMarker = areaPointMarkers.pop(); if (lastMarker) analysisLayer.removeLayer(lastMarker); if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon); tempAreaPolygon = null; if (areaPoints.length > 1) tempAreaPolygon = L.polygon(areaPoints, { color: '#9C27B0', weight: 2, fillOpacity: 0.1 }).addTo(analysisLayer); if (areaPoints.length >= 3) { const area = calculatePolygonArea(areaPoints); $areaDisplay.textContent = `面積: ${area > 1000000 ? `${(area / 1000000).toFixed(3)} km²` : `${area.toFixed(2)} m²`}`; } else { $areaDisplay.textContent = '--- m²'; } } }
 });
 
-document.getElementById('btn-copy-table').addEventListener('click', () => {
-    const rows = $historyTableBody.querySelectorAll('tr');
-    if(rows.length === 0 || rows[0].querySelectorAll('td').length < 2) return showNotification('コピーするデータがありません', 'error');
+async function generateProfileChart(points) { if (points.length < 2) return; showNotification('標高データを取得中です...', 'warning'); try { const sampledPoints = interpolatePoints(points, 80); const fetchPromises = sampledPoints.map(point => fetch(`https://cyberjapandata2.gsi.go.jp/general/dem/scripts/getelevation.php?outtype=JSON&demtype=dem_merged&lon=${point.lng}&lat=${point.lat}`).then(res => res.ok ? res.json() : null)); const results = await Promise.all(fetchPromises); let dist = 0; lastProfileData = results.map((item, i) => { if (i > 0) dist += sampledPoints[i-1].distanceTo(sampledPoints[i]); const elev = (item && item.elevation !== '-----') ? parseFloat(item.elevation) : null; return { distance: dist, elevation: elev, lat: sampledPoints[i].lat, lon: sampledPoints[i].lng }; }); drawProfileChart(lastProfileData); showNotification('断面図を作成しました。'); } catch (error) { showNotification(`断面図の生成に失敗: ${error.message}`, 'error'); lastProfileData = null; } }
+function interpolatePoints(points, num) { const totalDist = calculateTotalDistance(points); if (totalDist === 0) return [points[0]]; const interval = totalDist / (num - 1); const result = [points[0]]; let rem = 0; for (let i = 0; i < points.length - 1; i++) { const start = points[i], end = points[i+1], segDist = start.distanceTo(end); let covered = rem; while (covered + interval <= segDist) { covered += interval; const ratio = covered / segDist; result.push(L.latLng(start.lat + (end.lat - start.lat) * ratio, start.lng + (end.lng - start.lng) * ratio)); } rem = segDist - covered; } if (result.length < num) result.push(points[points.length - 1]); return result; }
+function drawProfileChart(data) { const modal = document.getElementById('profile-modal'), ctx = document.getElementById('profileChart').getContext('2d'), yToggle = document.getElementById('y-axis-toggle'); if (profileChartInstance) profileChartInstance.destroy(); const yOpts = { title: { display: true, text: '標高 (m)' } }; if (yToggle.checked) yOpts.min = 0; profileChartInstance = new Chart(ctx, { type: 'line', data: { labels: data.map(p => p.distance.toFixed(1)), datasets: [{ label: '標高 (m)', data: data.map(p => p.elevation), borderColor: 'rgb(75, 192, 192)', backgroundColor: 'rgba(75, 192, 192, 0.2)', tension: .1, fill: true, pointRadius: 0, spanGaps: true }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: '始点からの距離 (m)' } }, y: yOpts }, plugins: { tooltip: { enabled: true, mode: 'index', intersect: false } }, onHover: (e, el) => { if (el.length > 0) { const d = lastProfileData[el[0].index]; if (d) { const ll = [d.lat, d.lon]; if (!rolloverMarker) rolloverMarker = L.circleMarker(ll, { radius: 8, color: 'red', fillColor: '#f03', fillOpacity: .8, pane: 'markerPane' }).addTo(osmMap); else rolloverMarker.setLatLng(ll); } } else if (rolloverMarker) { rolloverMarker.remove(); rolloverMarker = null; } } } }); modal.style.display = 'flex'; }
+function exportProfileDataToCSV() { if (!lastProfileData || lastProfileData.length === 0) return showNotification('書き出すデータがありません。', 'error'); const headers = 'No,始点からの距離(m),標高(m),緯度,経度'; const rows = lastProfileData.map((p, i) => `${i+1},${p.distance.toFixed(2)},${p.elevation !== null ? p.elevation : ''},${p.lat.toFixed(8)},${p.lon.toFixed(8)}`); const csv = `${headers}\n${rows.join('\n')}`; const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `profile_data_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`; a.click(); URL.revokeObjectURL(url); showNotification('断面図データをCSVで書き出しました。'); }
 
-    const headers = Array.from(document.getElementById('historyTable').querySelectorAll('th'))
-        .slice(1, -1) // チェックボックスと操作列を除外
-        .map(th => th.textContent.trim().replace(/\s*▲|▼/, ''))
-        .join('\t');
-    
-    const data = Array.from(rows).map(row => {
-        return Array.from(row.querySelectorAll('td'))
-            .slice(1, -1) // チェックボックスと操作列を除外
-            .map(td => td.textContent.trim())
-            .join('\t');
-    }).join('\n');
-    
-    navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification('テーブル全体をコピーしました。'));
-});
-
-document.getElementById('btn-copy-selected').addEventListener('click', () => {
-    const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
-    const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
-    const headers = "No.\t郵便番号\t住所\t緯度\t経度\t標高(m)\t取得日時";
-    const data = Array.from(selectedCheckboxes).map(cb => {
-        const index = parseInt(cb.dataset.historyIndex, 10);
-        const item = historyData[index];
-        return [index + 1, item.postcode, item.address, item.lat, item.lon, item.elevation, new Date(item.timestamp).toLocaleString()].join('\t');
-    }).join('\n');
-
-    navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification(`${selectedCheckboxes.length}件の選択行をコピーしました。`));
-});
-
-document.getElementById('btn-delete-selected').addEventListener('click', () => {
-    const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
-    if (confirm(`${selectedCheckboxes.length}件の履歴を削除しますか？`)) {
-        let historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
-        const indicesToDelete = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.historyIndex, 10)).sort((a,b) => b-a);
+document.addEventListener('DOMContentLoaded', () => {
+    const profileModal = document.getElementById('profile-modal');
+    if (profileModal) {
+        const yAxisToggle = document.getElementById('y-axis-toggle');
+        yAxisToggle.addEventListener('change', () => { if (profileChartInstance) { profileChartInstance.options.scales.y.min = yAxisToggle.checked ? 0 : undefined; profileChartInstance.update(); } });
+        const closeProfileModal = () => { profileModal.style.display = 'none'; if (rolloverMarker) { rolloverMarker.remove(); rolloverMarker = null; } };
+        document.getElementById('btn-profile-modal-close').addEventListener('click', closeProfileModal);
+        document.getElementById('btn-profile-modal-cancel').addEventListener('click', closeProfileModal);
+        document.getElementById('btn-export-profile-csv').addEventListener('click', exportProfileDataToCSV);
+        profileModal.addEventListener('click', e => { if (e.target === profileModal) closeProfileModal(); });
         
-        indicesToDelete.forEach(index => historyData.splice(index, 1));
-        
-        localStorage.setItem('coordinateHistory', JSON.stringify(historyData));
-        renderHistoryTable();
-        renderHistoryList(historyData);
-        showNotification(`${selectedCheckboxes.length}件の履歴を削除しました。`);
+        makeModalDraggable();
     }
 });
-// ▲▲▲ ここまで新規追加（履歴テーブルのイベントリスナー）▲▲▲
 
+function makeModalDraggable() {
+    const modal = document.getElementById('profile-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    const header = document.getElementById('profile-modal-header');
+    
+    let isDragging = false;
+    let initialX, initialY, offsetX = 0, offsetY = 0;
 
-window.addEventListener('resize', () => {
-if (osmMap) {
-osmMap.invalidateSize();
+    header.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isDragging = true;
+        initialX = e.clientX - offsetX;
+        initialY = e.clientY - offsetY;
+        
+        header.style.cursor = 'grabbing';
+        document.body.style.userSelect = 'none';
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+
+    function onMouseMove(e) {
+        if (!isDragging) return;
+        offsetX = e.clientX - initialX;
+        offsetY = e.clientY - initialY;
+        
+        modalContent.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    }
+
+    function onMouseUp() {
+        isDragging = false;
+        header.style.cursor = 'move';
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
+    
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'style' && modal.style.display !== 'flex') {
+                modalContent.style.transform = '';
+                offsetX = 0;
+                offsetY = 0;
+            }
+        });
+    });
+    observer.observe(modal, { attributes: true });
 }
-});
-});
 </script>
 </body>
 </html>
