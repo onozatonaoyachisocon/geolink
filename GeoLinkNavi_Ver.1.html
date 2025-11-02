@@ -13,11 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js" defer></script>
     <!-- GPX/KML Importer Plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js" defer></script>
-    <!-- [追加] QRコード生成ライブラリ -->
+    <!-- QRコード生成ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
-    <!-- ▼▼▼ この行を追加 ▼▼▼ -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-    <!-- ▲▲▲ ここまで ▲▲▲ -->
 
 <style>
 :root {
@@ -160,6 +157,18 @@ display: flex;
 flex-direction: column;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .container {
 max-width: 100%;
 margin: 0;
@@ -180,11 +189,15 @@ color: white;
 padding: 8px 15px;
 position: relative;
 flex-shrink: 0;
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 15px;
 }
 
-.header h1 { font-size: 24px; margin-bottom: 5px; }
-.header p { display: none; }
-.header-buttons { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
+.header-left { display: flex; align-items: center; gap: 15px; flex-shrink: 1; min-width: 0; }
+.header h1 { font-size: 24px; margin-bottom: 0; flex-shrink: 0; white-space: nowrap; }
+.header-buttons { display: flex; gap: 10px; }
 .header-button-wrapper { display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
 .header-button-label { font-size: 10px; color: white; white-space: nowrap; opacity: 0.9; }
 
@@ -276,6 +289,117 @@ right: 0;
 .usage-guide ul { list-style: disc inside; padding-left: 20px; margin-top: 10px; }
 .usage-guide li { margin-bottom: 5px; line-height: 1.5; }
 
+/* ▼▼▼ プロジェクトスイッチャーのスタイル ▼▼▼ */
+.project-switcher {
+    position: relative;
+    flex-grow: 1;
+    max-width: 300px;
+    min-width: 200px;
+}
+#projectSwitcherBtn {
+    width: 100%;
+    background-color: rgba(255,255,255, 0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255, 0.5);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.2s;
+}
+#projectSwitcherBtn:hover {
+    background-color: rgba(255,255,255, 0.4);
+}
+.project-dropdown {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-container);
+    border-radius: var(--radius-base);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1100;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+}
+.project-dropdown-item {
+    display: block;
+    padding: 10px 15px;
+    color: var(--text-dark);
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+.project-dropdown-item:hover {
+    background-color: var(--bg-light);
+}
+.project-dropdown-item.active {
+    font-weight: 700;
+    color: var(--primary-color);
+    background-color: var(--bg-light);
+}
+.project-dropdown hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 5px 0;
+}
+.project-dropdown-manage {
+    font-weight: 600;
+    color: var(--secondary-color) !important;
+}
+
+/* プロジェクト管理モーダル */
+#project-modal .modal-content {
+    max-width: 600px;
+}
+.project-list-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-base);
+    margin-bottom: 20px;
+}
+#projectManagementList {
+    list-style: none;
+    padding: 5px;
+}
+#projectManagementList li {
+    padding: 12px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-bottom: 3px;
+    transition: background-color 0.2s;
+}
+#projectManagementList li:hover {
+    background-color: var(--bg-light);
+}
+#projectManagementList li.selected {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+}
+.project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+.project-actions button {
+    padding: 8px 15px;
+    font-size: 13px;
+}
+/* ▲▲▲ ここまで ▲▲▲ */
+
+
 .main-layout {
     display: flex;
     flex-grow: 1;
@@ -310,7 +434,7 @@ right: 0;
     border-radius: var(--radius-base);
     box-shadow: var(--shadow-base);
     border-left: 1px solid var(--border-color);
-    transition: transform 0.4s ease-in-out;
+    transition: transform 0.4s ease-in-out, width 0.4s ease-in-out;
     z-index: 1002;
     will-change: transform;
 }
@@ -557,7 +681,7 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     padding: 12px 15px;
     font-size: 14px;
     font-weight: 600;
-    cursor: pointer;
+    cursor: grab;
     border: 2px solid transparent;
     border-bottom: none;
     background-color: var(--bg-light);
@@ -568,6 +692,14 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     border-top-right-radius: var(--radius-base);
     margin-bottom: -2px;
     position: relative;
+    user-select: none;
+}
+.panel-tab:active {
+    cursor: grabbing;
+}
+.panel-tab.dragging {
+    opacity: 0.5;
+    background: var(--primary-color);
 }
 .panel-tab:hover {
     color: var(--text-dark);
@@ -583,20 +715,21 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     flex-grow: 1;
     position: relative;
     overflow: hidden;
+    display: flex; /* For ordering */
 }
 .panel-content {
     display: none;
     height: 100%;
     width: 100%;
-    position: absolute;
     overflow: hidden;
     flex-direction: column;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 #map-links-content {
     overflow-y: auto;
     padding: 8px;
 }
-#history-content {
+#history-content, #bookmarks-content {
     padding: 8px 8px 0 8px;
 }
 .panel-content.active {
@@ -1050,19 +1183,19 @@ body.dark-mode #btn-uncheck-all {
 }
 
 
-/* --- ここから履歴テーブル用のスタイル --- */
-.history-table-container {
+/* --- ここからテーブル用の共通スタイル --- */
+.table-container {
     background: var(--bg-container);
     display: flex;
     flex-direction: column;
     height: 100%; /* 親要素の高さに追従 */
 }
-.history-table-container h3 {
+.table-container h3 {
     font-size: 16px;
     margin-bottom: 10px;
     color: var(--text-dark);
 }
-.history-table-controls {
+.table-controls {
     display: flex;
     gap: 10px;
     margin-bottom: 15px;
@@ -1070,7 +1203,7 @@ body.dark-mode #btn-uncheck-all {
     align-items: center;
     flex-shrink: 0; /* コントロールは縮まない */
 }
-.history-table-controls input[type="search"] {
+.table-controls input[type="search"] {
     flex-grow: 1;
     padding: 8px 12px;
     border: 1px solid var(--border-color);
@@ -1079,7 +1212,7 @@ body.dark-mode #btn-uncheck-all {
     color: var(--text-dark);
     min-width: 150px;
 }
-.history-table-controls button {
+.table-controls button {
     padding: 8px 12px;
     font-size: 12px;
     border-radius: 8px;
@@ -1091,71 +1224,80 @@ body.dark-mode #btn-uncheck-all {
     color: var(--text-dark);
     border-color: var(--border-color);
 }
-.history-table-controls button:hover:not(:disabled) {
+.table-controls button:hover:not(:disabled) {
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
 }
-#btn-delete-selected {
+.btn-delete-selected {
     background-color: var(--error-color);
     color: white;
     border-color: transparent;
 }
-#btn-delete-selected:hover:not(:disabled) {
+.btn-delete-selected:hover:not(:disabled) {
     background-color: #C62828;
 }
-.history-table-controls button:disabled {
+.table-controls button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
+.history-map-toggle-wrapper {
+    display: flex; align-items: center; gap: 8px; margin-left: auto;
+}
+.history-map-toggle-wrapper label {
+    font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.history-map-toggle-wrapper input {
+    width: 18px; height: 18px; cursor: pointer;
+}
 
-.history-table-wrapper {
+.table-wrapper {
     overflow: auto;
     flex-grow: 1; /* 残りの高さを埋める */
 }
-.history-table {
+.data-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
 }
-.history-table th, .history-table td {
+.data-table th, .data-table td {
     padding: 8px 10px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
 }
-.history-table th {
+.data-table th {
     font-weight: 700;
     background-color: var(--bg-light);
     position: sticky;
     top: 0;
     z-index: 1;
 }
-.history-table th.sortable {
+.data-table th.sortable {
     cursor: pointer;
     user-select: none;
 }
-.history-table th.sortable:hover {
+.data-table th.sortable:hover {
     background-color: var(--border-color);
 }
-.history-table th .sort-icon {
+.data-table th .sort-icon {
     margin-left: 5px;
     opacity: 0.5;
 }
-.history-table th.sorted .sort-icon {
+.data-table th.sorted .sort-icon {
     opacity: 1;
 }
-.history-table tbody tr {
+.data-table tbody tr {
     cursor: pointer;
     transition: background-color 0.2s;
 }
-.history-table tbody tr:hover {
+.data-table tbody tr:hover {
     background-color: var(--bg-light);
 }
-.history-table td.actions-cell {
+.data-table td.actions-cell {
     text-align: center;
 }
-.history-table .btn-action {
+.data-table .btn-action {
     background: transparent;
     border: none;
     cursor: pointer;
@@ -1164,14 +1306,13 @@ body.dark-mode #btn-uncheck-all {
     margin: 0 2px;
     color: var(--text-medium);
 }
-.history-table .btn-action:hover {
+.data-table .btn-action:hover {
     color: var(--primary-color);
 }
-.history-table .btn-action.delete:hover {
+.data-table .btn-action.delete:hover {
     color: var(--error-color);
 }
-/* --- ここまで履歴テーブル用のスタイル --- */
-
+/* --- ここまでテーブル用の共通スタイル --- */
 
 @media (min-width: 1800px) {
     .left-panel {
@@ -1192,7 +1333,10 @@ body.dark-mode #btn-uncheck-all {
         align-items: stretch;
     }
     .input-group label {
-        display: block;
+        display: block; /* Show labels on smaller screens */
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 12px;
     }
     .input-field-label {
         display: none;
@@ -1200,6 +1344,11 @@ body.dark-mode #btn-uncheck-all {
 }
 
 @media (max-width: 1024px) {
+    .header { flex-wrap: wrap; }
+    .header-left { order: 1; width: 100%; justify-content: center; margin-bottom: 10px; }
+    .header-buttons { order: 2; width: 100%; justify-content: center; }
+    .project-switcher { max-width: 400px; }
+    
     #osmClickMap {
         height: 60vh;
     }
@@ -1221,18 +1370,17 @@ body.dark-mode #btn-uncheck-all {
     .zoom-slider-overlay {
         display: none;
     }
+    .header-left { flex-direction: column; gap: 8px;}
 
-    .header-buttons { right: 10px; top: 15px; gap: 5px; }
     .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button, .usage-button, .qr-button { width: 35px; height: 35px; font-size: 16px; }
     .header-button-label { font-size: 9px; }
-    .history-popup, .bookmark-popup {
-        left: -150px;    
-        right: 10px;   
-        width: 300px;   
-        top: 60px;     
-    }
-    .header h1 {
-        visibility: hidden;
+    .history-popup, .bookmark-popup, .project-dropdown {
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        width: 95vw;
+        max-width: 320px;
+        top: 105%;
     }
     .analysis-tools-overlay { bottom: 10px; }
     
@@ -1306,15 +1454,25 @@ body.dark-mode #btn-uncheck-all {
 <body>
 <div class="notification" id="notification"></div>
 <div class="container">
-<div class="header">
-<h1>🗺️ Geo Link Navi</h1>
-<div class="header-buttons">
+<header class="header">
+    <div class="header-left">
+        <h1>🗺️ Geo Link Navi</h1>
+        <div class="project-switcher">
+            <button id="projectSwitcherBtn" aria-haspopup="true" aria-expanded="false" aria-label="現在のプロジェクトを切り替え">プロジェクトを読込中...</button>
+            <div class="project-dropdown" id="projectSwitcherDropdown">
+                <!-- Populated by JS -->
+                <hr>
+                <a href="#" class="project-dropdown-item project-dropdown-manage" id="manageProjectsBtn">プロジェクトを管理...</a>
+            </div>
+        </div>
+    </div>
+<nav class="header-buttons" aria-label="主要機能">
     <div class="header-button-wrapper">
-        <button class="nav-button" id="navBack" title="前の座標に戻る" disabled>◀</button>
+        <button class="nav-button" id="navBack" title="前の座標に戻る" aria-label="前の座標に戻る" disabled>◀</button>
         <span class="header-button-label">戻る</span>
     </div>
     <div class="header-button-wrapper">
-        <button class="nav-button" id="navForward" title="次の座標に進む" disabled>▶</button>
+        <button class="nav-button" id="navForward" title="次の座標に進む" aria-label="次の座標に進む" disabled>▶</button>
         <span class="header-button-label">進む</span>
     </div>
     <div class="header-button-wrapper">
@@ -1352,7 +1510,7 @@ body.dark-mode #btn-uncheck-all {
         </div>
     </div>
     <div class="header-button-wrapper">
-        <button class="settings-button" id="settingsButton" title="設定">⚙️</button>
+        <button class="settings-button" id="settingsButton" aria-label="設定" title="設定">⚙️</button>
         <span class="header-button-label">設定</span>
     </div>
     <div class="header-button-wrapper">
@@ -1360,13 +1518,20 @@ body.dark-mode #btn-uncheck-all {
         <span class="header-button-label">モード切替</span>
     </div>
     <div class="header-button-wrapper">
-        <button class="usage-button" onclick="toggleUsage()" title="使い方を表示">？</button>
+        <button class="usage-button" onclick="toggleUsage()" aria-label="使い方" title="使い方を表示">？</button>
         <span class="header-button-label">使い方</span>
     </div>
-</div>
+</nav>
 <div class="usage-guide" id="usageGuide">
     <p>★知りたい場所の緯度・経度から、複数のオンライン地図や専門図面サイトへ瞬時にアクセス。情報収集をサポートします。★</p>
     <p class="popup-warning">⚠️ <strong>注意:</strong> 複数の地図を一括で開くには、ブラウザのポップアップブロックを解除（ポップアップを許可）してください。</p>
+
+    <h4>🆕 プロジェクト（ワークスペース）機能</h4>
+    <ul>
+        <li>案件や調査対象ごとにブックマーク、履歴、マイリンクなどの情報を「プロジェクト」としてまとめて管理できます。</li>
+        <li>ヘッダーのプロジェクト名が表示されている部分（例: <code>[ デフォルトプロジェクト ▼ ]</code>）をクリックすると、保存されているプロジェクトを瞬時に切り替えられます。</li>
+        <li>ドロップダウンメニューの「プロジェクトを管理...」から、プロジェクトの新規作成、名前の変更、複製、削除、ファイルへの書き出し/読み込みが可能です。</li>
+    </ul>
 
     <h4>■ 基本的な使い方・座標の指定</h4>
     <ul> 
@@ -1410,7 +1575,7 @@ body.dark-mode #btn-uncheck-all {
                 <li>「▶️ チェックした項目を一括で開く」ボタンで、チェックを付けた複数の地図を一度に開くことができます。</li>
                 <li>任意の地図サービスにチェックをつけて「お気に入りセット」として登録できます。</li>
                 <li>「⭐ マイリンク」カテゴリでは、自分専用のWeb地図へのリンクを自由に追加・管理できます。</li>
- <li>「⏱️履歴一覧」タブ：履歴一覧を表示します。📋 テーブルコピーや選択をコピーすることで、Excelなどに貼り付けることができます。</li>
+ <li>「⏱️履歴一覧」「⭐ブックマーク」タブ：履歴やブックマークの一覧を表示します。📋 テーブルコピーや選択をコピーすることで、Excelなどに貼り付けることができます。</li>
  <li>「地図に履歴を表示」をチェックすることで、履歴が地図上にプロットされます。なお、各履歴のチェックボックスで選択して表示することもできます。</li>
  <li>「📋 テーブルコピー、選択をコピー」：クリップボードにコピーしてExcelに貼り付けることができます。</li>
             </ul>
@@ -1446,61 +1611,62 @@ body.dark-mode #btn-uncheck-all {
     </li>
 </ul>
 </div>
-</div>
+</header>
 
 <div id="panelOverlay" onclick="toggleRightPanel()"></div>
 
-<div class="main-layout" id="mainLayout">
+<main class="main-layout" id="mainLayout">
     <div class="left-panel">
-        <div class="input-section">
+        <section class="input-section" aria-labelledby="input-section-title">
+            <h2 id="input-section-title" class="visually-hidden">座標入力と操作</h2>
             <div class="input-row">
 <div class="input-buttons-group">
     <div class="input-button-wrapper">
-        <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" title="現在地を取得">📍</button>
+        <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" aria-label="現在地を取得" title="現在地を取得">📍</button>
         <span class="input-button-label">現在地</span>
     </div>
     <div class="input-button-wrapper mobile-hidden">
-        <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" title="Googleマップで探す">🌍</button>
+        <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" aria-label="Googleマップで探す" title="Googleマップで探す">🌍</button>
         <span class="input-button-label">Googleマップ</span>
     </div>
     <div class="input-button-wrapper mobile-hidden">
-        <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" title="クリップボードから貼り付け">📄</button>
+        <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" aria-label="クリップボードから貼り付け" title="クリップボードから貼り付け">📄</button>
         <span class="input-button-label">貼り付け</span>
     </div>
     <div class="input-button-wrapper">
-        <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" title="ブックマークに保存">⭐</button>
+        <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" aria-label="ブックマークに保存" title="ブックマークに保存">⭐</button>
         <span class="input-button-label">ブックマーク</span>
     </div>
     <div class="input-button-wrapper">
-        <button class="btn-base btn-icon btn-format-toggle" id="coord-format-toggle" title="表示形式切替">⚙️</button>
+        <button class="btn-base btn-icon btn-format-toggle" id="coord-format-toggle" aria-label="表示形式切替" title="表示形式切替">⚙️</button>
         <span class="input-button-label">形式切替</span>
     </div>
     <div class="input-button-wrapper desktop-hidden">
-        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
+        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" aria-label="住所を検索" title="住所を検索">🔎</button>
         <span class="input-button-label">検索</span>
     </div>
     <div class="input-button-wrapper desktop-hidden">
-        <button class="btn-base btn-icon" id="btn-route-google" title="Googleマップでルート検索">🚗</button>
+        <button class="btn-base btn-icon" id="btn-route-google" aria-label="Googleマップでルート検索" title="Googleマップでルート検索">🚗</button>
         <span class="input-button-label">ルート検索</span>
     </div>
     <div class="input-button-wrapper desktop-hidden">
-        <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+        <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" aria-label="パネルを開く" title="パネルを開く">◀</button>
         <span class="input-button-label">パネル</span>
     </div>
 </div>
                 <div class="input-group lat-group">
                     <label for="latitude">📍 緯度 (Latitude)</label>
                     <div class="input-wrapper">
-                        <input type="text" id="latitude" value="35.68107447">
-                        <button class="btn-copy" title="緯度をコピー" onclick="copyToClipboard('latitude')">📋</button>
+                        <input type="text" id="latitude" value="35.68107447" placeholder="例: 35.681074 または 35°40'51.9&quot; N">
+                        <button class="btn-copy" title="緯度をコピー" aria-label="緯度をコピー" onclick="copyToClipboard('latitude')">📋</button>
                     </div>
                     <span class="input-field-label">📍 緯度 (Latitude)</span>
                 </div>
                 <div class="input-group lon-group">
                     <label for="longitude">📍 経度 (Longitude)</label>
                     <div class="input-wrapper">
-                        <input type="text" id="longitude" value="139.76784396">
-                        <button class="btn-copy" title="経度をコピー" onclick="copyToClipboard('longitude')">📋</button>
+                        <input type="text" id="longitude" value="139.76784396" placeholder="例: 139.767843 または 139°46'04.2&quot; E">
+                        <button class="btn-copy" title="経度をコピー" aria-label="経度をコピー" onclick="copyToClipboard('longitude')">📋</button>
                     </div>
                     <span class="input-field-label">📍 経度 (Longitude)</span>
                 </div>
@@ -1514,24 +1680,24 @@ body.dark-mode #btn-uncheck-all {
                 </div>
 <div class="input-row-bottom-buttons mobile-hidden">
                     <div class="input-button-wrapper">
-                        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" title="住所を検索">🔎</button>
+                        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" aria-label="住所を検索" title="住所を検索">🔎</button>
                         <span class="input-button-label">検索</span>
                     </div>
                     <div class="input-button-wrapper">
-                        <button class="btn-base btn-icon" id="btn-route-google" title="Googleマップでルート検索">🚗</button>
+                        <button class="btn-base btn-icon" id="btn-route-google" aria-label="Googleマップでルート検索" title="Googleマップでルート検索">🚗</button>
                         <span class="input-button-label">ルート検索</span>
                     </div>
                     <div class="input-button-wrapper">
-                        <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" title="パネルを開く">◀</button>
+                        <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" aria-label="パネルを開く" title="パネルを開く">◀</button>
                         <span class="input-button-label">パネル</span>
                     </div>
                 </div>
             </div>
-         </div>
+         </section>
 
-        <div class="osm-map-container" id="mainMapContainer">
+        <section class="osm-map-container" id="mainMapContainer" aria-labelledby="main-map-title">
             <div class="osm-map-header" onclick="toggleMainMap()">
-                <h3>🗺️ クリックで座標取得 / 地図プレビュー</h3>
+                <h3 id="main-map-title">🗺️ クリックで座標取得 / 地図プレビュー</h3>
                 <span class="preview-header-icon" id="mainMapToggleIcon">▼</span>
             </div>
             <div class="osm-map-wrapper">
@@ -1549,7 +1715,7 @@ body.dark-mode #btn-uncheck-all {
                             <div class="analysis-tool-row">
                                 <button class="btn-base btn-buffer" id="buffer-tool-btn">⭕ 円作成</button>
                                 <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600; margin: 0 5px;">半径</label>
-                                <input type="number" id="buffer-radius-input" value="500" min="1">
+                                <input type="number" id="buffer-radius-input" value="500" min="1" aria-label="円の半径(メートル)">
                                 <label for="buffer-radius-input" style="font-size: 13px; font-weight: 600;">m</label>
                             </div>
                             <div class="analysis-tool-row">
@@ -1562,32 +1728,32 @@ body.dark-mode #btn-uncheck-all {
                     </div>
                     <div class="zoom-slider-overlay">
                         <label for="zoomLevel">ズーム:</label>
-                        <input type="range" id="zoomLevel" value="16" min="1" max="20">
+                        <input type="range" id="zoomLevel" value="16" min="1" max="20" aria-label="地図のズームレベル">
                         <span id="zoomLevelDisplay">16</span>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="map-preview-container" id="previewContainer">
+        <section class="map-preview-container" id="previewContainer" aria-labelledby="preview-map-title">
             <div class="preview-header" onclick="togglePreview(event)">
-                <h3>🗺️ 現在の座標プレビュー (Google):
+                <h3 id="preview-map-title">🗺️ 現在の座標プレビュー (Google):
                     <strong id="currentCoords">...</strong>
-                    <button class="btn-copy" title="座標をコピー (lat, lon)" onclick="copyToClipboard('currentCoords')">📋</button>
+                    <button class="btn-copy" title="座標をコピー (lat, lon)" aria-label="現在の緯度経度をコピー" onclick="copyToClipboard('currentCoords')">📋</button>
                     <span class="zoom-preview-display"> (Zoom: <strong id="currentZoom">...</strong>)</span>
                     <button id="toggleMapTypeBtn" style="font-size: 12px; padding: 4px 8px; margin-left: 10px;">市街地地図</button>
                 </h3>
                 <span class="preview-header-icon">▼</span>
             </div>
             <div class="map-preview-wrapper">
-                <iframe id="mapPreview" width="100%" height="400" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank"></iframe>
+                <iframe id="mapPreview" width="100%" height="400" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0" src="about:blank" title="Googleマップ プレビュー"></iframe>
             </div>
-        </div>
+        </section>
     </div>
     
     <div id="resizer"></div>
 
-    <div class="right-panel hidden">
+    <aside class="right-panel hidden">
         <div class="right-panel-header">
             <div class="bulk-toggle-container">
                 <button id="toggleAllCategoriesBtn">➖ すべて折りたたみ</button>
@@ -1596,12 +1762,14 @@ body.dark-mode #btn-uncheck-all {
             </div>
         </div>
         
-        <div class="panel-tabs">
-            <button class="panel-tab active" data-tab="map-links">🗺️ 地図リンク</button>
-            <button class="panel-tab" data-tab="history">⏱️ 履歴一覧</button>
+        <div class="panel-tabs" id="panelTabs">
+            <button class="panel-tab active" data-tab="map-links" draggable="true">🗺️ 地図リンク</button>
+            <button class="panel-tab" data-tab="history" draggable="true">⏱️ 履歴一覧</button>
+            <button class="panel-tab" data-tab="bookmarks" draggable="true">⭐ ブックマーク</button>
         </div>
-        <div class="panel-content-wrapper">
-            <div id="map-links-content" class="panel-content active">
+
+        <div class="panel-content-wrapper" id="panelContentWrapper">
+            <div id="map-links-content" class="panel-content active" data-tab-content="map-links">
                 <div class="favorite-sets-container">
                     <div class="favorite-set-row">
                         <label for="favorite-sets">お気に入りセット:</label>
@@ -1617,23 +1785,23 @@ body.dark-mode #btn-uncheck-all {
                 <div id="map-categories-container"></div>
             </div>
 
-            <div id="history-content" class="panel-content">
-                <div class="history-table-container">
-                    <div class="history-table-controls">
-                        <input type="search" id="historySearchInput" placeholder="住所などで履歴を検索...">
-                        <button id="btn-copy-table" title="表示中のテーブル全体をExcel等に貼り付けられる形式でコピーします">📋 テーブルコピー</button>
-                        <button id="btn-copy-selected" disabled>📋 選択をコピー</button>
-                        <button id="btn-delete-selected" disabled>🗑️ 選択を削除</button>
-                        <div class="history-map-toggle-wrapper" style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
-                            <label for="history-map-toggle" style="font-size: 13px; font-weight: 600; cursor: pointer;">地図に履歴を表示</label>
-                            <input type="checkbox" id="history-map-toggle" style="width: 18px; height: 18px; cursor: pointer;">
+            <div id="history-content" class="panel-content" data-tab-content="history">
+                <div class="table-container">
+                    <div class="table-controls">
+                        <input type="search" id="historySearchInput" placeholder="住所などで履歴を検索..." aria-label="履歴を検索">
+                        <button id="btn-copy-table-history" title="表示中のテーブル全体をExcel等に貼り付けられる形式でコピーします">📋 テーブルコピー</button>
+                        <button id="btn-copy-selected-history" disabled>📋 選択をコピー</button>
+                        <button id="btn-delete-selected-history" class="btn-delete-selected" disabled>🗑️ 選択を削除</button>
+                        <div class="history-map-toggle-wrapper">
+                            <label for="history-map-toggle">地図に履歴を表示</label>
+                            <input type="checkbox" id="history-map-toggle">
                         </div>
                     </div>
-                    <div class="history-table-wrapper">
-                        <table class="history-table" id="historyTable">
+                    <div class="table-wrapper">
+                        <table class="data-table" id="historyTable">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" id="history-select-all"></th>
+                                    <th><input type="checkbox" id="history-select-all" aria-label="すべての履歴を選択"></th>
                                     <th class="sortable" data-sort="no">No. <span class="sort-icon"></span></th>
                                     <th class="sortable" data-sort="postcode">郵便番号 <span class="sort-icon"></span></th>
                                     <th class="sortable" data-sort="address">住所 <span class="sort-icon"></span></th>
@@ -1649,16 +1817,46 @@ body.dark-mode #btn-uncheck-all {
                     </div>
                 </div>
             </div>
+
+            <div id="bookmarks-content" class="panel-content" data-tab-content="bookmarks">
+                <div class="table-container">
+                    <div class="table-controls">
+                        <input type="search" id="bookmarkSearchInput" placeholder="名前や住所で検索..." aria-label="ブックマークを検索">
+                        <button id="btn-copy-table-bookmarks" title="表示中のテーブル全体をExcel等に貼り付けられる形式でコピーします">📋 テーブルコピー</button>
+                        <button id="btn-copy-selected-bookmarks" disabled>📋 選択をコピー</button>
+                        <button id="btn-delete-selected-bookmarks" class="btn-delete-selected" disabled>🗑️ 選択を削除</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="bookmarkTable">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="bookmark-select-all" aria-label="すべてのブックマークを選択"></th>
+                                    <th class="sortable" data-sort="no">No. <span class="sort-icon"></span></th>
+                                    <th class="sortable sorted" data-sort="name">名前 <span class="sort-icon">▲</span></th>
+                                    <th class="sortable" data-sort="postcode">郵便番号 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="address">住所 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="lat">緯度 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="lon">経度 <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="elevation">標高(m) <span class="sort-icon"></span></th>
+                                    <th class="sortable" data-sort="timestamp">登録日時 <span class="sort-icon"></span></th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookmarkTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+    </aside>
+</main>
 
 <div class="status-bar">
     <span id="lastUpdated"></span>
 </div>
 </div>
 
-<div class="legal-notice" style="font-size: 11px; text-align: center; padding: 10px; color: var(--text-medium); background: var(--bg-container);">
+<footer class="legal-notice" style="font-size: 11px; text-align: center; padding: 10px; color: var(--text-medium); background: var(--bg-container);">
   <p style="margin-bottom: 5px; font-weight: bold;">
     Copyright &copy; 2025 (株)地圏総合コンサルタント All Rights Reserved.
   </p>
@@ -1671,7 +1869,7 @@ body.dark-mode #btn-uncheck-all {
   本サービスは以下のオープンソースライブラリおよび公的機関のデータを使用しています:<br>
   - 地図データ: © 国土地理院, © OpenStreetMap contributors
   - ライブラリ: Leaflet (BSD-2), QRCode.js (MIT), proj4js (MIT)
-</div>
+</footer>
 
 <div class="modal-overlay" id="mylink-modal">
 <div class="modal-content">
@@ -1711,7 +1909,7 @@ body.dark-mode #btn-uncheck-all {
 
 <div class="modal-overlay" id="settings-modal">
     <div class="modal-content">
-        <button type="button" class="modal-close-btn" onclick="closeSettingsModal()" title="閉じる">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeSettingsModal()" title="閉じる" aria-label="設定を閉じる">&times;</button>
         <h3>⚙️ アプリケーション設定</h3>
         <form id="settings-form">
             <div class="modal-form-group">
@@ -1777,6 +1975,7 @@ body.dark-mode #btn-uncheck-all {
                         <label><input type="checkbox" value="favoriteSets"> お気に入りセット</label>
                         <label><input type="checkbox" value="myCustomLinks"> ⭐マイリンクマップ</label>
                         <label><input type="checkbox" value="geoLinkNaviSettings"> ⚙️各種設定</label>
+                        <label><input type="checkbox" value="geoLinkNaviTabOrder"> 📑タブの並び順</label>
                     </div>
                 <div class="data-sync-controls">
                     <button type="button" id="btn-check-all">✅ 全選択</button>
@@ -1805,10 +2004,9 @@ body.dark-mode #btn-uncheck-all {
     </div>
 </div>
 
-<!-- ▼▼▼ 標高断面図モーダル (修正版) ▼▼▼ -->
 <div class="modal-overlay" id="profile-modal">
     <div class="modal-content" style="max-width: 90vw; width: 600px; height: auto;">
-        <button type="button" class="modal-close-btn" id="btn-profile-modal-close" title="閉じる">&times;</button>
+        <button type="button" class="modal-close-btn" id="btn-profile-modal-close" title="閉じる" aria-label="断面図を閉じる">&times;</button>
         <h3 id="profile-modal-header" style="cursor: move;">標高断面図</h3>
         <div style="position: relative; width: 100%; height: 300px; margin-bottom: 10px; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color);">
             <canvas id="profileChart"></canvas>
@@ -1823,7 +2021,36 @@ body.dark-mode #btn-uncheck-all {
         </div>
     </div>
 </div>
+
+<!-- ▼▼▼ プロジェクト管理モーダル ▼▼▼ -->
+<div class="modal-overlay" id="project-modal">
+    <div class="modal-content">
+        <button type="button" class="modal-close-btn" onclick="closeProjectModal()" title="閉じる" aria-label="プロジェクト管理を閉じる">&times;</button>
+        <h3>📁 プロジェクト管理</h3>
+        <div class="project-list-container">
+            <ul id="projectManagementList">
+                <!-- Populated by JS -->
+            </ul>
+        </div>
+        <div class="project-actions">
+            <button id="btn-new-project" class="btn-base" style="background-color: var(--success-color);">➕ 新規作成</button>
+            <button id="btn-rename-project" class="btn-base" disabled>✏️ 名前の変更</button>
+            <button id="btn-duplicate-project" class="btn-base" disabled>📋 複製</button>
+            <button id="btn-delete-project" class="btn-base" style="background-color: var(--error-color);" disabled>🗑️ 削除</button>
+        </div>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+        <div class="project-actions">
+            <button id="btn-export-project" class="btn-base" style="background-color: var(--primary-color);" disabled>📤 エクスポート</button>
+            <button id="btn-import-project" class="btn-base" style="background-color: var(--secondary-color);">📥 インポート</button>
+            <input type="file" id="import-project-file-input" accept=".json" style="display: none;">
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="btn-modal-cancel" onclick="closeProjectModal()">閉じる</button>
+        </div>
+    </div>
+</div>
 <!-- ▲▲▲ ここまで ▲▲▲ -->
+
 
 <script>
 /**
@@ -1857,8 +2084,28 @@ const BASE_LAYERS = {
 const MAP_DEFINITIONS = [ { id: 'gsi_std', name: '地理院地図', desc: '国土地理院の基本地図。標高、地形、土地利用など', category: 'terrain', icon: '🗺️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c0g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'gsi_time', name: '地理院時系列', desc: '過去から現在までの地図を時系列で比較', category: 'terrain', icon: '⏳', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&ls=gsi-compare-photo&lcd=gsi-compare-photo&vs=c0j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'gsi_flood', name: '治水地形分類図', desc: '河川周辺の地形特性と洪水リスクを把握', category: 'terrain', icon: '🖼️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=lcmfc2%2C0.8%7Chillshademap&blend=01&disp=111&lcd=hillshademap&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'google_maps', name: 'Googleマップ', desc: 'ストリートビューや経路検索も可能', category: 'terrain', icon: '📍', noCoords: false, url: (lat, lon) => `https://maps.google.co.jp/maps?q=${lat},${lon}` }, { id: 'google_earth', name: 'Google Earth', desc: '3D地形と衛星画像で地表を詳細に確認', category: 'terrain', icon: '🌍', noCoords: false, url: (lat, lon, zoom) => `https://earth.google.com/web/@${lat},${lon},0a,${Math.round(300000*Math.pow(0.5,(parseInt(zoom,10)-1)/3))}d,0y,0h` }, { id: 'konjaku', name: '今昔マップ', desc: '明治から現代までの地形図を並べて表示', category: 'terrain', icon: '📜', noCoords: false, url: (lat, lon, zoom) => `https://ktgis.net/kjmapw/kjmapw.html?lat=${lat}&lng=${lon}&zoom=${zoom}&dataset=&age=3&screen=2&scr1tile=k_cj4&scr2tile=k_cj4&scr3tile=k_cj4&mapOpacity=10&overGSItile=no&altitudeOpacity=2` }, { id: 'gsi_photos', name: '地図・空中写真閲覧', desc: '過去の空中写真を閲覧', category: 'terrain', icon: '📷', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/map-photos/app/map?search=photo#${zoom}/${lat}/${lon}` }, { id: 'geonavi', name: '地質図Navi', desc: '日本全国の地質情報を詳細に表示', category: 'geology', icon: '⛏️', noCoords: false, url: (lat, lon, zoom) => `https://gbank.gsj.jp/geonavi/geonavi.php#${zoom},${lat},${lon}` }, { id: 'gsi_landslide', name: '地すべり地形分布図', desc: '国土地理院が提供する地すべり地形の分布図', category: 'geology', icon: '⛰️', noCoords: false, url: (lat, lon, zoom) => `https://maps.gsi.go.jp/#${zoom}/${lat}/${lon}/&base=std&ls=std%7Clandslide%2C0.75&blend=0&disp=11&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'qchizu_pond', name: '農業用ため池マップ', desc: '全国の農業用ため池の位置を表示（Q地図）', category: 'geology', icon: '💧', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=pale&ls=pale%7Cmaff-pond20200925-6%7Cmaff-pond20200925-5%7Cmaff-pond20200925-4%7Cmaff-pond20200925-1&disp=11111&lcd=maff-pond20200925-1&vs=c1g1j0h0k0l0u0t0z0r0s0m0f1&d=m` }, { id: 'kunijiban', name: '国土地盤情報 KuniJiban', desc: 'ボーリングデータなど地盤情報を検索', category: 'geology', icon: '📊', noCoords: true, url: () => `https://www.kunijiban.pwri.go.jp/viewer/` }, { id: 'ngic', name: '国土地盤情報センター', desc: '全国の地盤情報データベース', category: 'geology', icon: '📈', noCoords: true, url: () => `https://publicweb.ngic.or.jp/viewer/` }, { id: 'geo_station', name: 'ジオ・ステーション', desc: '地質・地盤情報の統合プラットフォーム。開いた後に位置を検索してください', category: 'geology', icon: '🧭', noCoords: true, url: () => `https://www.geo-stn.bosai.go.jp/mapping_page.html` }, { id: 'gsj_activefault', name: '活断層データベース', desc: '産業技術総合研究所が提供する活断層の情報。開いた後に位置を検索してください', category: 'geology', icon: '〰️', noCoords: true, url: () => `https://gbank.gsj.jp/activefault/cgi/tyousati` }, { id: 'tokyo_jiban', name: '東京の地盤（GIS）', desc: '東京都内の詳細な地盤データ。開いた後に位置を検索してください', category: 'geology', icon: '🏢', noCoords: true, url: () => `https://doboku.metro.tokyo.lg.jp/start/03-jyouhou/geo-web/geo-webmap.aspx` }, { id: 'hazard_map', name: '重ねるハザードマップ', desc: '洪水、土砂災害、津波などの危険区域を表示', category: 'disaster', icon: '🚨', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=tameike_raster%2C0.75%7Cflood_list_l2%2C0.75%7Cdisaster1&disp=110&vs=c1j0l0u0` }, { id: 'hazard_flood_topo', name: 'ハザードマップ（治水地形分類図）', desc: '治水地形分類図とハザード情報の重ね合わせ', category: 'disaster', icon: '🚫', noCoords: false, url: (lat, lon, zoom) => `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lon}&z=${zoom}&base=pale&ls=hillshademap%7CLCMFC02&disp=11&vs=c1j0l0u0t0h0z0` }, { id: 'river_bousai', name: '川の防災情報', desc: 'リアルタイムの河川水位と雨量情報', category: 'disaster', icon: '💧', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `https://www.river.go.jp/kawabou/pc/ov?zm=${zoom}&fld=0&clat=${lat}&clon=${lon}&mapType=0&viewGrpStg=0&viewRd=1&viewRW=1&viewRiver=1&viewPoint=1`;} }, { id: 'jma_warnings', name: '気象警報・注意報', desc: '気象庁が発表する警報・注意報を地図で確認', category: 'disaster', icon: '📢', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/map.html#${zoom}/${lat}/${lon}/&elem=all&contents=warning` }, { id: 'kikikuru', name: 'キキクル（危険度分布）', desc: '土砂災害・浸水・洪水の危険度をリアルタイム表示', category: 'disaster', icon: '⛈️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/risk/#zoom:${zoom}/lat:${lat}/lon:${lon}/colordepth:deep/elements:land` }, { id: 'jma_nowcast', name: '高解像度降水ナウキャスト', desc: '気象庁が提供するリアルタイムの降水予報', category: 'disaster', icon: '🌧️', noCoords: false, url: (lat, lon, zoom) => `https://www.jma.go.jp/bosai/nowc/#lat:${lat}/lon:${lon}/zoom:${zoom}/colordepth:normal/elements:hrpns&slmcs&slmcs_fcst` }, { id: 'kijunten', name: '基準点閲覧サービス', desc: '三角点・水準点などの基準点情報', category: 'survey', icon: '📏', noCoords: false, url: (lat, lon, zoom) => `https://service.gsi.go.jp/kijunten/app/map/#${zoom}/${lat}/${lon}/&base=std&ls=std&disp=1&vs=c1z0f0` }, { id: 'suimon_suisitsu', name: '水文水質データベース', desc: '河川の水位・流量・水質データ', category: 'survey', icon: '🔬', noCoords: false, url: (lat, lon, zoom) => { let s=4; if(zoom>=18)s=3; if(zoom<=15)s=5; if(zoom<=13)s=6; return `http://www1.river.go.jp/cgi-bin/SelectMap.do?cntX=${lon}&cntY=${lat}&scaleCd=${s}`;} }, { id: 'qchizu_moj', name: '法務局地図', desc: '法務局の地図データを表示（Q地図）', category: 'survey', icon: '⚖️', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=pale&base_grayscale=1&ls=pale%7C60_moj_chiban_2022_01&disp=11&vs=c1g1j0h0k0l0u0t0z0r0s0m0f0&d=m` }, { id: 'topo_profile', name: 'Web地形断面メーカー', desc: '2点間の地形断面図を自動作成。開いた後に位置を設定してください', category: 'survey', icon: '〽️', noCoords: true, url: () => `https://ktgis.net/service/topoprofile/` }, { id: 'web_contour', name: 'Web等高線メーカー', desc: '指定範囲の等高線図を作成。開いた後に位置を設定してください', category: 'survey', icon: '🏔️', noCoords: true, url: () => `https://ktgis.net/service/webcontour/index.html` }, { id: 'yahoo_map', name: 'Yahoo地図', desc: '雨雲レーダーや混雑情報も表示可能', category: 'other', icon: '☁️', noCoords: false, url: (lat, lon, zoom) => `https://map.yahoo.co.jp/?lat=${lat}&lon=${lon}&zoom=${zoom}&maptype=satellite` }, { id: 'mapion', name: 'Mapion（マップコード）', desc: 'カーナビ用のマップコードを取得。右クリック→地図URLでマップコードを表示', category: 'other', icon: '📍', noCoords: false, url: (lat, lon, zoom) => `https://www.mapion.co.jp/m2/${lat},${lon},${zoom}` }, { id: 'itsmo_navi', name: 'いつもNAVI', desc: 'ゼンリンデータコムが提供する詳細な地図', category: 'other', icon: '🚗', noCoords: false, url: (lat, lon, zoom) => { const tokyoCoords = convertWgs84ToTokyo(lat, lon);return `https://www.its-mo.com/maps/?lat=${tokyoCoords.lat}&lon=${tokyoCoords.lon}&z=${zoom}`; } }, { id: 'qchizu_bridge', name: '橋梁マップ', desc: '全国の橋梁の位置と情報を表示（Q地図）', category: 'disaster', icon: '🌉', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=std&ls=std%7C04_thematic_55_mlit_road_structures_bridge_2024&disp=11&vs=c1g1j0h0k0l0u0t0z0r0s0m0f2&d=m` }, { id: 'qchizu_footbridge', name: '歩道橋マップ', desc: '全国の歩道橋の位置と情報を表示（Q地図）', category: 'disaster', icon: '🚶', noCoords: false, url: (lat, lon, zoom) => `https://maps.qchizu.xyz/#${zoom}/${lat}/${lon}/&base=std&ls=std%7C04_thematic_55_mlit_road_structures_footbridge_2024&disp=11&lcd=04_thematic_55_mlit_road_structures_footbridge_2024&vs=c1g1j0h0k0l0u0t0z0r0s0m0f2&d=m` }, { id: 'chika_map', name: '地価マップ', desc: '公示地価・基準地価を地図上に表示', category: 'other', icon: '💵', noCoords: false, url: (lat, lon) => `https://www.chikamap.jp/chikamap/Map?mid=220&mps=2500&mpx=${parseFloat(lon)+0.002365}&mpy=${parseFloat(lat)-0.00328}&mtl=47,37,77,27,67,57&mcl=3,30,30,30;2,20,312,312;7,70,310,310;1,10,312,312;1,10,310,310;5,50,50,50;4,40,40,40&gprj=1&flgInit=1&vpc=0` }];
 
 const $lat = document.getElementById('latitude'), $lon = document.getElementById('longitude'), $coordsDisplay = document.getElementById('currentCoords'), $zoom = document.getElementById('zoomLevel'), $zoomDisplay = document.getElementById('zoomLevelDisplay'), $container = document.getElementById('map-categories-container'), $notification = document.getElementById('notification'), $mapPreview = document.getElementById('mapPreview'), $previewContainer = document.getElementById('previewContainer'), $historyPopup = document.getElementById('historyPopup'), $historyList = document.getElementById('historyList'), $bookmarkPopup = document.getElementById('bookmarkPopup'), $bookmarkList = document.getElementById('bookmarkList'), $currentZoom = document.getElementById('currentZoom'), $addressInput = document.getElementById('addressInput'), $autocompleteList = document.getElementById('autocompleteList'), $coordFormatToggle = document.getElementById('coord-format-toggle'), $areaDisplay = document.getElementById('area-display'), $mainMapContainer = document.getElementById('mainMapContainer');
+
+// ▼▼▼ プロジェクト機能関連の変数 ▼▼▼
+const PROJECTS_KEY = 'geoLinkNaviProjects';
+let projectsData = {};
+let activeProjectId = null;
+const LEGACY_KEYS = ['coordinateBookmarks', 'myCustomLinks', 'favoriteSets', 'geoLinkNaviSettings', 'geoLinkNaviTabOrder', 'coordinateHistory'];
+const DATA_KEYS = ['coordinateBookmarks', 'coordinateHistory', 'myCustomLinks', 'favoriteSets', 'geoLinkNaviSettings', 'geoLinkNaviTabOrder'];
+
+// デフォルトのプロジェクトデータ構造
+const defaultProjectData = {
+    coordinateBookmarks: [],
+    coordinateHistory: [],
+    myCustomLinks: [],
+    favoriteSets: {},
+    geoLinkNaviSettings: { theme: 'light', defaultZoom: 16, coordFormat: 'decimal', historySize: 100, defaultLayer: 'gsi_std', panelState: 'closed', panelWidth: 500 },
+    geoLinkNaviTabOrder: ['map-links', 'history', 'bookmarks']
+};
+// ▲▲▲ ここまで ▲▲▲
+
+
 let MAX_HISTORY = 100;
-const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORITE_SETS_KEY = 'favoriteSets', SETTINGS_KEY = 'geoLinkNaviSettings';
+const BOOKMARK_KEY = 'coordinateBookmarks', MYLINK_KEY = 'myCustomLinks', FAVORITE_SETS_KEY = 'favoriteSets', SETTINGS_KEY = 'geoLinkNaviSettings', TAB_ORDER_KEY = 'geoLinkNaviTabOrder';
 let osmMap = null, osmMarker = null, autocompleteTimer = null, currentAutocompleteResults = [], selectedAutocompleteIndex = -1, isDMSFormat = false, currentLatLon = { lat: 35.68107447, lon: 139.76784396 };
 let navigationHistory = [], historyIndex = -1, MAX_NAV_HISTORY = 100;
 let currentCoordsRequestId = 0;
@@ -1878,9 +2125,136 @@ let currentSettings = {};
 
 let historySortState = { column: 'timestamp', order: 'desc' };
 const $historyTableBody = document.getElementById('historyTableBody');
+let bookmarkSortState = { column: 'name', order: 'asc' };
+const $bookmarkTableBody = document.getElementById('bookmarkTableBody');
+
+
+// ▼▼▼ プロジェクトデータ管理関数 ▼▼▼
+function loadProjects() {
+    try {
+        const storedProjects = JSON.parse(localStorage.getItem(PROJECTS_KEY));
+        if (storedProjects && storedProjects.projects && Object.keys(storedProjects.projects).length > 0) {
+            projectsData = storedProjects;
+            activeProjectId = storedProjects.activeProjectId;
+            if (!projectsData.projects[activeProjectId]) {
+                activeProjectId = Object.keys(projectsData.projects)[0];
+                projectsData.activeProjectId = activeProjectId;
+            }
+        } else {
+            // 新規ユーザー or データ破損
+            const newId = `proj_${Date.now()}`;
+            projectsData = {
+                activeProjectId: newId,
+                projects: {
+                    [newId]: {
+                        name: 'デフォルトプロジェクト',
+                        data: JSON.parse(JSON.stringify(defaultProjectData)) // Deep copy
+                    }
+                }
+            };
+            activeProjectId = newId;
+            saveProjects();
+        }
+    } catch (e) {
+        console.error("プロジェクトデータの読み込みに失敗しました。", e);
+        // エラー発生時は安全なデフォルト状態に
+        const newId = `proj_${Date.now()}`;
+        projectsData = {
+            activeProjectId: newId,
+            projects: {
+                [newId]: { name: 'デフォルトプロジェクト', data: JSON.parse(JSON.stringify(defaultProjectData)) }
+            }
+        };
+        activeProjectId = newId;
+        saveProjects();
+    }
+}
+
+function saveProjects() {
+    try {
+        localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsData));
+    } catch (e) {
+        console.error("プロジェクトデータの保存に失敗しました。", e);
+        showNotification("データの保存に失敗しました。ストレージの空き容量を確認してください。", "error");
+    }
+}
+
+function getActiveProjectData() {
+    return projectsData.projects[activeProjectId]?.data || JSON.parse(JSON.stringify(defaultProjectData));
+}
+
+function getProjectData(key) {
+    const data = getActiveProjectData();
+    return data[key];
+}
+
+function setProjectData(key, value) {
+    if (projectsData.projects[activeProjectId]) {
+        projectsData.projects[activeProjectId].data[key] = value;
+        saveProjects();
+    }
+}
+
+function migrateOldData() {
+    // 古い形式のデータが存在するかチェック（いずれか一つでもあれば移行対象）
+    const needsMigration = LEGACY_KEYS.some(key => localStorage.getItem(key) !== null);
+    
+    // 新しいプロジェクトデータが既に存在する場合は移行しない
+    if (!needsMigration || localStorage.getItem(PROJECTS_KEY) !== null) {
+        return;
+    }
+
+    console.log("古いデータを検出しました。新しいプロジェクト形式に移行します。");
+    showNotification("データを新しいプロジェクト形式に移行中...", "warning");
+
+    const migratedData = JSON.parse(JSON.stringify(defaultProjectData));
+    
+    LEGACY_KEYS.forEach(key => {
+        const oldData = localStorage.getItem(key);
+        if (oldData !== null) {
+            try {
+                migratedData[key] = JSON.parse(oldData);
+            } catch (e) {
+                console.warn(`キー "${key}" のデータ解析に失敗しました。スキップします。`, e);
+            }
+        }
+    });
+
+    const newId = `proj_${Date.now()}`;
+    projectsData = {
+        activeProjectId: newId,
+        projects: {
+            [newId]: {
+                name: 'デフォルトプロジェクト',
+                data: migratedData
+            }
+        }
+    };
+    activeProjectId = newId;
+    saveProjects();
+
+    // 移行後に古いデータを削除
+    LEGACY_KEYS.forEach(key => {
+        localStorage.removeItem(key);
+    });
+
+    showNotification("データ移行が完了しました！");
+}
+
+function switchProject(projectId) {
+    if (projectId && projectsData.projects[projectId]) {
+        projectsData.activeProjectId = projectId;
+        saveProjects();
+        // ページをリロードして、新しいプロジェクトのデータを確実に反映
+        location.reload();
+    }
+}
+
+// ▲▲▲ ここまで ▲▲▲
+
 
 function loadSettings() {
-    const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    const savedSettings = getProjectData(SETTINGS_KEY);
     currentSettings = { ...defaultSettings, ...savedSettings };
     applySettings();
 }
@@ -1939,7 +2313,7 @@ function saveSettings(e) {
     currentSettings.historySize = document.getElementById('settings-history-size').value;
     currentSettings.panelState = document.getElementById('settings-panel-state').value;
 
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+    setProjectData(SETTINGS_KEY, currentSettings);
     applySettings();
     closeSettingsModal();
     showNotification('設定を保存しました。');
@@ -2197,7 +2571,7 @@ async function getElevationFromCoords(lat, lon) {
 }
 
 async function addCoordinateToHistory(lat, lon, zoom, addressInfo, elevation) {
-    let history = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    let history = getProjectData('coordinateHistory') || [];
     
     const newEntry = {
         lat: lat.toFixed(8),
@@ -2211,7 +2585,7 @@ async function addCoordinateToHistory(lat, lon, zoom, addressInfo, elevation) {
 
     if (history.length === 0 || (history[0].lat !== newEntry.lat || history[0].lon !== newEntry.lon)) {
         history.unshift(newEntry);
-        localStorage.setItem('coordinateHistory', JSON.stringify(history.slice(0, MAX_HISTORY)));
+        setProjectData('coordinateHistory', history.slice(0, MAX_HISTORY));
         renderHistoryList(history);
         renderHistoryTable();
         renderHistoryOnMap();
@@ -2284,29 +2658,48 @@ function loadCoordinateFromHistory(item) {
     toggleHistoryPopup(false);
     showNotification(`履歴「${item.address}」を適用`);
 }
-function toggleHistoryPopup(open = true) { if (open && $historyPopup.style.display !== 'block') { renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]')); $historyPopup.style.display = 'block'; $bookmarkPopup.style.display = 'none'; } else { $historyPopup.style.display = 'none'; } }
-function clearHistory() { if (confirm('履歴を全削除しますか？')) { localStorage.removeItem('coordinateHistory'); renderHistoryList([]); renderHistoryTable(); renderHistoryOnMap(); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
-function exportHistoryToCSV() { const d = JSON.parse(localStorage.getItem('coordinateHistory')||'[]'); if(d.length>0) exportToCSV(d, '座標履歴'); else showNotification('履歴がありません', 'error'); }
+function toggleHistoryPopup(open = true) { if (open && $historyPopup.style.display !== 'block') { renderHistoryList(getProjectData('coordinateHistory') || []); $historyPopup.style.display = 'block'; $bookmarkPopup.style.display = 'none'; } else { $historyPopup.style.display = 'none'; } }
+function clearHistory() { if (confirm('現在のプロジェクトの履歴を全削除しますか？')) { setProjectData('coordinateHistory', []); renderHistoryList([]); renderHistoryTable(); renderHistoryOnMap(); showNotification('履歴をクリアしました'); toggleHistoryPopup(false); } }
+function exportHistoryToCSV() { const d = getProjectData('coordinateHistory')||[]; if(d.length>0) exportToCSV(d, '座標履歴'); else showNotification('履歴がありません', 'error'); }
 
-function saveCurrentAsBookmark() {
-    const name = prompt('ブックマーク名を入力:', '');
+async function saveCurrentAsBookmark() {
+    showNotification('住所情報を取得中...');
+    const [addressInfo, elevation] = await Promise.all([
+        getAddressFromCoords(currentLatLon.lat, currentLatLon.lon),
+        getElevationFromCoords(currentLatLon.lat, currentLatLon.lon)
+    ]);
+    showNotification('ブックマーク名を入力してください。');
+    const name = prompt('ブックマーク名を入力:', addressInfo.structured || '');
     if (name) {
-        addBookmark(name, currentLatLon.lat, currentLatLon.lon, $zoom.value);
+        addBookmark(name, currentLatLon.lat, currentLatLon.lon, $zoom.value, addressInfo, elevation);
         showNotification(`「${name}」をブックマークしました`);
         renderBookmarkList();
+        renderBookmarkTable();
     }
 }
-function addBookmark(name, lat, lon, zoom) {
-    let b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
-    b.unshift({ name, lat: lat.toFixed(8), lon: lon.toFixed(8), zoom: parseInt(zoom, 10), timestamp: new Date().toISOString() });
-    localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b));
+function addBookmark(name, lat, lon, zoom, addressInfo, elevation) {
+    let b = getProjectData(BOOKMARK_KEY) || [];
+    const newBookmark = { 
+        name, 
+        lat: lat.toFixed(8), 
+        lon: lon.toFixed(8), 
+        zoom: parseInt(zoom, 10), 
+        timestamp: new Date().toISOString(),
+        postcode: addressInfo.postcode,
+        address: addressInfo.structured,
+        elevation: elevation
+    };
+    b.unshift(newBookmark);
+    setProjectData(BOOKMARK_KEY, b);
 }
+
 function renderBookmarkList() {
-    const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]');
+    const b = getProjectData(BOOKMARK_KEY) || [];
     $bookmarkList.innerHTML = b.length === 0 ? '<p>ブックマークはありません。</p>' : b.map((item, index) =>
         `<div class="bookmark-item" data-index="${index}">
             <strong>${escapeXml(item.name)}</strong>
-            <span>${item.lat}°N, ${item.lon}°E | ${new Date(item.timestamp).toLocaleString()}</span>
+            <span>${escapeXml(item.address || '---')}</span>
+            <span>${item.lat}°N, ${item.lon}°E | 標高: ${item.elevation}m</span>
             <div class="bookmark-actions">
                 <button class="btn-bookmark-load">適用</button>
                 <button class="btn-bookmark-open">地図</button>
@@ -2317,7 +2710,7 @@ function renderBookmarkList() {
 }
 
 function handleBookmarkAction(index, action) {
-    const b = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), item = b[index];
+    let b = getProjectData(BOOKMARK_KEY) || [], item = b[index];
     if (!item) return;
     if (action === 'load') {
         updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon));
@@ -2330,15 +2723,16 @@ function handleBookmarkAction(index, action) {
     } else if (action === 'delete') {
         if (confirm(`「${item.name}」を削除しますか？`)) {
             b.splice(index, 1);
-            localStorage.setItem(BOOKMARK_KEY, JSON.stringify(b));
+            setProjectData(BOOKMARK_KEY, b);
             renderBookmarkList();
+            renderBookmarkTable();
             showNotification('削除しました');
         }
     }
 }
 function toggleBookmarkPopup(open = true) { if (open && $bookmarkPopup.style.display !== 'block') { renderBookmarkList(); $bookmarkPopup.style.display = 'block'; $historyPopup.style.display = 'none'; } else { $bookmarkPopup.style.display = 'none'; } }
-function clearBookmarks() { if (confirm('ブックマークを全削除しますか？')) { localStorage.removeItem(BOOKMARK_KEY); renderBookmarkList([]); showNotification('ブックマークをクリアしました'); toggleBookmarkPopup(false); } }
-function exportBookmarksToCSV() { const d = JSON.parse(localStorage.getItem(BOOKMARK_KEY)||'[]'); if(d.length>0) exportToCSV(d, 'bookmarks_export'); else showNotification('ブックマークがありません', 'error'); }
+function clearBookmarks() { if (confirm('現在のプロジェクトのブックマークを全削除しますか？')) { setProjectData(BOOKMARK_KEY, []); renderBookmarkList([]); renderBookmarkTable(); showNotification('ブックマークをクリアしました'); toggleBookmarkPopup(false); } }
+function exportBookmarksToCSV() { const d = getProjectData(BOOKMARK_KEY)||[]; if(d.length>0) exportToCSV(d, 'bookmarks_export'); else showNotification('ブックマークがありません', 'error'); }
 
 function exportToCSV(data, filename) { 
     if (data.length === 0) return showNotification('データがありません', 'error');
@@ -2361,7 +2755,15 @@ async function exportToKML(data, docName, filename) {
     if (data.length === 0) return showNotification('データがありません', 'error'); 
     let placemarks = ''; 
     for (const item of data) {
-        placemarks += `<Placemark><name>${escapeXml(item.name||item.address||'無題')}</name><Point><coordinates>${item.lon},${item.lat},0</coordinates></Point></Placemark>\n`; 
+        const description = `
+            <![CDATA[
+                <p><b>郵便番号:</b> ${escapeXml(item.postcode || '---')}</p>
+                <p><b>住所:</b> ${escapeXml(item.address || '---')}</p>
+                <p><b>標高:</b> ${escapeXml(String(item.elevation) || '---')} m</p>
+                <p><b>座標:</b> ${item.lat}, ${item.lon}</p>
+            ]]>
+        `;
+        placemarks += `<Placemark><name>${escapeXml(item.name||item.address||'無題')}</name><description>${description}</description><Point><coordinates>${item.lon},${item.lat},0</coordinates></Point></Placemark>\n`; 
     }
     const kml = `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${docName}</name>${placemarks}</Document></kml>`, 
           blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8;' }), 
@@ -2375,13 +2777,18 @@ async function exportToKML(data, docName, filename) {
     showNotification('KMLで書き出しました'); 
 }
 
-async function exportHistoryToKML() { exportToKML(JSON.parse(localStorage.getItem('coordinateHistory') || '[]'), '座標履歴', 'coordinate_history'); }
-async function exportBookmarksToKML() { exportToKML(JSON.parse(localStorage.getItem(BOOKMARK_KEY) || '[]'), '地点ブックマーク', 'bookmarks_export'); }
-function escapeXml(unsafe) { return unsafe.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','\'':'&apos;','"':'&quot;'})[c]); }
+async function exportHistoryToKML() { exportToKML(getProjectData('coordinateHistory') || [], '座標履歴', 'coordinate_history'); }
+async function exportBookmarksToKML() { exportToKML(getProjectData(BOOKMARK_KEY) || [], '地点ブックマーク', 'bookmarks_export'); }
+function escapeXml(unsafe) {
+    if (typeof unsafe !== 'string') {
+        return unsafe;
+    }
+    return unsafe.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','\'':'&apos;','"':'&quot;'})[c]); 
+}
 
 function toggleDarkMode() {
     currentSettings.theme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+    setProjectData(SETTINGS_KEY, currentSettings);
     applySettings();
 }
 
@@ -2456,8 +2863,8 @@ async function pasteCoordinates() {
 function toggleUsage() { document.getElementById('usageGuide').classList.toggle('show'); }
 function toggleCategory(header) { header.classList.toggle('collapsed'); header.nextElementSibling.classList.toggle('hidden'); }
 function getCombinedMapDefinitions() {
-    const customLinks = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l);
-    const customMaps = customLinks.map(link => ({ ...link, category: 'mylink', isCustom: true }));
+    const customLinks = getProjectData(MYLINK_KEY) || [];
+    const customMaps = customLinks.filter(l => l).map(link => ({ ...link, category: 'mylink', isCustom: true }));
     return [...MAP_DEFINITIONS, ...customMaps];
 }
 function renderMapCards() {
@@ -2489,12 +2896,14 @@ categoryHeader.innerHTML = `<div class="category-title-group"><div class="catego
 const toggleBtn = document.createElement('button');
 toggleBtn.className = 'btn-toggle-all-checks';
 toggleBtn.setAttribute('title', '全選択/解除');
+toggleBtn.setAttribute('aria-label', `${catGroup.meta.title}の地図を全選択または全解除`);
 toggleBtn.onclick = () => toggleAllCheckboxes(catKey, toggleBtn);
 categoryHeader.appendChild(toggleBtn);
 
 const bulkOpenBtn = document.createElement('button');
 bulkOpenBtn.className = 'btn-bulk-open';
 bulkOpenBtn.setAttribute('title', 'チェックした項目を一括で開く');
+bulkOpenBtn.setAttribute('aria-label', `${catGroup.meta.title}でチェックした地図を一括で開く`);
 bulkOpenBtn.onclick = () => openCheckedMaps(catKey);
 categoryHeader.appendChild(bulkOpenBtn);
 categoryDiv.appendChild(categoryHeader);
@@ -2518,7 +2927,7 @@ function createMapCard(map, catKey, categoryHeader) {
     card.dataset.category = catKey;
     card.dataset.mapId = map.id;
     card.onclick = e => !e.target.closest('.map-checkbox, .map-card-actions') && openMap(map);
-    card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${escapeXml(map.name)}</div><input type="checkbox" class="map-checkbox" data-map-id="${map.id}"></div><div class="map-description">${escapeXml(map.desc || 'カスタムリンク')}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
+    card.innerHTML = `<div class="map-header-with-check"><div class="map-title"><span class="map-icon-in-title">${map.icon || '🔗'}</span> ${escapeXml(map.name)}</div><input type="checkbox" class="map-checkbox" data-map-id="${map.id}" aria-label="${escapeXml(map.name)}を選択"></div><div class="map-description">${escapeXml(map.desc || 'カスタムリンク')}</div>${map.noCoords ? '<div class="manual-input-warning">※手動設定が必要です</div>' : ''}`;
 
     const checkbox = card.querySelector('.map-checkbox');
 
@@ -2550,7 +2959,7 @@ function decimalToDMS(dd, isLat) { const dir = dd < 0 ? (isLat ? 'S' : 'W') : (i
 function dmsToDecimal(dms) { dms = String(dms).trim().toUpperCase(); const parts = dms.match(/(-?\d+\.?\d*)[°D\s]+(\d+)[`'’\s]+([\d.]+)[S"”\s]*\s*([NSEW])?/); if (!parts) throw new Error("Invalid DMS format"); let dd = Math.abs(parseFloat(parts[1])) + parseFloat(parts[2])/60 + parseFloat(parts[3])/3600; if (parseFloat(parts[1]) < 0 || parts[4] === 'S' || parts[4] === 'W') dd = -dd; return dd; }
 function toggleCoordFormat() {
     currentSettings.coordFormat = isDMSFormat ? 'decimal' : 'dms';
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+    setProjectData(SETTINGS_KEY, currentSettings);
     applySettings();
 }
 function updateLatLonInputs(lat, lon) { currentLatLon = {lat, lon}; if (isDMSFormat) { $lat.value = decimalToDMS(lat, true); $lon.value = decimalToDMS(lon, false); } else { $lat.value = lat.toFixed(8); $lon.value = lon.toFixed(8); } }
@@ -2887,7 +3296,7 @@ function saveMyLink(e) {
         return;
     }
 
-    let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]'); 
+    let links = getProjectData(MYLINK_KEY) || [];
     const linkId = document.getElementById('mylink-id').value;
     const newLink = { 
         id: linkId || `mylink-${Date.now()}`, 
@@ -2902,7 +3311,7 @@ function saveMyLink(e) {
         links.push(newLink); 
     }
     
-    localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); 
+    setProjectData(MYLINK_KEY, links);
     renderMyLinkCategory();
     closeMyLinkModal(); 
     showNotification('マイリンクを保存しました'); 
@@ -2910,8 +3319,8 @@ function saveMyLink(e) {
 
 function deleteMyLink(linkId) { 
     if (confirm('このマイリンクを削除しますか？')) { 
-        let links = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l.id !== linkId); 
-        localStorage.setItem(MYLINK_KEY, JSON.stringify(links)); 
+        let links = (getProjectData(MYLINK_KEY) || []).filter(l => l.id !== linkId); 
+        setProjectData(MYLINK_KEY, links);
         renderMyLinkCategory();
         showNotification('マイリンクを削除しました'); 
     } 
@@ -2925,10 +3334,10 @@ function renderMyLinkCategory() {
         mylinkGrid.removeChild(mylinkGrid.firstChild);
     }
 
-    const customLinks = JSON.parse(localStorage.getItem(MYLINK_KEY) || '[]').filter(l => l);
+    const customLinks = getProjectData(MYLINK_KEY) || [];
     const mylinkCategoryHeader = mylinkGrid.previousElementSibling;
 
-    customLinks.forEach((link, index) => {
+    customLinks.filter(l => l).forEach((link, index) => {
         link.id = link.id || `mylink-${Date.now() + index}`;
         const card = createMapCard(link, 'mylink', mylinkCategoryHeader);
         mylinkGrid.insertBefore(card, mylinkGrid.querySelector('.btn-add-mylink'));
@@ -3014,7 +3423,7 @@ function convertUrlToTemplate() {
 }
 
 function loadFavoriteSets() {
-    const sets = JSON.parse(localStorage.getItem(FAVORITE_SETS_KEY) || '{}');
+    const sets = getProjectData(FAVORITE_SETS_KEY) || {};
     const select = document.getElementById('favorite-sets');
     select.innerHTML = '<option value="">セットを選択...</option>';
     for (const setName in sets) {
@@ -3026,7 +3435,7 @@ function loadFavoriteSets() {
 }
 
 function applyFavoriteSet() {
-    const sets = JSON.parse(localStorage.getItem(FAVORITE_SETS_KEY) || '{}');
+    const sets = getProjectData(FAVORITE_SETS_KEY) || {};
     const select = document.getElementById('favorite-sets');
     const selectedSet = sets[select.value];
     if (selectedSet) {
@@ -3045,7 +3454,7 @@ function openFavoriteSet() {
         return;
     }
 
-    const sets = JSON.parse(localStorage.getItem(FAVORITE_SETS_KEY) || '{}');
+    const sets = getProjectData(FAVORITE_SETS_KEY) || {};
     const mapIdsToOpen = sets[setName];
 
     if (!mapIdsToOpen || mapIdsToOpen.length === 0) {
@@ -3073,9 +3482,9 @@ function saveFavoriteSet() {
         return;
     }
 
-    const sets = JSON.parse(localStorage.getItem(FAVORITE_SETS_KEY) || '{}');
+    const sets = getProjectData(FAVORITE_SETS_KEY) || {};
     sets[setName] = checkedIds;
-    localStorage.setItem(FAVORITE_SETS_KEY, JSON.stringify(sets));
+    setProjectData(FAVORITE_SETS_KEY, sets);
     loadFavoriteSets();
     document.getElementById('favorite-sets').value = setName;
     showNotification(`セット「${setName}」を保存しました。`);
@@ -3089,9 +3498,9 @@ function deleteFavoriteSet() {
         return;
     }
     if (confirm(`セット「${setName}」を削除しますか？`)) {
-        const sets = JSON.parse(localStorage.getItem(FAVORITE_SETS_KEY) || '{}');
+        const sets = getProjectData(FAVORITE_SETS_KEY) || {};
         delete sets[setName];
-        localStorage.setItem(FAVORITE_SETS_KEY, JSON.stringify(sets));
+        setProjectData(FAVORITE_SETS_KEY, sets);
         loadFavoriteSets();
         showNotification(`セット「${setName}」を削除しました。`);
     }
@@ -3197,7 +3606,7 @@ function initResizer() {
             window.removeEventListener('mouseup', mouseUpHandler);
             
             currentSettings.panelWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--panel-width'));
-            localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+            setProjectData(SETTINGS_KEY, currentSettings);
         };
 
         window.addEventListener('mousemove', mouseMoveHandler);
@@ -3223,11 +3632,11 @@ function exportData() {
     }
 
     const dataToExport = {};
+    const activeData = getActiveProjectData();
     checkedItems.forEach(item => {
         const key = item.value;
-        const data = localStorage.getItem(key);
-        if (data) {
-            dataToExport[key] = data;
+        if (activeData.hasOwnProperty(key)) {
+            dataToExport[key] = activeData[key];
         }
     });
 
@@ -3253,7 +3662,7 @@ function exportData() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showNotification('データをファイルに書き出しました。');
+    showNotification('現在のプロジェクトのデータをファイルに書き出しました。');
 }
 
 function importDataTrigger() {
@@ -3281,14 +3690,15 @@ function handleFileSelect(event) {
         try {
             const importedData = JSON.parse(e.target.result);
             
-            if (confirm('ファイルからデータを読み込みます。\n選択した項目の既存データは上書きされます。よろしいですか？')) {
+            if (confirm('ファイルからデータを読み込みます。\n現在のプロジェクトの、選択した項目の既存データは上書きされます。よろしいですか？')) {
                 let importedCount = 0;
-                for (const key in importedData) {
-                    if (keysToImport.includes(key) && Object.prototype.hasOwnProperty.call(importedData, key)) {
-                        localStorage.setItem(key, importedData[key]);
+                keysToImport.forEach(key => {
+                    if (importedData.hasOwnProperty(key)) {
+                        setProjectData(key, importedData[key]);
                         importedCount++;
                     }
-                }
+                });
+
                 if (importedCount > 0) {
                    alert(`${importedCount}個のデータを読み込みました。\nページを再読み込みして変更を適用します。`);
                    location.reload();
@@ -3307,7 +3717,7 @@ function handleFileSelect(event) {
 }
 
 function renderHistoryTable() {
-    const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    const historyData = getProjectData('coordinateHistory') || [];
     const filterText = document.getElementById('historySearchInput').value.toLowerCase();
 
     let filteredData = historyData.filter(item => {
@@ -3339,7 +3749,7 @@ function renderHistoryTable() {
         const originalIndex = historyData.findIndex(h => h.timestamp === item.timestamp);
         return `
             <tr data-history-index="${originalIndex}">
-                <td><input type="checkbox" class="history-item-checkbox" data-history-index="${originalIndex}"></td>
+                <td><input type="checkbox" class="history-item-checkbox" data-history-index="${originalIndex}" aria-label="履歴 No.${originalIndex + 1} を選択"></td>
                 <td>${originalIndex + 1}</td>
                 <td>${escapeXml(item.postcode || '---')}</td>
                 <td>${escapeXml(item.address || '---')}</td>
@@ -3348,8 +3758,8 @@ function renderHistoryTable() {
                 <td>${item.elevation}</td>
                 <td>${new Date(item.timestamp).toLocaleString()}</td>
                 <td class="actions-cell">
-                    <button class="btn-action copy" title="この行をコピー">📋</button>
-                    <button class="btn-action delete" title="この行を削除">🗑️</button>
+                    <button class="btn-action copy" title="この行をコピー" aria-label="履歴 No.${originalIndex + 1} をコピー">📋</button>
+                    <button class="btn-action delete" title="この行を削除" aria-label="履歴 No.${originalIndex + 1} を削除">🗑️</button>
                 </td>
             </tr>
         `;
@@ -3367,7 +3777,7 @@ function handleHistoryTableClick(e) {
     if (!row || !row.dataset.historyIndex) return;
 
     const historyIndex = parseInt(row.dataset.historyIndex, 10);
-    const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    let historyData = getProjectData('coordinateHistory') || [];
     const item = historyData[historyIndex];
 
     if (e.target.classList.contains('history-item-checkbox')) {
@@ -3391,7 +3801,7 @@ function handleHistoryTableClick(e) {
         } else if (e.target.classList.contains('delete')) {
             if (confirm(`履歴No.${historyIndex + 1}を削除しますか？`)) {
                 historyData.splice(historyIndex, 1);
-                localStorage.setItem('coordinateHistory', JSON.stringify(historyData));
+                setProjectData('coordinateHistory', historyData);
                 renderHistoryTable();
                 renderHistoryList(historyData);
                 renderHistoryOnMap();
@@ -3413,8 +3823,8 @@ function handleHistoryTableClick(e) {
 function updateHistoryTableControls() {
     const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
     const hasSelection = selectedCheckboxes.length > 0;
-    document.getElementById('btn-copy-selected').disabled = !hasSelection;
-    document.getElementById('btn-delete-selected').disabled = !hasSelection;
+    document.getElementById('btn-copy-selected-history').disabled = !hasSelection;
+    document.getElementById('btn-delete-selected-history').disabled = !hasSelection;
 
     const allCheckboxes = document.querySelectorAll('.history-item-checkbox');
     const selectAllCheckbox = document.getElementById('history-select-all');
@@ -3437,8 +3847,8 @@ function highlightHistoryTableRow(historyIndex) {
     const targetRow = document.querySelector(`#historyTableBody tr[data-history-index="${historyIndex}"]`);
     if (targetRow) {
         targetRow.style.backgroundColor = 'rgba(102, 126, 234, 0.3)';
-        const wrapper = document.querySelector('.history-table-wrapper');
-        const header = document.querySelector('.history-table thead');
+        const wrapper = document.querySelector('#history-content .table-wrapper');
+        const header = document.querySelector('#historyTable thead');
         const headerHeight = header ? header.offsetHeight : 0;
         const scrollToPosition = targetRow.offsetTop - headerHeight;
         wrapper.scrollTo({
@@ -3456,7 +3866,7 @@ function renderHistoryOnMap() {
         return;
     }
 
-    const allHistoryData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]');
+    const allHistoryData = getProjectData('coordinateHistory') || [];
     const selectedCheckboxes = document.querySelectorAll('.history-item-checkbox:checked');
     let dataToShow = [];
 
@@ -3517,8 +3927,209 @@ function renderHistoryOnMap() {
         }
     });
 }
+function renderBookmarkTable() {
+    const bookmarkData = getProjectData(BOOKMARK_KEY) || [];
+    const filterText = document.getElementById('bookmarkSearchInput').value.toLowerCase();
+
+    let filteredData = bookmarkData.filter(item => 
+        (item.name && item.name.toLowerCase().includes(filterText)) ||
+        (item.address && item.address.toLowerCase().includes(filterText)) ||
+        (item.postcode && item.postcode.toLowerCase().includes(filterText))
+    );
+
+    filteredData.sort((a, b) => {
+        const col = bookmarkSortState.column;
+        const order = bookmarkSortState.order === 'asc' ? 1 : -1;
+        
+        let valA = a[col], valB = b[col];
+        if (col === 'no') {
+            valA = bookmarkData.indexOf(a);
+            valB = bookmarkData.indexOf(b);
+        } else if (col === 'lat' || col === 'lon' || col === 'elevation') {
+            valA = parseFloat(valA) || -Infinity;
+            valB = parseFloat(valB) || -Infinity;
+        }
+
+        if (valA < valB) return -1 * order;
+        if (valA > valB) return 1 * order;
+        return 0;
+    });
+
+    $bookmarkTableBody.innerHTML = filteredData.map(item => {
+        const originalIndex = bookmarkData.findIndex(b => b.timestamp === item.timestamp);
+        return `
+            <tr data-bookmark-index="${originalIndex}">
+                <td><input type="checkbox" class="bookmark-item-checkbox" data-bookmark-index="${originalIndex}" aria-label="ブックマーク「${escapeXml(item.name)}」を選択"></td>
+                <td>${originalIndex + 1}</td>
+                <td>${escapeXml(item.name)}</td>
+                <td>${escapeXml(item.postcode || '---')}</td>
+                <td>${escapeXml(item.address || '---')}</td>
+                <td>${item.lat}</td>
+                <td>${item.lon}</td>
+                <td>${item.elevation}</td>
+                <td>${new Date(item.timestamp).toLocaleString()}</td>
+                <td class="actions-cell">
+                    <button class="btn-action copy" title="この行をコピー" aria-label="ブックマーク「${escapeXml(item.name)}」をコピー">📋</button>
+                    <button class="btn-action delete" title="この行を削除" aria-label="ブックマーク「${escapeXml(item.name)}」を削除">🗑️</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    if(filteredData.length === 0) {
+        $bookmarkTableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding: 20px;">ブックマークはありません。</td></tr>`;
+    }
+
+    updateBookmarkTableControls();
+}
+
+function handleBookmarkTableClick(e) {
+    const row = e.target.closest('tr');
+    if (!row || !row.dataset.bookmarkIndex) return;
+    const bookmarkIndex = parseInt(row.dataset.bookmarkIndex, 10);
+    let bookmarkData = getProjectData(BOOKMARK_KEY) || [];
+    const item = bookmarkData[bookmarkIndex];
+    if (!item) return;
+
+    if (e.target.classList.contains('bookmark-item-checkbox')) {
+        updateBookmarkTableControls();
+        return;
+    }
+    
+    if (e.target.classList.contains('btn-action')) {
+        if (e.target.classList.contains('copy')) {
+            const rowData = [
+                bookmarkIndex + 1, 
+                item.name, 
+                item.postcode,
+                item.address,
+                item.lat, 
+                item.lon, 
+                item.elevation,
+                new Date(item.timestamp).toLocaleString()
+            ].join('\t');
+            navigator.clipboard.writeText(rowData).then(() => showNotification('行データをコピーしました。'));
+        } else if (e.target.classList.contains('delete')) {
+            if (confirm(`ブックマーク「${item.name}」を削除しますか？`)) {
+                bookmarkData.splice(bookmarkIndex, 1);
+                setProjectData(BOOKMARK_KEY, bookmarkData);
+                renderBookmarkTable();
+                renderBookmarkList();
+                showNotification('ブックマークを削除しました。');
+            }
+        }
+    } else {
+        updateLatLonInputs(parseFloat(item.lat), parseFloat(item.lon));
+        setZoomLevel(item.zoom);
+        updateCurrentCoords({lat: parseFloat(item.lat), lon: parseFloat(item.lon)}, true);
+        showNotification(`ブックマーク「${item.name}」の座標に移動しました。`);
+        if (!document.querySelector('.main-layout').classList.contains('pinned')) {
+            toggleRightPanel();
+        }
+    }
+}
+function updateBookmarkTableControls() {
+    const selectedCheckboxes = document.querySelectorAll('.bookmark-item-checkbox:checked');
+    const hasSelection = selectedCheckboxes.length > 0;
+    document.getElementById('btn-copy-selected-bookmarks').disabled = !hasSelection;
+    document.getElementById('btn-delete-selected-bookmarks').disabled = !hasSelection;
+
+    const allCheckboxes = document.querySelectorAll('.bookmark-item-checkbox');
+    const selectAllCheckbox = document.getElementById('bookmark-select-all');
+    selectAllCheckbox.checked = allCheckboxes.length > 0 && selectedCheckboxes.length === allCheckboxes.length;
+}
+
+function initTabDragAndDrop() {
+    const tabsContainer = document.getElementById('panelTabs');
+    tabsContainer.addEventListener('dragstart', e => {
+        if (e.target.classList.contains('panel-tab')) {
+            e.target.classList.add('dragging');
+        }
+    });
+
+    tabsContainer.addEventListener('dragend', e => {
+        if (e.target.classList.contains('panel-tab')) {
+            e.target.classList.remove('dragging');
+            saveTabOrder();
+        }
+    });
+
+    tabsContainer.addEventListener('dragover', e => {
+        e.preventDefault();
+        const draggingTab = tabsContainer.querySelector('.dragging');
+        if (!draggingTab) return;
+
+        const afterElement = getDragAfterElement(tabsContainer, e.clientX);
+        if (afterElement == null) {
+            tabsContainer.appendChild(draggingTab);
+        } else {
+            tabsContainer.insertBefore(draggingTab, afterElement);
+        }
+    });
+
+    function getDragAfterElement(container, x) {
+        const draggableElements = [...container.querySelectorAll('.panel-tab:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+}
+
+function saveTabOrder() {
+    const tabsContainer = document.getElementById('panelTabs');
+    const contentContainer = document.getElementById('panelContentWrapper');
+    const newOrder = [...tabsContainer.querySelectorAll('.panel-tab')].map(tab => tab.dataset.tab);
+    setProjectData(TAB_ORDER_KEY, newOrder);
+
+    newOrder.forEach((tabKey, index) => {
+        const contentEl = contentContainer.querySelector(`[data-tab-content="${tabKey}"]`);
+        if(contentEl) contentEl.style.order = index;
+    });
+}
+function loadTabOrder() {
+    const savedOrder = getProjectData(TAB_ORDER_KEY);
+    if (savedOrder && Array.isArray(savedOrder)) {
+        const tabsContainer = document.getElementById('panelTabs');
+        const contentContainer = document.getElementById('panelContentWrapper');
+        
+        savedOrder.forEach((tabKey, index) => {
+            const tabEl = tabsContainer.querySelector(`[data-tab="${tabKey}"]`);
+            if (tabEl) tabsContainer.appendChild(tabEl);
+
+            const contentEl = contentContainer.querySelector(`[data-tab-content="${tabKey}"]`);
+            if (contentEl) contentEl.style.order = index;
+        });
+    }
+}
+
+/**
+ * ▼▼▼ パフォーマンス改善: Chart.jsを動的に読み込む関数 ▼▼▼
+ */
+async function loadChartJS() {
+  if (window.Chart) return; // 既に読み込まれていたら何もしない
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+// ▲▲▲ ここまで ▲▲▲
+
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ▼▼▼ プロジェクト機能の初期化を最優先で実行 ▼▼▼
+    migrateOldData();
+    loadProjects();
+    // ▲▲▲ ここまで ▲▲▲
+
     if (window.L) {
         startIcon = L.icon({
             iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/pin-icon-start.png',
@@ -3576,18 +4187,28 @@ tabs.forEach(tab => {
         contents.forEach(c => c.classList.remove('active'));
         tab.classList.add('active');
         const targetContentId = tab.dataset.tab + '-content';
-        document.getElementById(targetContentId).classList.add('active');
-        toggleCatBtn.disabled = (tab.dataset.tab === 'history');
+        const targetContent = document.getElementById(targetContentId);
+        if (targetContent) targetContent.classList.add('active');
+        toggleCatBtn.disabled = (tab.dataset.tab !== 'map-links');
     });
 });
 
 loadSettings();
+loadTabOrder();
 populateLayerSettings();
 renderMapCards();
 loadFavoriteSets();
 initResizer();
-renderHistoryList(JSON.parse(localStorage.getItem('coordinateHistory') || '[]'));
+renderHistoryList(getProjectData('coordinateHistory') || []);
 renderHistoryTable();
+renderBookmarkTable();
+initTabDragAndDrop();
+
+// ▼▼▼ プロジェクトスイッチャーの初期化 ▼▼▼
+initProjectSwitcher();
+initProjectManagementModal();
+// ▲▲▲ ここまで ▲▲▲
+
 
 const today = new Date();
 document.getElementById('lastUpdated').textContent = `最終更新日: ${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
@@ -3611,8 +4232,8 @@ $coordFormatToggle.addEventListener('click', toggleCoordFormat);
 $addressInput.addEventListener('keypress', async e => { if (e.key === 'Enter') { e.preventDefault(); selectedAutocompleteIndex !== -1 ? await selectAutocompleteItem(selectedAutocompleteIndex) : await searchAddress(); } });
 $addressInput.addEventListener('input', () => { clearTimeout(autocompleteTimer); if ($addressInput.value.trim().length<2) return renderAutocompleteList([]); autocompleteTimer = setTimeout(async () => renderAutocompleteList(await getAddressSuggestions($addressInput.value.trim())), 300); });
 $addressInput.addEventListener('keydown', e => { const items = $autocompleteList.querySelectorAll('.autocomplete-item'); if(items.length===0)return; if (e.key==='ArrowDown') selectedAutocompleteIndex=(selectedAutocompleteIndex+1)%items.length; else if (e.key==='ArrowUp') selectedAutocompleteIndex=(selectedAutocompleteIndex-1+items.length)%items.length; else return; e.preventDefault(); items.forEach((item,i)=>item.classList.toggle('selected',i===selectedAutocompleteIndex)); if(items[selectedAutocompleteIndex]) items[selectedAutocompleteIndex].scrollIntoView({block:'nearest'}); });
-document.addEventListener('click', e => { if (!e.target.closest('.input-wrapper')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper, .usage-button')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; } if(!e.target.closest('.usage-button, .usage-guide')) { document.getElementById('usageGuide').classList.remove('show'); } });
-$historyList.addEventListener('click', e => { const i = e.target.closest('.history-item')?.dataset.index; if (i) loadCoordinateFromHistory(JSON.parse(localStorage.getItem('coordinateHistory'))[i]); });
+document.addEventListener('click', e => { if (!e.target.closest('.input-wrapper')) $autocompleteList.classList.remove('show'); if (!e.target.closest('.header-button-wrapper, .usage-button, .project-switcher')) { $historyPopup.style.display = 'none'; $bookmarkPopup.style.display = 'none'; document.getElementById('projectSwitcherDropdown').style.display = 'none'; } if(!e.target.closest('.usage-button, .usage-guide')) { document.getElementById('usageGuide').classList.remove('show'); } });
+$historyList.addEventListener('click', e => { const i = e.target.closest('.history-item')?.dataset.index; if (i) loadCoordinateFromHistory((getProjectData('coordinateHistory') || [])[i]); });
 $bookmarkList.addEventListener('click', e => { const i = e.target.closest('.bookmark-item')?.dataset.index, a = e.target.closest('button')?.className.split('-').pop(); if(i&&a) handleBookmarkAction(parseInt(i), a); });
 $mylinkForm.addEventListener('submit', saveMyLink);
 document.getElementById('btn-mylink-modal-cancel').addEventListener('click', closeMyLinkModal);
@@ -3648,15 +4269,47 @@ document.getElementById('historySearchInput').addEventListener('input', renderHi
 document.getElementById('historyTable').querySelector('thead').addEventListener('click', (e) => { const header = e.target.closest('th.sortable'); if (!header) return; const newCol = header.dataset.sort; if (historySortState.column === newCol) { historySortState.order = historySortState.order === 'asc' ? 'desc' : 'asc'; } else { historySortState.column = newCol; historySortState.order = 'asc'; } document.querySelectorAll('#historyTable th.sortable').forEach(th => { th.classList.remove('sorted'); th.querySelector('.sort-icon').textContent = ''; }); header.classList.add('sorted'); header.querySelector('.sort-icon').textContent = historySortState.order === 'asc' ? '▲' : '▼'; renderHistoryTable(); });
 $historyTableBody.addEventListener('click', handleHistoryTableClick);
 document.getElementById('history-select-all').addEventListener('change', (e) => { document.querySelectorAll('.history-item-checkbox').forEach(cb => cb.checked = e.target.checked); updateHistoryTableControls(); renderHistoryOnMap(); });
-document.getElementById('btn-copy-table').addEventListener('click', () => { const rows = $historyTableBody.querySelectorAll('tr'); if(rows.length === 0 || rows[0].querySelectorAll('td').length < 2) return showNotification('コピーするデータがありません', 'error'); const headers = Array.from(document.getElementById('historyTable').querySelectorAll('th')).slice(1, -1).map(th => th.textContent.trim().replace(/\s*▲|▼/, '')).join('\t'); const data = Array.from(rows).map(row => Array.from(row.querySelectorAll('td')).slice(1, -1).map(td => td.textContent.trim()).join('\t')).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification('テーブル全体をコピーしました。')); });
-document.getElementById('btn-copy-selected').addEventListener('click', () => { const selected = document.querySelectorAll('.history-item-checkbox:checked'); const historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]'); const headers = "No.\t郵便番号\t住所\t緯度\t経度\t標高(m)\t取得日時"; const data = Array.from(selected).map(cb => { const i = parseInt(cb.dataset.historyIndex, 10), item = historyData[i]; return [i + 1, item.postcode, item.address, item.lat, item.lon, item.elevation, new Date(item.timestamp).toLocaleString()].join('\t'); }).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification(`${selected.length}件の選択行をコピーしました。`)); });
-document.getElementById('btn-delete-selected').addEventListener('click', () => { const selected = document.querySelectorAll('.history-item-checkbox:checked'); if (confirm(`${selected.length}件の履歴を削除しますか？`)) { let historyData = JSON.parse(localStorage.getItem('coordinateHistory') || '[]'); const indices = Array.from(selected).map(cb => parseInt(cb.dataset.historyIndex, 10)).sort((a,b) => b-a); indices.forEach(index => historyData.splice(index, 1)); localStorage.setItem('coordinateHistory', JSON.stringify(historyData)); renderHistoryTable(); renderHistoryList(historyData); renderHistoryOnMap(); showNotification(`${selected.length}件の履歴を削除しました。`); } });
+document.getElementById('btn-copy-table-history').addEventListener('click', () => { const rows = $historyTableBody.querySelectorAll('tr'); if(rows.length === 0 || rows[0].querySelectorAll('td').length < 2) return showNotification('コピーするデータがありません', 'error'); const headers = Array.from(document.getElementById('historyTable').querySelectorAll('th')).slice(1, -1).map(th => th.textContent.trim().replace(/\s*▲|▼/, '')).join('\t'); const data = Array.from(rows).map(row => Array.from(row.querySelectorAll('td')).slice(1, -1).map(td => td.textContent.trim()).join('\t')).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification('テーブル全体をコピーしました。')); });
+document.getElementById('btn-copy-selected-history').addEventListener('click', () => { const selected = document.querySelectorAll('.history-item-checkbox:checked'); const historyData = getProjectData('coordinateHistory') || []; const headers = "No.\t郵便番号\t住所\t緯度\t経度\t標高(m)\t取得日時"; const data = Array.from(selected).map(cb => { const i = parseInt(cb.dataset.historyIndex, 10), item = historyData[i]; return [i + 1, item.postcode, item.address, item.lat, item.lon, item.elevation, new Date(item.timestamp).toLocaleString()].join('\t'); }).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification(`${selected.length}件の選択行をコピーしました。`)); });
+document.getElementById('btn-delete-selected-history').addEventListener('click', () => { const selected = document.querySelectorAll('.history-item-checkbox:checked'); if (confirm(`${selected.length}件の履歴を削除しますか？`)) { let historyData = getProjectData('coordinateHistory') || []; const indices = Array.from(selected).map(cb => parseInt(cb.dataset.historyIndex, 10)).sort((a,b) => b-a); indices.forEach(index => historyData.splice(index, 1)); setProjectData('coordinateHistory', historyData); renderHistoryTable(); renderHistoryList(historyData); renderHistoryOnMap(); showNotification(`${selected.length}件の履歴を削除しました。`); } });
+// Bookmark Table Listeners
+document.getElementById('bookmarkSearchInput').addEventListener('input', renderBookmarkTable);
+document.getElementById('bookmarkTable').querySelector('thead').addEventListener('click', (e) => { const header = e.target.closest('th.sortable'); if (!header) return; const newCol = header.dataset.sort; if (bookmarkSortState.column === newCol) { bookmarkSortState.order = bookmarkSortState.order === 'asc' ? 'desc' : 'asc'; } else { bookmarkSortState.column = newCol; bookmarkSortState.order = 'asc'; } document.querySelectorAll('#bookmarkTable th.sortable').forEach(th => { th.classList.remove('sorted'); th.querySelector('.sort-icon').textContent = ''; }); header.classList.add('sorted'); header.querySelector('.sort-icon').textContent = bookmarkSortState.order === 'asc' ? '▲' : '▼'; renderBookmarkTable(); });
+$bookmarkTableBody.addEventListener('click', handleBookmarkTableClick);
+document.getElementById('bookmark-select-all').addEventListener('change', (e) => { document.querySelectorAll('.bookmark-item-checkbox').forEach(cb => cb.checked = e.target.checked); updateBookmarkTableControls(); });
+document.getElementById('btn-copy-table-bookmarks').addEventListener('click', () => { const rows = $bookmarkTableBody.querySelectorAll('tr'); if(rows.length === 0 || rows[0].querySelectorAll('td').length < 2) return showNotification('コピーするデータがありません', 'error'); const headers = Array.from(document.getElementById('bookmarkTable').querySelectorAll('th')).slice(1, -1).map(th => th.textContent.trim().replace(/\s*▲|▼/, '')).join('\t'); const data = Array.from(rows).map(row => Array.from(row.querySelectorAll('td')).slice(1, -1).map(td => td.textContent.trim()).join('\t')).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification('テーブル全体をコピーしました。')); });
+document.getElementById('btn-copy-selected-bookmarks').addEventListener('click', () => { const selected = document.querySelectorAll('.bookmark-item-checkbox:checked'); const bookmarkData = getProjectData(BOOKMARK_KEY) || []; const headers = "No.\t名前\t郵便番号\t住所\t緯度\t経度\t標高(m)\t登録日時"; const data = Array.from(selected).map(cb => { const i = parseInt(cb.dataset.bookmarkIndex, 10), item = bookmarkData[i]; return [i + 1, item.name, item.postcode, item.address, item.lat, item.lon, item.elevation, new Date(item.timestamp).toLocaleString()].join('\t'); }).join('\n'); navigator.clipboard.writeText(`${headers}\n${data}`).then(() => showNotification(`${selected.length}件の選択行をコピーしました。`)); });
+document.getElementById('btn-delete-selected-bookmarks').addEventListener('click', () => { const selected = document.querySelectorAll('.bookmark-item-checkbox:checked'); if (confirm(`${selected.length}件のブックマークを削除しますか？`)) { let bookmarkData = getProjectData(BOOKMARK_KEY) || []; const indices = Array.from(selected).map(cb => parseInt(cb.dataset.bookmarkIndex, 10)).sort((a,b) => b-a); indices.forEach(index => bookmarkData.splice(index, 1)); setProjectData(BOOKMARK_KEY, bookmarkData); renderBookmarkTable(); renderBookmarkList(); showNotification(`${selected.length}件のブックマークを削除しました。`); } });
+
 window.addEventListener('resize', () => { if (osmMap) { osmMap.invalidateSize(); } });
 
 function handleUndoLastPoint(e) { if (e.key !== 'Backspace' && e.key !== 'Delete') return; if (isMeasuring && measurePoints.length > 0) { e.preventDefault(); measurePoints.pop(); const lastMarker = measurePointMarkers.pop(); if (lastMarker) analysisLayer.removeLayer(lastMarker); analysisLayer.eachLayer(layer => { if (layer instanceof L.Polyline && layer !== tempMeasureLine) analysisLayer.removeLayer(layer); }); if (measurePoints.length > 1) L.polyline(measurePoints, { color: 'blue' }).addTo(analysisLayer); if (measurePoints.length > 0) updateMeasureTooltip(measurePoints[measurePoints.length-1]); else if(measureTooltip) { osmMap.removeLayer(measureTooltip); measureTooltip = null; if(tempMeasureMarker) { analysisLayer.removeLayer(tempMeasureMarker); tempMeasureMarker = null; } } } if (isMeasuringArea && areaPoints.length > 0) { e.preventDefault(); areaPoints.pop(); const lastMarker = areaPointMarkers.pop(); if (lastMarker) analysisLayer.removeLayer(lastMarker); if (tempAreaPolygon) analysisLayer.removeLayer(tempAreaPolygon); tempAreaPolygon = null; if (areaPoints.length > 1) tempAreaPolygon = L.polygon(areaPoints, { color: '#9C27B0', weight: 2, fillOpacity: 0.1 }).addTo(analysisLayer); if (areaPoints.length >= 3) { const area = calculatePolygonArea(areaPoints); $areaDisplay.textContent = `面積: ${area > 1000000 ? `${(area / 1000000).toFixed(3)} km²` : `${area.toFixed(2)} m²`}`; } else { $areaDisplay.textContent = '--- m²'; } } }
 });
 
-async function generateProfileChart(points) { if (points.length < 2) return; showNotification('標高データを取得中です...', 'warning'); try { const sampledPoints = interpolatePoints(points, 80); const fetchPromises = sampledPoints.map(point => fetch(`https://cyberjapandata2.gsi.go.jp/general/dem/scripts/getelevation.php?outtype=JSON&demtype=dem_merged&lon=${point.lng}&lat=${point.lat}`).then(res => res.ok ? res.json() : null)); const results = await Promise.all(fetchPromises); let dist = 0; lastProfileData = results.map((item, i) => { if (i > 0) dist += sampledPoints[i-1].distanceTo(sampledPoints[i]); const elev = (item && item.elevation !== '-----') ? parseFloat(item.elevation) : null; return { distance: dist, elevation: elev, lat: sampledPoints[i].lat, lon: sampledPoints[i].lng }; }); drawProfileChart(lastProfileData); showNotification('断面図を作成しました。'); } catch (error) { showNotification(`断面図の生成に失敗: ${error.message}`, 'error'); lastProfileData = null; } }
+async function generateProfileChart(points) {
+    if (points.length < 2) return;
+    showNotification('標高データを取得中です...', 'warning');
+    try {
+        await loadChartJS(); // 動的にChart.jsを読み込み
+        const sampledPoints = interpolatePoints(points, 80);
+        const fetchPromises = sampledPoints.map(point =>
+            fetch(`https://cyberjapandata2.gsi.go.jp/general/dem/scripts/getelevation.php?outtype=JSON&demtype=dem_merged&lon=${point.lng}&lat=${point.lat}`)
+            .then(res => res.ok ? res.json() : null)
+        );
+        const results = await Promise.all(fetchPromises);
+        let dist = 0;
+        lastProfileData = results.map((item, i) => {
+            if (i > 0) dist += sampledPoints[i - 1].distanceTo(sampledPoints[i]);
+            const elev = (item && item.elevation !== '-----') ? parseFloat(item.elevation) : null;
+            return { distance: dist, elevation: elev, lat: sampledPoints[i].lat, lon: sampledPoints[i].lng };
+        });
+        drawProfileChart(lastProfileData);
+        showNotification('断面図を作成しました。');
+    } catch (error) {
+        showNotification(`断面図の生成に失敗: ${error.message}`, 'error');
+        lastProfileData = null;
+    }
+}
 function interpolatePoints(points, num) { const totalDist = calculateTotalDistance(points); if (totalDist === 0) return [points[0]]; const interval = totalDist / (num - 1); const result = [points[0]]; let rem = 0; for (let i = 0; i < points.length - 1; i++) { const start = points[i], end = points[i+1], segDist = start.distanceTo(end); let covered = rem; while (covered + interval <= segDist) { covered += interval; const ratio = covered / segDist; result.push(L.latLng(start.lat + (end.lat - start.lat) * ratio, start.lng + (end.lng - start.lng) * ratio)); } rem = segDist - covered; } if (result.length < num) result.push(points[points.length - 1]); return result; }
 function drawProfileChart(data) { const modal = document.getElementById('profile-modal'), ctx = document.getElementById('profileChart').getContext('2d'), yToggle = document.getElementById('y-axis-toggle'); if (profileChartInstance) profileChartInstance.destroy(); const yOpts = { title: { display: true, text: '標高 (m)' } }; if (yToggle.checked) yOpts.min = 0; profileChartInstance = new Chart(ctx, { type: 'line', data: { labels: data.map(p => p.distance.toFixed(1)), datasets: [{ label: '標高 (m)', data: data.map(p => p.elevation), borderColor: 'rgb(75, 192, 192)', backgroundColor: 'rgba(75, 192, 192, 0.2)', tension: .1, fill: true, pointRadius: 0, spanGaps: true }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: '始点からの距離 (m)' } }, y: yOpts }, plugins: { tooltip: { enabled: true, mode: 'index', intersect: false } }, onHover: (e, el) => { if (el.length > 0) { const d = lastProfileData[el[0].index]; if (d) { const ll = [d.lat, d.lon]; if (!rolloverMarker) rolloverMarker = L.circleMarker(ll, { radius: 8, color: 'red', fillColor: '#f03', fillOpacity: .8, pane: 'markerPane' }).addTo(osmMap); else rolloverMarker.setLatLng(ll); } } else if (rolloverMarker) { rolloverMarker.remove(); rolloverMarker = null; } } } }); modal.style.display = 'flex'; }
 function exportProfileDataToCSV() { if (!lastProfileData || lastProfileData.length === 0) return showNotification('書き出すデータがありません。', 'error'); const headers = 'No,始点からの距離(m),標高(m),緯度,経度'; const rows = lastProfileData.map((p, i) => `${i+1},${p.distance.toFixed(2)},${p.elevation !== null ? p.elevation : ''},${p.lat.toFixed(8)},${p.lon.toFixed(8)}`); const csv = `${headers}\n${rows.join('\n')}`; const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `profile_data_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`; a.click(); URL.revokeObjectURL(url); showNotification('断面図データをCSVで書き出しました。'); }
@@ -3723,6 +4376,211 @@ function makeModalDraggable() {
     });
     observer.observe(modal, { attributes: true });
 }
+
+// ▼▼▼ プロジェクト機能のUI操作関数 ▼▼▼
+function initProjectSwitcher() {
+    const btn = document.getElementById('projectSwitcherBtn');
+    const dropdown = document.getElementById('projectSwitcherDropdown');
+    
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isShown = dropdown.style.display === 'block';
+        dropdown.style.display = isShown ? 'none' : 'block';
+        btn.setAttribute('aria-expanded', !isShown);
+    });
+
+    document.getElementById('manageProjectsBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        dropdown.style.display = 'none';
+        openProjectModal();
+    });
+
+    renderProjectSwitcher();
+}
+
+function renderProjectSwitcher() {
+    const btn = document.getElementById('projectSwitcherBtn');
+    const dropdown = document.getElementById('projectSwitcherDropdown');
+    const activeProject = projectsData.projects[activeProjectId];
+    
+    btn.textContent = activeProject ? activeProject.name : 'プロジェクトなし';
+    
+    // Clear old items except manage button
+    dropdown.querySelectorAll('.project-dropdown-item:not(.project-dropdown-manage)').forEach(el => el.remove());
+    dropdown.querySelectorAll('hr').forEach(el => el.remove());
+
+    Object.entries(projectsData.projects).forEach(([id, project]) => {
+        const item = document.createElement('a');
+        item.href = '#';
+        item.className = 'project-dropdown-item';
+        item.textContent = project.name;
+        item.dataset.projectId = id;
+        if (id === activeProjectId) {
+            item.classList.add('active');
+        }
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (id !== activeProjectId) {
+                switchProject(id);
+            }
+            dropdown.style.display = 'none';
+        });
+        dropdown.prepend(item);
+    });
+    const hr = document.createElement('hr');
+    dropdown.insertBefore(hr, document.getElementById('manageProjectsBtn'));
+}
+
+function openProjectModal() {
+    renderProjectManagementList();
+    document.getElementById('project-modal').style.display = 'flex';
+}
+
+function closeProjectModal() {
+    document.getElementById('project-modal').style.display = 'none';
+}
+
+let selectedProjectIdForManagement = null;
+
+function renderProjectManagementList() {
+    const list = document.getElementById('projectManagementList');
+    list.innerHTML = '';
+    Object.entries(projectsData.projects).forEach(([id, project]) => {
+        const li = document.createElement('li');
+        li.textContent = project.name;
+        li.dataset.projectId = id;
+        li.addEventListener('click', () => {
+            selectedProjectIdForManagement = id;
+            document.querySelectorAll('#projectManagementList li').forEach(el => el.classList.remove('selected'));
+            li.classList.add('selected');
+            updateProjectManagementButtons();
+        });
+        list.appendChild(li);
+    });
+    selectedProjectIdForManagement = null;
+    updateProjectManagementButtons();
+}
+
+function updateProjectManagementButtons() {
+    const isProjectSelected = selectedProjectIdForManagement !== null;
+    const isNotOnlyOneProject = Object.keys(projectsData.projects).length > 1;
+
+    document.getElementById('btn-rename-project').disabled = !isProjectSelected;
+    document.getElementById('btn-duplicate-project').disabled = !isProjectSelected;
+    document.getElementById('btn-delete-project').disabled = !isProjectSelected || !isNotOnlyOneProject;
+    document.getElementById('btn-export-project').disabled = !isProjectSelected;
+}
+
+function initProjectManagementModal() {
+    document.getElementById('btn-new-project').addEventListener('click', () => {
+        const name = prompt('新しいプロジェクト名を入力してください:');
+        if (name && name.trim()) {
+            const newId = `proj_${Date.now()}`;
+            projectsData.projects[newId] = { name: name.trim(), data: JSON.parse(JSON.stringify(defaultProjectData)) };
+            saveProjects();
+            renderProjectManagementList();
+            renderProjectSwitcher();
+        }
+    });
+
+    document.getElementById('btn-rename-project').addEventListener('click', () => {
+        if (!selectedProjectIdForManagement) return;
+        const oldName = projectsData.projects[selectedProjectIdForManagement].name;
+        const newName = prompt('新しいプロジェクト名を入力してください:', oldName);
+        if (newName && newName.trim()) {
+            projectsData.projects[selectedProjectIdForManagement].name = newName.trim();
+            saveProjects();
+            renderProjectManagementList();
+            renderProjectSwitcher();
+            if (selectedProjectIdForManagement === activeProjectId) {
+                document.getElementById('projectSwitcherBtn').textContent = newName.trim();
+            }
+        }
+    });
+    
+    document.getElementById('btn-duplicate-project').addEventListener('click', () => {
+        if (!selectedProjectIdForManagement) return;
+        const sourceProject = projectsData.projects[selectedProjectIdForManagement];
+        const newName = prompt('複製後のプロジェクト名を入力してください:', `${sourceProject.name} (コピー)`);
+        if (newName && newName.trim()) {
+            const newId = `proj_${Date.now()}`;
+            projectsData.projects[newId] = {
+                name: newName.trim(),
+                data: JSON.parse(JSON.stringify(sourceProject.data)) // Deep copy
+            };
+            saveProjects();
+            renderProjectManagementList();
+            renderProjectSwitcher();
+        }
+    });
+
+    document.getElementById('btn-delete-project').addEventListener('click', () => {
+        if (!selectedProjectIdForManagement || Object.keys(projectsData.projects).length <= 1) return;
+        const projectToDelete = projectsData.projects[selectedProjectIdForManagement];
+        if (confirm(`プロジェクト「${projectToDelete.name}」を削除しますか？この操作は元に戻せません。`)) {
+            delete projectsData.projects[selectedProjectIdForManagement];
+            if (activeProjectId === selectedProjectIdForManagement) {
+                // アクティブなプロジェクトを削除した場合は、残りの最初のプロジェクトをアクティブにする
+                projectsData.activeProjectId = Object.keys(projectsData.projects)[0];
+                saveProjects();
+                location.reload(); // ページをリロードして切り替え
+            } else {
+                saveProjects();
+                renderProjectManagementList();
+                renderProjectSwitcher();
+            }
+        }
+    });
+
+    document.getElementById('btn-export-project').addEventListener('click', () => {
+        if (!selectedProjectIdForManagement) return;
+        const projectToExport = projectsData.projects[selectedProjectIdForManagement];
+        const dataStr = JSON.stringify({ [selectedProjectIdForManagement]: projectToExport }, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        a.download = `GeoLinkNavi_Project_${projectToExport.name}_${date}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+    
+    const importFileInput = document.getElementById('import-project-file-input');
+    document.getElementById('btn-import-project').addEventListener('click', () => importFileInput.click());
+    importFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                const projectId = Object.keys(imported)[0];
+                const projectData = imported[projectId];
+                if (!projectId || !projectData || !projectData.name || !projectData.data) {
+                    throw new Error("無効なプロジェクトファイル形式です。");
+                }
+                
+                if (confirm(`プロジェクト「${projectData.name}」をインポートしますか？\n同じ名前のプロジェクトがある場合は上書きされます。`)) {
+                    // 同じ名前のプロジェクトを探す
+                    const existingId = Object.keys(projectsData.projects).find(id => projectsData.projects[id].name === projectData.name);
+                    const idToSave = existingId || projectId;
+                    
+                    projectsData.projects[idToSave] = projectData;
+                    saveProjects();
+                    renderProjectManagementList();
+                    renderProjectSwitcher();
+                    showNotification(`プロジェクト「${projectData.name}」をインポートしました。`);
+                }
+            } catch (err) {
+                showNotification(`ファイルのインポートに失敗しました: ${err.message}`, "error");
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // Reset input
+    });
+}
+// ▲▲▲ ここまで ▲▲▲
 </script>
 </body>
 </html>
