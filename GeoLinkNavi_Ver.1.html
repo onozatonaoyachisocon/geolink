@@ -1344,16 +1344,10 @@ body.dark-mode #btn-uncheck-all {
 }
 
 @media (max-width: 1024px) {
-    .header { flex-wrap: wrap; justify-content: center; }
-    .header-left { 
-        order: 1; 
-        width: 100%; 
-        justify-content: space-between; /* 中央揃えから両端揃えに変更 */
-        margin-bottom: 10px; 
-    }
+    .header { flex-wrap: wrap; }
+    .header-left { order: 1; width: 100%; justify-content: center; margin-bottom: 10px; }
     .header-buttons { order: 2; width: 100%; justify-content: center; }
     .project-switcher { max-width: 400px; }
-}
     
     #osmClickMap {
         height: 60vh;
@@ -1376,7 +1370,12 @@ body.dark-mode #btn-uncheck-all {
     .zoom-slider-overlay {
         display: none;
     }
-    .header-left { flex-direction: column; gap: 8px;}
+    .header-left { 
+    flex-direction: row; /* ← column から row に変更 */
+    align-items: center; /* ← 要素を垂直方向に中央揃えにするため追加 */
+    justify-content: center; /* ← 要素を水平方向に中央揃えにするため追加 */
+    gap: 15px; /* ← 少し間隔を調整 */
+}
 
     .mode-toggle, .history-button, .bookmark-button, .share-button, .settings-button, .usage-button, .qr-button { width: 35px; height: 35px; font-size: 16px; }
     .header-button-label { font-size: 9px; }
@@ -1462,7 +1461,7 @@ body.dark-mode #btn-uncheck-all {
 <div class="container">
 <header class="header">
     <div class="header-left">
-        <h1 data-full-text="🗺️ Geo Link Navi" data-short-text="🗺️ GLN">🗺️ Geo Link Navi</h1>
+        <h1>🗺️ Geo Link Navi</h1>
         <div class="project-switcher">
             <button id="projectSwitcherBtn" aria-haspopup="true" aria-expanded="false" aria-label="現在のプロジェクトを切り替え">プロジェクトを読込中...</button>
             <div class="project-dropdown" id="projectSwitcherDropdown">
@@ -1631,14 +1630,14 @@ body.dark-mode #btn-uncheck-all {
         <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" aria-label="現在地を取得" title="現在地を取得">📍</button>
         <span class="input-button-label">現在地</span>
     </div>
-<div class="input-button-wrapper mobile-hidden">
-    <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" aria-label="Googleマップで探す" title="Googleマップで探す">🌍</button>
-    <span class="input-button-label">Googleマップ</span>
-</div>
-<div class="input-button-wrapper mobile-hidden">
-    <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" aria-label="クリップボードから貼り付け" title="クリップボードから貼り付け">📄</button>
-    <span class="input-button-label">貼り付け</span>
-</div>
+    <div class="input-button-wrapper mobile-hidden">
+        <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" aria-label="Googleマップで探す" title="Googleマップで探す">🌍</button>
+        <span class="input-button-label">Googleマップ</span>
+    </div>
+    <div class="input-button-wrapper mobile-hidden">
+        <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" aria-label="クリップボードから貼り付け" title="クリップボードから貼り付け">📄</button>
+        <span class="input-button-label">貼り付け</span>
+    </div>
     <div class="input-button-wrapper">
         <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" aria-label="ブックマークに保存" title="ブックマークに保存">⭐</button>
         <span class="input-button-label">ブックマーク</span>
@@ -4588,28 +4587,5 @@ function initProjectManagementModal() {
 }
 // ▲▲▲ ここまで ▲▲▲
 </script>
-// ▼▼▼ ウィンドウリサイズに応じてヘッダータイトルを調整する機能 ▼▼▼
-function adjustHeaderText() {
-    const h1 = document.querySelector('.header h1');
-    if (!h1) return;
-
-    // 768px以下のブレークポイントに合わせて調整
-    if (window.innerWidth <= 768) {
-        h1.textContent = h1.dataset.shortText;
-    } else {
-        h1.textContent = h1.dataset.fullText;
-    }
-}
-
-// ページ読み込み時とウィンドウリサイズ時に実行
-window.addEventListener('resize', adjustHeaderText);
-// DOMContentLoaded内にも追加して初期表示を確実にする
-document.addEventListener('DOMContentLoaded', () => {
-    // ...既存のDOMContentLoaded内のコード...
-
-    // 最後にこれを追加
-    adjustHeaderText();
-});
-// ▲▲▲ ここまで ▲▲▲
 </body>
 </html>
