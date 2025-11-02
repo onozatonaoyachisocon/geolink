@@ -3608,18 +3608,20 @@ function toggleRightPanel() {
     const isPinned = document.querySelector('.main-layout').classList.contains('pinned');
     const isOpening = rightPanel.classList.contains('hidden');
 
+    // パネルを開くとき（かつピン留めされていない場合）に幅を設定します
     if (isOpening && !isPinned) {
-        rightPanel.style.width = '1000px';
-        rightPanel.style.maxWidth = '90vw';
+        // ▼▼▼ 希望の画面幅に対する割合に編集してください ▼▼▼
+        const dynamicWidth = '90vw'; // 'vw'は画面幅に対する割合の単位です
+        rightPanel.style.width = dynamicWidth;
+        rightPanel.style.maxWidth = dynamicWidth; 
     }
 
     rightPanel.classList.toggle('hidden');
-
-    if (isOpening && !isPinned) {
-        // パネルを開く際の幅を固定値（例: 1000px）に設定します
-        const fixedWidth = '1000px'; 
-        rightPanel.style.width = fixedWidth;
-        rightPanel.style.maxWidth = fixedWidth; // 最大幅も同じ値に設定して、画面サイズに影響されないようにします
+    
+    // パネルを閉じる際には、設定したスタイルをリセットします
+    if (!isOpening) {
+        rightPanel.style.width = '';
+        rightPanel.style.maxWidth = '';
     }
 
     btns.forEach(btn => {
