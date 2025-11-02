@@ -1344,10 +1344,16 @@ body.dark-mode #btn-uncheck-all {
 }
 
 @media (max-width: 1024px) {
-    .header { flex-wrap: wrap; }
-    .header-left { order: 1; width: 100%; justify-content: center; margin-bottom: 10px; }
+    .header { flex-wrap: wrap; justify-content: center; }
+    .header-left { 
+        order: 1; 
+        width: 100%; 
+        justify-content: space-between; /* 中央揃えから両端揃えに変更 */
+        margin-bottom: 10px; 
+    }
     .header-buttons { order: 2; width: 100%; justify-content: center; }
     .project-switcher { max-width: 400px; }
+}
     
     #osmClickMap {
         height: 60vh;
@@ -1456,7 +1462,7 @@ body.dark-mode #btn-uncheck-all {
 <div class="container">
 <header class="header">
     <div class="header-left">
-        <h1>🗺️ Geo Link Navi</h1>
+        <h1 data-full-text="🗺️ Geo Link Navi" data-short-text="🗺️ GLN">🗺️ Geo Link Navi</h1>
         <div class="project-switcher">
             <button id="projectSwitcherBtn" aria-haspopup="true" aria-expanded="false" aria-label="現在のプロジェクトを切り替え">プロジェクトを読込中...</button>
             <div class="project-dropdown" id="projectSwitcherDropdown">
@@ -4582,5 +4588,28 @@ function initProjectManagementModal() {
 }
 // ▲▲▲ ここまで ▲▲▲
 </script>
+// ▼▼▼ ウィンドウリサイズに応じてヘッダータイトルを調整する機能 ▼▼▼
+function adjustHeaderText() {
+    const h1 = document.querySelector('.header h1');
+    if (!h1) return;
+
+    // 768px以下のブレークポイントに合わせて調整
+    if (window.innerWidth <= 768) {
+        h1.textContent = h1.dataset.shortText;
+    } else {
+        h1.textContent = h1.dataset.fullText;
+    }
+}
+
+// ページ読み込み時とウィンドウリサイズ時に実行
+window.addEventListener('resize', adjustHeaderText);
+// DOMContentLoaded内にも追加して初期表示を確実にする
+document.addEventListener('DOMContentLoaded', () => {
+    // ...既存のDOMContentLoaded内のコード...
+
+    // 最後にこれを追加
+    adjustHeaderText();
+});
+// ▲▲▲ ここまで ▲▲▲
 </body>
 </html>
