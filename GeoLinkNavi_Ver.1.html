@@ -711,7 +711,7 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 .panel-tab.active {
     background-color: var(--bg-container);
-    color: var(--primary-color);
+    color: var(--secondary-color); /* より明るい紫色の変数を使用 */
     border-color: var(--border-color);
     border-bottom-color: var(--bg-container);
     z-index: 1;
@@ -1329,7 +1329,11 @@ body.dark-mode #btn-uncheck-all {
         flex: 5;
     }
 }
-
+/* ▼▼▼【ここに追加】PC表示用のレイアウトを維持するためのスタイル ▼▼▼ */
+.mobile-address-row {
+    display: contents; /* PC表示では、このラッパーをレイアウト上"無視"させ、中の要素を直接 .input-row の子要素のように扱う */
+}
+/* ▲▲▲【追加ここまで】▲▲▲ */
 @media (max-width: 1400px) {
     .input-row {
         flex-direction: column;
@@ -1668,6 +1672,22 @@ body.dark-mode #btn-uncheck-all {
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+/* ▼▼▼【ここから追加】▼▼▼ */
+/* 「座標変換」ボタンのスタイル */
+#btn-open-survey-calc {
+    background-color: var(--btn-googlemap-bg); /* Googleマップボタンの緑色変数を使用 */
+    color: white;
+    min-width: 85px;
+}
+
+/* 「座標変換」ボタンのホバーエフェクト */
+#btn-open-survey-calc:hover {
+    background-color: var(--btn-googlemap-hover-bg); /* Googleマップボタンのホバー色変数を使用 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 168, 83, 0.4); /* 緑系の影に変更 */
+}
+/* ▲▲▲【追加ここまで】▲▲▲ */
+
 /* 元のレスポンシブスタイルを上書き */
 @media (max-width: 1400px) {
     .input-row {
@@ -1676,17 +1696,67 @@ body.dark-mode #btn-uncheck-all {
     }
 }
 @media (max-width: 768px) {
-    /* 768px以下では、元のグリッドレイアウトを再適用 */
+/* ▼▼▼ ここからモバイル用入力欄レイアウトの修正 ▼▼▼ */
     .input-row {
         display: grid;
-        gap: 10px;
-        grid-template-columns: 1fr 1fr;
+        gap: 8px; /* 少し間隔を詰める */
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        /* 3行目を新しいエリア名に変更 */
         grid-template-areas:
-            "buttons buttons"
-            "lat lon"
-            "address address";
+            "geo      bkmk     fmt      route    panel"
+            "lat      lat      lon      lon      conv"
+            "addr-row addr-row addr-row addr-row addr-row";
     }
-     /* グリッドレイアウト用の再設定が必要な場合はここに追加 */
+
+    /* ▼▼▼ ここから修正・追加 ▼▼▼ */
+    /* 古い指定を削除 */
+    .mobile-grid-item-addr,
+    .mobile-grid-item-search {
+        grid-area: auto; /* グリッドエリアの割り当てをリセット */
+    }
+
+    /* 新しい行ラッパーのスタイル */
+    .mobile-address-row {
+        grid-area: addr-row; /* グリッドの3行目全体を占有 */
+        display: flex;       /* 内部をFlexboxでレイアウト */
+        gap: 8px;
+    }
+
+    /* Flexbox内の住所入力欄のスタイル */
+    .mobile-address-row .input-group.address-group {
+        flex-grow: 1;  /* 利用可能な全ての余白を埋めるように広がる */
+        width: 0;      /* flex-growを正しく機能させるための設定 */
+    }
+    
+    /* Flexbox内の検索ボタンのスタイル */
+    .mobile-address-row .input-button-wrapper {
+        flex-shrink: 0; /* ボタンが縮まないようにする */
+    }
+    /* ▲▲▲ 修正・追加ここまで ▲▲▲ */
+    /* ... */
+}
+
+    /* 各要素をグリッドエリアに割り当て */
+    .mobile-grid-item-geo { grid-area: geo; }
+    .mobile-grid-item-bkmk { grid-area: bkmk; }
+    .mobile-grid-item-fmt { grid-area: fmt; }
+    .mobile-grid-item-route { grid-area: route; }
+    .mobile-grid-item-panel { grid-area: panel; }
+
+    .mobile-grid-item-lat { grid-area: lat; }
+    .mobile-grid-item-lon { grid-area: lon; }
+    .mobile-grid-item-conv { grid-area: conv; }
+    
+    .mobile-grid-item-addr { grid-area: addr; }
+    .mobile-grid-item-search { grid-area: search; }
+
+    /* 元のグリッドレイアウト用のクラス指定をリセット */
+    .input-buttons-group { display: contents; }
+    .input-group.lat-group,
+    .input-group.lon-group,
+    .input-group.address-group { grid-area: auto; }
+    /* ▲▲▲ 修正ここまで ▲▲▲ */
+
 }
 /* --- END: Layout and Input Field Adjustments --- */
 
@@ -1694,6 +1764,154 @@ body.dark-mode #btn-uncheck-all {
 .btn-convert {
     width: 70px; /* ← ここの数値を変更してお好みの幅に調整してください */
 }
+
+/* ▼▼▼【ここから追加】緯度経度・住所入力欄の視認性向上 ▼▼▼ */
+.input-row .input-group #latitude,
+.input-row .input-group #longitude,
+.input-row .input-group #addressInput {
+    /* ライトモード用の設定 */
+    background-color: #ffffff; /* 背景を明確な白に */
+    /* 内側にわずかな影をつけ、入力欄が少し窪んでいるように見せる */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* 境界線を少し濃くして、輪郭をはっきりさせる */
+    border: 1px solid #c8cdd3;
+}
+
+/* ダークモード時は、背景色をより明るくしてコントラストを強調 */
+body.dark-mode .input-row .input-group #latitude,
+body.dark-mode .input-row .input-group #longitude,
+body.dark-mode .input-row .input-group #addressInput {
+    /* 元の背景色より明るいグレーに変更 */
+    background-color: #4b5563; 
+    /* 境界線も少し明るくする */
+    border-color: #6b7280;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+/* ▲▲▲【追加ここまで】▲▲▲ */
+
+/* ▼▼▼【ここから追加】入力欄内コピーボタンのスタイル ▼▼▼ */
+.input-row .input-wrapper {
+    position: relative; /* ボタンを絶対配置するための基準 */
+    width: 100%;
+    display: flex;
+}
+
+.btn-copy-input {
+    position: absolute; /* ラッパー(.input-wrapper)を基準に配置 */
+    top: 0;
+    right: 0;
+    height: 100%; /* 高さを入力欄に合わせる */
+    width: 40px;  /* ボタンの幅 */
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-medium);
+    transition: color 0.2s;
+}
+
+.btn-copy-input:hover {
+    color: var(--primary-color);
+}
+
+/* テキストがボタンの下に隠れないよう、入力欄の右側に余白を追加 */
+.input-row .input-wrapper input {
+    padding-right: 40px; /* ボタンの幅と同じ値 */
+}
+/* ▲▲▲【追加ここまで】▲▲▲ */
+
+/* ▼▼▼【ここから追加】地図リンクカードの表示密度を上げる調整 ▼▼▼ */
+#map-links-content .map-card {
+    padding-top: 2px;    /* カード内の上の余白を狭くする */
+    padding-bottom: 2px; /* カード内の下の余白を狭くする */
+    min-height: 38px;    /* カードの最小高さを少し詰める */
+}
+
+#map-links-content .map-grid {
+    gap: 6px; /* カード間の上下左右の間隔を狭くする (元は8px) */
+}
+
+#map-links-content .category {
+    margin-bottom: 6px; /* カテゴリごとの下の余白を狭くする (元は8px) */
+}
+/* ▲▲▲【追加ここまで】▲▲▲ */
+/* ▼▼▼【ここから追加】サイドパネル上部の余白調整 ▼▼▼ */
+
+/* 1. タブ自体の高さを調整 */
+.panel-tab {
+    padding-top: 8px;    /* 上の余白を小さくする (元は12px) */
+    padding-bottom: 8px; /* 下の余白を小さくする (元は12px) */
+}
+
+/* 2. ボタン群とタブの間の余白を調整 */
+.right-panel-header {
+    padding-bottom: 0; /* ヘッダーエリアの下の余白をなくす */
+}
+
+.panel-tabs {
+    margin-top: 0px; /* タブの上マージンを小さくする (元は8pxのマージン＋ヘッダーのパディングがあった) */
+}
+
+/* ▲▲▲【追加ここまで】▲▲▲ */
+
+/* ▼▼▼【ここから追加】ヘッダーの余白を小さくする調整 ▼▼▼ */
+
+/* 1. ヘッダー全体の上下の余白を調整 */
+.header {
+    padding-top: 1px;    /* 上の余白を小さくする (元は8px) */
+    padding-bottom: 1px; /* 下の余白を小さくする (元は8px) */
+}
+
+/* 2. スマホ・タブレット表示で縦に並ぶ際の、タイトルとボタンの間の余白を調整 */
+@media (max-width: 1024px) {
+    .header-left {
+        margin-bottom: 1px; /* 間の余白を小さくする (元は10px) */
+    }
+}
+/* ▲▲▲【追加ここまで】▲▲▲ */
+
+/* ▼▼▼【ここから追加】地図ヘッダーの高さ調整 ▼▼▼ */
+
+/* 1. 「クリックで座標取得 / 地図プレビュー」ヘッダーの調整 */
+.osm-map-header {
+    padding-top: 0;    /* 上の余白をなくす */
+    padding-bottom: 0; /* 下の余白をなくす */
+    margin-bottom: 5px;  /* 地図との間の余白を少し狭める (元は10px) */
+}
+
+/* 2. 「現在の座標プレビュー (Google)」ヘッダーの調整 */
+.map-preview-container {
+    padding-top: 1px; /* 上の余白を少し狭める (元は15px) */
+}
+.preview-header {
+    margin-bottom: 1px;  /* プレビュー地図との間の余白を少し狭める (元は10px) */
+}
+
+/* ▲▲▲【追加ここまで】▲▲▲ */
+
+/* ▼▼▼【ここから追加】設定ウィンドウのボタンを右上に配置するスタイル ▼▼▼ */
+
+/* 設定ウィンドウのボタンコンテナを絶対配置に変更 */
+#settings-modal .modal-buttons {
+    position: absolute; /* 親要素(.modal-content)を基準に配置 */
+    top: 10px;          /* 上からの位置 */
+    right: 55px;        /* 右からの位置 (閉じるボタンの分を空ける) */
+    margin-top: 0;      /* 元々あった上の余白をリセット */
+    gap: 8px;           /* ボタン間の隙間を少し詰める */
+}
+
+/* 右上に配置するボタンのサイズを小さく調整 */
+#settings-modal .modal-buttons button {
+    padding: 6px 12px; /* ボタンの余白を小さくする */
+    font-size: 13px;   /* 文字サイズを少し小さくする */
+}
+
+/* タイトルがボタンの下に潜り込まないように右側に余白を確保 */
+#settings-modal h3 {
+    padding-right: 250px; /* ボタンが配置されるスペースを空ける */
+}
+
+/* ▲▲▲【追加ここまで】▲▲▲ */
 
 </style>
 </head>
@@ -1790,7 +2008,7 @@ body.dark-mode #btn-uncheck-all {
                 <li>地図の右下にあるスライダーで、ズームレベルを直感的に変更できます。</li> 
             </ul>
         </li>
-       <li><strong>現在地取得:</strong> 「📍現在地」ボタンで、お使いのデバイスの位置情報を利用して座標を取得します。（ブラウザの許可が必要な場合があります）</li>
+       <li><strong>現在地取得:</strong> 「🎯現在地」ボタンで、お使いのデバイスの位置情報を利用して座標を取得します。（ブラウザの許可が必要な場合があります）</li>
         <li><strong>Googleマップで探す:</strong> 「🌍Googleマップで探す」ボタンで開いた地図上で調べたい場所を右クリックし、座標をコピーして利用することもできます。</li> 
         <li><strong>座標の貼り付け:</strong> 「📄 貼り付け」ボタンで、クリップボードにコピーした座標（例: <code>35.681, 139.767</code>）を貼り付けられます。</li>
         <li><strong>形式の切り替え:</strong>「⚙️形式切替」ボタンで、緯度経度の表示を「十進数形式」と「度分秒形式」で切り替えられます。</li>
@@ -1867,81 +2085,76 @@ body.dark-mode #btn-uncheck-all {
     <h2 id="input-section-title" class="visually-hidden">座標入力と操作</h2>
     <div class="input-row">
     <!-- ボタンと入力欄をすべてここに配置 -->
-    <div class="input-button-wrapper">
-        <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" aria-label="現在地を取得" title="現在地を取得">📍</button>
+    <div class="input-button-wrapper mobile-grid-item-geo">
+        <button class="btn-base btn-icon btn-current-location" onclick="initGeolocation()" aria-label="現在地を取得" title="現在地を取得">🎯</button>
         <span class="input-button-label">現在地</span>
     </div>
-    <div class="input-button-wrapper">
+    <div class="input-button-wrapper mobile-hidden">
         <button class="btn-base btn-icon btn-googlemap" onclick="openGoogleMap()" aria-label="Googleマップで探す" title="Googleマップで探す">🌍</button>
         <span class="input-button-label">Googleマップ</span>
     </div>
-    <div class="input-button-wrapper">
+    <div class="input-button-wrapper mobile-hidden">
         <button class="btn-base btn-icon btn-paste" onclick="pasteCoordinates()" aria-label="クリップボードから貼り付け" title="クリップボードから貼り付け">📄</button>
         <span class="input-button-label">貼り付け</span>
     </div>
-    <div class="input-button-wrapper">
+    <div class="input-button-wrapper mobile-grid-item-bkmk">
         <button class="btn-base btn-icon btn-save-bookmark" onclick="saveCurrentAsBookmark()" aria-label="ブックマークに保存" title="ブックマークに保存">⭐</button>
         <span class="input-button-label">ブックマーク</span>
     </div>
-    <div class="input-button-wrapper">
+    <div class="input-button-wrapper mobile-grid-item-fmt">
         <button class="btn-base btn-icon btn-format-toggle" id="coord-format-toggle" aria-label="表示形式切替" title="表示形式切替">⚙️</button>
         <span class="input-button-label">形式切替</span>
     </div>
 
-    <div class="input-group latlon-group" title="世界測地系緯度">
-        <input type="text" id="latitude" value="35.68107447" placeholder="例: 35.681074">
-        <label for="latitude">📍緯度</label>
-    </div>
-    <div class="input-group latlon-group" title="世界測地系経度">
-        <input type="text" id="longitude" value="139.76784396" placeholder="例: 139.767843">
-        <label for="longitude">📍経度</label>
-    </div>
-
-    <!-- ▼▼▼ 「変換」ボタンをここに移動 ▼▼▼ -->
-    <div class="input-button-wrapper">
-        <button id="btn-convert-coords" class="btn-base btn-convert">⇔変換</button>
-        <!-- 下のラベルと高さを合わせるための非表示ラベル -->
-        <span class="input-button-label" style="opacity: 0;">.</span>
-    </div>
-    <!-- ▲▲▲ 移動はここまで ▲▲▲ -->
-
-    <div class="input-group zone-group" title="平面直角座標系">
-        <select id="planeZone" name="planeZone">
-            <option value="" disabled selected>系</option>
-            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
-            <option value="13">13</option><option value="14">14</option><option value="15">15</option>
-            <option value="16">16</option><option value="17">17</option><option value="18">18</option>
-            <option value="19">19</option>
-        </select>
-        <label for="planeZone">系</label>
-    </div>
-    <div class="input-group xy-group" title="平面直角X座標">
-        <input type="text" id="planeX" placeholder="X座標">
-        <label for="planeX">📔X座標(m)</label>
-    </div>
-    <div class="input-group xy-group" title="平面直角Y座標">
-        <input type="text" id="planeY" placeholder="Y座標">
-        <label for="planeY">📔Y座標(m)</label>
-    </div>
-    <div class="input-group address-group">
+    <!-- ▼▼▼【緯度欄を修正】▼▼▼ -->
+    <div class="input-group latlon-group mobile-grid-item-lat" title="世界測地系緯度">
         <div class="input-wrapper">
-            <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1">
-            <div id="autocompleteList" class="autocomplete-list"></div>
+            <input type="text" id="latitude" value="35.68107447" placeholder="例: 35.681074">
+            <button type="button" class="btn-copy-input" title="緯度をコピー" onclick="copyInputToClipboard('latitude')">📋</button>
         </div>
-        <label for="addressInput">🏠住所・施設名</label>
+        <label for="latitude">📍緯度 (Latitude)</label>
     </div>
-    <div class="input-button-wrapper">
-        <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" aria-label="住所を検索" title="住所を検索">🔎</button>
-        <span class="input-button-label">検索</span>
+    <!-- ▲▲▲【修正ここまで】▲▲▲ -->
+
+    <!-- ▼▼▼【経度欄を修正】▼▼▼ -->
+    <div class="input-group latlon-group mobile-grid-item-lon" title="世界測地系経度">
+        <div class="input-wrapper">
+            <input type="text" id="longitude" value="139.76784396" placeholder="例: 139.767843">
+            <button type="button" class="btn-copy-input" title="経度をコピー" onclick="copyInputToClipboard('longitude')">📋</button>
+        </div>
+        <label for="longitude">📍経度 (Longitude)</label>
     </div>
-    <div class="input-button-wrapper">
+    <!-- ▲▲▲【修正ここまで】▲▲▲ -->
+
+    <!-- ▼▼▼【ここに追加】▼▼▼ -->
+    <div class="input-button-wrapper mobile-grid-item-conv">
+        <button id="btn-open-survey-calc" class="btn-base">📔座標変換</button>
+        <span class="input-button-label">地理院サイト</span>
+    </div>
+    <!-- ▲▲▲【追加ここまで】▲▲▲ -->
+
+   <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+    <div class="mobile-address-row">
+    <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
+        <div class="input-group address-group mobile-grid-item-addr">
+            <div class="input-wrapper">
+                <input type="text" id="addressInput" placeholder="例: 東京都千代田区千代田1-1">
+                <div id="autocompleteList" class="autocomplete-list"></div>
+            </div>
+            <label for="addressInput">🏠住所・施設名</label>
+        </div>
+        <div class="input-button-wrapper mobile-grid-item-search">
+            <button class="btn-base btn-icon btn-address-search" onclick="searchAddress()" aria-label="住所を検索" title="住所を検索">🔎</button>
+            <span class="input-button-label">検索</span>
+        </div>
+    <!-- ▼▼▼ ここから追加 ▼▼▼ -->
+    </div>
+    <!-- ▲▲▲ 追加ここまで ▲▲▲ -->
+    <div class="input-button-wrapper mobile-grid-item-route">
         <button class="btn-base btn-icon" id="btn-route-google" aria-label="Googleマップでルート検索" title="Googleマップでルート検索">🚗</button>
         <span class="input-button-label">ルート検索</span>
     </div>
-    <div class="input-button-wrapper">
+    <div class="input-button-wrapper mobile-grid-item-panel">
         <button class="btn-base btn-icon js-toggle-panel-btn btn-toggle-panel" onclick="toggleRightPanel()" aria-label="パネルを開く" title="パネルを開く">◀</button>
         <span class="input-button-label">パネル</span>
     </div>
@@ -2166,8 +2379,12 @@ body.dark-mode #btn-uncheck-all {
 <div class="modal-overlay" id="settings-modal">
     <div class="modal-content">
         <button type="button" class="modal-close-btn" onclick="closeSettingsModal()" title="閉じる" aria-label="設定を閉じる">&times;</button>
-        <h3>⚙️ アプリケーション設定</h3>
+        <h3>⚙️ 設定</h3>
         <form id="settings-form">
+            <div class="modal-buttons">
+                <button type="button" class="btn-modal-cancel" id="btn-settings-modal-cancel">キャンセル</button>
+                <button type="submit" class="btn-modal-save">設定を保存</button>
+            </div>
             <div class="modal-form-group">
                 <label for="settings-default-layer">デフォルトの地図レイヤー</label>
                 <select id="settings-default-layer"></select>
@@ -2242,11 +2459,6 @@ body.dark-mode #btn-uncheck-all {
                 </div>
                 </div>
             </div>
-
-            <div class="modal-buttons">
-                <button type="button" class="btn-modal-cancel" id="btn-settings-modal-cancel">キャンセル</button>
-                <button type="submit" class="btn-modal-save">設定を保存</button>
-            </div>
         </form>
     </div>
 </div>
@@ -2309,30 +2521,6 @@ body.dark-mode #btn-uncheck-all {
 
 
 <script>
-// ▼▼▼ ここから追加 ▼▼▼
-const PLANE_RECT_SYSTEMS = {
-    1: { epsg: 6669, proj: "+proj=tmerc +lat_0=26 +lon_0=124 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    2: { epsg: 6670, proj: "+proj=tmerc +lat_0=26 +lon_0=127.5 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    3: { epsg: 6671, proj: "+proj=tmerc +lat_0=33 +lon_0=129.5 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    4: { epsg: 6672, proj: "+proj=tmerc +lat_0=33 +lon_0=131 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    5: { epsg: 6673, proj: "+proj=tmerc +lat_0=36 +lon_0=132.166666666667 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    6: { epsg: 6674, proj: "+proj=tmerc +lat_0=36 +lon_0=134.333333333333 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    7: { epsg: 6675, proj: "+proj=tmerc +lat_0=36 +lon_0=136 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    8: { epsg: 6676, proj: "+proj=tmerc +lat_0=36 +lon_0=137.166666666667 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    9: { epsg: 6677, proj: "+proj=tmerc +lat_0=36 +lon_0=139.833333333333 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    10: { epsg: 6678, proj: "+proj=tmerc +lat_0=40 +lon_0=140.833333333333 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    11: { epsg: 6679, proj: "+proj=tmerc +lat_0=44 +lon_0=140.25 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    12: { epsg: 6680, proj: "+proj=tmerc +lat_0=44 +lon_0=142.25 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    13: { epsg: 6681, proj: "+proj=tmerc +lat_0=44 +lon_0=144.25 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    14: { epsg: 6682, proj: "+proj=tmerc +lat_0=26 +lon_0=142 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    15: { epsg: 6683, proj: "+proj=tmerc +lat_0=20 +lon_0=136 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    16: { epsg: 6684, proj: "+proj=tmerc +lat_0=26 +lon_0=154 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    17: { epsg: 6685, proj: "+proj=tmerc +lat_0=26 +lon_0=131 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    18: { epsg: 6686, proj: "+proj=tmerc +lat_0=26 +lon_0=123 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
-    19: { epsg: 6687, proj: "+proj=tmerc +lat_0=33 +lon_0=133.5 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs" }
-};
-// ▲▲▲ 追加はここまで ▲▲▲
-
 /**
  * 世界測地系(WGS84)から日本測地系(Tokyo Datum)へ座標を変換する関数
  */
@@ -2350,91 +2538,25 @@ function convertWgs84ToTokyo(lat, lon) {
     showNotification('日本測地系への座標変換に失敗しました。', 'warning');
     return { lat: lat, lon: lon };
   }
-}
-// ▼▼▼ ここから追加 ▼▼▼
-/**
- * 緯度経度(WGS84)から平面直角座標系(JGD2011)へ変換し、UIを更新する
- * @param {number} lat 緯度
- * @param {number} lon 経度
- */
-function convertAndUpdateWgs84ToPlaneRect(lat, lon) {
-    const $zone = document.getElementById('planeZone'), $x = document.getElementById('planeX'), $y = document.getElementById('planeY');
-    try {
-        // ゾーンを自動判定
-        let zoneNum = 0;
-        if (lon >= 122.933333 && lon < 128.583333) zoneNum = 3;  // 3系
-        if (lon >= 128.583333 && lon < 133.416667) zoneNum = 5;  // 5系
-        if (lon >= 133.416667 && lon < 138.250000) zoneNum = 7;  // 7系
-        if (lon >= 138.250000 && lon < 143.083333) zoneNum = 9;  // 9系
-        if (lon >= 139.500000 && lon < 144.500000 && lat >= 40) zoneNum = 11; // 11系
-        if (zoneNum === 0) { // 上記以外の場合はより詳細な判定
-            if (lon >= 127.5 && lon < 132.166667) zoneNum = 4;
-            else if (lon >= 132.166667 && lon < 134.333333) zoneNum = 6;
-            else if (lon >= 134.333333 && lon < 137.166667) zoneNum = 8;
-            else if (lon >= 137.166667 && lon < 140.833333) zoneNum = 9; // 9系は範囲が広い
-            else if (lon >= 140.833333 && lon < 142.25) zoneNum = 10;
-            else if (lon >= 142.25 && lon < 144.25) zoneNum = 12;
-            // ... さらに詳細な判定を追加可能
-            else { throw new Error("自動判定範囲外です"); }
-        }
-
-        const system = PLANE_RECT_SYSTEMS[zoneNum];
-        if (!system) throw new Error("座標系定義が見つかりません");
-        
-        const sourceProj = 'EPSG:4326';
-        const destProj = `EPSG:${system.epsg}`;
-        if (!proj4.defs[destProj]) {
-            proj4.defs(destProj, system.proj);
-        }
-        
-        const [x, y] = proj4(sourceProj, destProj, [lon, lat]);
-
-        $zone.value = zoneNum;
-        $x.value = y.toFixed(4); // XとYが逆なので注意
-        $y.value = x.toFixed(4);
-
-    } catch (e) {
-        console.error("平面直角座標系への変換に失敗:", e);
-        $zone.value = ''; $x.value = ''; $y.value = '';
-    }
-}
+} // ← ★★★ 閉じ括弧をここに移動します ★★★
 
 /**
- * 平面直角座標系から緯度経度(WGS84)へ変換し、地図を更新する
+ * 10進数の緯度経度を国土地理院の計算サイト形式 (dddmmss.s) に変換する
+ * @param {number} dd 10進数の座標値
+ * @returns {string} 変換後の文字列
  */
-async function convertPlaneRectToWgs84AndUpdate() {
-    const zoneNum = parseInt(document.getElementById('planeZone').value, 10);
-    const x = parseFloat(document.getElementById('planeY').value); // YがX
-    const y = parseFloat(document.getElementById('planeX').value); // XがY
-
-    if (!zoneNum || isNaN(x) || isNaN(y)) {
-        showNotification('系、X座標、Y座標を正しく入力してください。', 'error');
-        return;
-    }
-    const system = PLANE_RECT_SYSTEMS[zoneNum];
-    if (!system) {
-        showNotification(`系 ${zoneNum} の定義が見つかりません。`, 'error');
-        return;
-    }
-
-    try {
-        const destProj = 'EPSG:4326';
-        const sourceProj = `EPSG:${system.epsg}`;
-        if (!proj4.defs[sourceProj]) {
-            proj4.defs(sourceProj, system.proj);
-        }
-
-        const [lon, lat] = proj4(sourceProj, destProj, [x, y]);
-
-        updateLatLonInputs(lat, lon);
-        await updateCurrentCoords({ lat, lon });
-        showNotification('緯度経度に変換し、地図を更新しました。');
-    } catch (e) {
-        showNotification('緯度経度への変換に失敗しました。', 'error');
-        console.error("平面直角座標系からの変換に失敗:", e);
-    }
+function decimalToGsiDms(dd) {
+    const absDd = Math.abs(dd);
+    const d = Math.floor(absDd);
+    const m = Math.floor((absDd - d) * 60);
+    const s = (((absDd - d) * 60) - m) * 60;
+    
+    // ddd * 10000 + mm * 100 + ss.sssss の計算で値を組み立てる
+    const resultValue = d * 10000 + m * 100 + s;
+    
+    // 小数点以下5桁にフォーマットして返す
+    return resultValue.toFixed(5);
 }
-// ▲▲▲ 追加はここまで ▲▲▲
 
 const CATEGORY_META = { 'all': { title: 'すべての地図', icon: '🌐', class: '' }, 'terrain': { title: '地図・地理情報', icon: '🗻', class: 'terrain-icon' }, 'geology': { title: '地質・地盤情報', icon: '🏔️', class: 'geology-icon' }, 'disaster': { title: '防災・ハザード情報', icon: '⚠️', class: 'disaster-icon' }, 'survey': { title: '測量・解析ツール', icon: '📐', class: 'survey-icon' }, 'other': { title: 'その他の情報', icon: '💡', class: 'other-icon' }, 'mylink': { title: '⭐ マイリンク', icon: '⭐', class: 'mylink-icon'} };
 
@@ -2761,8 +2883,7 @@ async function updateCurrentCoords(newCoords = null, skipHistorySave = false, fr
         renderBookmarksOnMap();
         updateNavButtons();
     }
-    // ▼▼▼ この1行を updateCurrentCoords 関数の最後に追加 ▼▼▼
-    convertAndUpdateWgs84ToPlaneRect(latNum, lonNum);
+
 }
 async function initGeolocation() { if (navigator.geolocation) { showNotification('現在地を取得中です...'); navigator.geolocation.getCurrentPosition(async position => { updateLatLonInputs(position.coords.latitude, position.coords.longitude); await updateCurrentCoords(); showNotification('現在地を自動設定しました'); }, () => { showNotification('現在地の取得に失敗しました。', 'error'); updateCurrentCoords(); }, { enableHighAccuracy: true }); } else { showNotification('位置情報サービス非対応です', 'error'); } }
 
@@ -3370,6 +3491,24 @@ function copyToClipboard(elementId) {
     }
 }
 
+/**
+ * 指定されたIDの入力欄の値をクリップボードにコピーする関数
+ * @param {string} inputId コピー対象のinput要素のID
+ */
+function copyInputToClipboard(inputId) {
+    const inputElement = document.getElementById(inputId);
+    if (!inputElement) return;
+
+    const textToCopy = inputElement.value;
+    const label = inputId === 'latitude' ? '緯度' : '経度';
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        showNotification(`${label}をコピーしました`);
+    }).catch(err => {
+        showNotification('コピーに失敗しました', 'error');
+    });
+}
+
 let isMeasuring = false, isMeasuringArea = false;
 let measurePoints = [], tempMeasureLine = null, tempMeasureMarker = null, measureTooltip = null;
 let measurePointMarkers = [];
@@ -3883,31 +4022,44 @@ function toggleRightPanel() {
     const isPinned = document.querySelector('.main-layout').classList.contains('pinned');
     const isOpening = rightPanel.classList.contains('hidden');
 
+    // パネルを開く時（かつピン留めされていない時）のみ幅を設定します
     if (isOpening && !isPinned) {
-        rightPanel.style.width = '1000px';
-        rightPanel.style.maxWidth = '90vw';
+        // 画面の横幅に応じて処理を分岐させます
+        if (window.innerWidth <= 768) { // CSSのブレークポイントに合わせたスマホ・タブレット判定
+            // スマートフォンサイズの時は、パネルの幅を画面の90%に設定します
+            const mobileWidth = '90vw';
+            rightPanel.style.width = mobileWidth;
+            rightPanel.style.maxWidth = mobileWidth;
+        } else {
+            // PCサイズの時は、これまで通り固定幅（1000px）に設定します
+            const fixedWidth = '1000px'; 
+            rightPanel.style.width = fixedWidth;
+            rightPanel.style.maxWidth = fixedWidth;
+        }
+    } else if (!isOpening && !isPinned) {
+        // パネルを閉じる時は、インラインスタイルをクリアして元のCSS定義に戻します
+        rightPanel.style.width = '';
+        rightPanel.style.maxWidth = '';
     }
 
+    // パネルの表示/非表示を切り替えます
     rightPanel.classList.toggle('hidden');
 
-    if (isOpening && !isPinned) {
-        // パネルを開く際の幅を固定値（例: 1000px）に設定します
-        const fixedWidth = '1000px'; 
-        rightPanel.style.width = fixedWidth;
-        rightPanel.style.maxWidth = fixedWidth; // 最大幅も同じ値に設定して、画面サイズに影響されないようにします
-    }
-
+    // ボタンのアイコンとツールチップテキストを現在の状態に合わせて更新します
+    const isNowHidden = rightPanel.classList.contains('hidden');
     btns.forEach(btn => {
-        btn.innerHTML = rightPanel.classList.contains('hidden') ? '◀' : '▶';
-        btn.title = rightPanel.classList.contains('hidden') ? 'パネルを開く' : 'パネルを閉じる';
+        btn.innerHTML = isNowHidden ? '◀' : '▶';
+        btn.title = isNowHidden ? 'パネルを開く' : 'パネルを閉じる';
     });
 
-    overlay.classList.toggle('show', !rightPanel.classList.contains('hidden'));
+    // オーバーレイの表示/非表示を切り替えます
+    overlay.classList.toggle('show', !isNowHidden);
 
+    // 地図がリサイズされるように少し遅延させてから通知します
     setTimeout(() => {
         if (window.osmMap) window.osmMap.invalidateSize();
     }, 400);
-}
+}``
 
 
 function togglePinPanel() {
@@ -4806,33 +4958,36 @@ function handleUndoLastPoint(e) {
         } 
     } 
 }
-// ▼▼▼ ここから追加 ▼▼▼
-document.getElementById('btn-convert-coords').addEventListener('click', () => {
-    const lat = document.getElementById('latitude').value;
-    const lon = document.getElementById('longitude').value;
-    const x = document.getElementById('planeX').value;
-    const y = document.getElementById('planeY').value;
+// ▼▼▼【変更】変換ボタンの処理を、平面直角座標→緯度経度の一方向のみに修正します ▼▼▼
+document.getElementById('btn-open-survey-calc').addEventListener('click', () => {
+    const url = 'https://vldb.gsi.go.jp/sokuchi/surveycalc/surveycalc/bl2xyf.html';
+    
+    // isDMSFormat は度分秒形式かどうかを判定するグローバル変数です
+    const latValue = isDMSFormat ? dmsToDecimal(document.getElementById('latitude').value) : parseFloat(document.getElementById('latitude').value);
+    const lonValue = isDMSFormat ? dmsToDecimal(document.getElementById('longitude').value) : parseFloat(document.getElementById('longitude').value);
 
-    // 平面座標が入力されていれば、緯度経度へ変換
-    if (x && y) {
-        convertPlaneRectToWgs84AndUpdate();
-    } 
-    // 緯度経度が入力されていれば、平面座標へ変換
-    else if (lat && lon) {
-        try {
-            const latNum = isDMSFormat ? dmsToDecimal(lat) : parseFloat(lat);
-            const lonNum = isDMSFormat ? dmsToDecimal(lon) : parseFloat(lon);
-            if (isNaN(latNum) || isNaN(lonNum)) throw new Error();
-            convertAndUpdateWgs84ToPlaneRect(latNum, lonNum);
-            showNotification('平面直角座標に変換しました。');
-        } catch {
-            showNotification('緯度経度の形式が正しくありません。', 'error');
-        }
-    } else {
-        showNotification('変換元の座標を入力してください。', 'warning');
+    if (isNaN(latValue) || isNaN(lonValue)) {
+        showNotification('有効な緯度経度がありません。', 'error');
+        return;
     }
-});
-// ▲▲▲ 追加はここまで ▲▲▲
+
+    // ▼▼▼【ここから変更】▼▼▼
+    // 新しい関数を使って、指定の形式に変換
+    const latForGsi = decimalToGsiDms(latValue);
+    const lonForGsi = decimalToGsiDms(lonValue);
+
+    // クリップボードに緯度と経度をコピー（改行で区切る）
+    const textToCopy = `${latForGsi}\n${lonForGsi}`;
+    // ▲▲▲【変更ここまで】▲▲▲
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        // 新しいタブでサイトを開く
+        window.open(url, '_blank');
+        // ユーザーに通知
+        showNotification('座標変換形式の座標をコピーしました。サイトに貼り付けてください。', 'success');
+    }).catch(err => {
+        showNotification('クリップボードへのコピーに失敗しました。', 'error');
+    });
 });
 
 async function generateProfileChart(points) {
@@ -5155,6 +5310,21 @@ function initProjectManagementModal() {
     });
 }
 // ▲▲▲ ここまで ▲▲▲
+// ▼▼▼【ここから追加】サイドパネル幅を監視してタブ表示を切り替える ▼▼▼
+const rightPanelForTabs = document.querySelector('.right-panel');
+if (window.ResizeObserver) {
+    const tabThreshold = 420; // この幅 (px) より狭くなるとタブ名が短縮される
+    const observer = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            const { width } = entry.contentRect;
+            entry.target.classList.toggle('narrow-tabs', width < tabThreshold);
+        }
+    });
+    observer.observe(rightPanelForTabs);
+}
+// ▲▲▲【追加ここまで】▲▲▲
+
+}); // ← ★★★ この1行を追加してください ★★★
 </script>
 </body>
 </html>
